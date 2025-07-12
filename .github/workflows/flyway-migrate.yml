@@ -1,10 +1,19 @@
 name: Flyway Migrate
+
 on:
   workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
 
     services:
       postgres:
