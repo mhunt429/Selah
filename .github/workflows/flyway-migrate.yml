@@ -1,0 +1,39 @@
+name: Flyway Migrate
+on:
+  workflow_call:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 65432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Flyway
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.0/flyway-commandline-10.11.0-linux-x64.tar.gz | tar xvz
+          sudo ln -s $PWD/flyway-10.11.0/flyway /usr/local/bin/flyway
+
+      - name: Run Flyway Migrations
+        run: |
+          flyway \
+            -url=jdbc:postgresql://localhost:65432/postgres \
+            -user=postgres \
+            -password=postgres \
+            -locations=filesystem:database/Migrations \
+            migrate
