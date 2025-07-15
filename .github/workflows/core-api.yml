@@ -9,14 +9,8 @@ on:
       - main
 
 jobs:
-  flyway:
-    uses: ./.github/workflows/flyway-migrate.yml
-    with:
-      working-directory: core.api
-
   build:
     name: Build, Test, and Report
-    needs: flyway
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -40,6 +34,19 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 9.0.x
+      - name: Install Flyway
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.0/flyway-commandline-10.11.0-linux-x64.tar.gz | tar xvz
+          sudo ln -s $PWD/flyway-10.11.0/flyway /usr/local/bin/flyway
+
+      - name: Run Flyway Migrations
+        run: |
+          flyway \
+            -url=jdbc:postgresql://localhost:65432/postgres \
+            -user=postgres \
+            -password=postgres \
+            -locations=filesystem:database/Migrations \
+            migrate
 
       - name: Restore dependencies
         working-directory: core.api

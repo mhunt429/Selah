@@ -22,7 +22,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        ;
         DotNetEnv.Env.Load("../.env");
         // Configure services
         ConfigureServices(builder);
@@ -91,7 +91,6 @@ public class Program
             logging.ParseStateValues = true;
             logging.AddOtlpExporter();
         });
-
         return builder.Services;
     }
 
@@ -133,9 +132,12 @@ public class Program
 
             app.MapScalarApiReference();
         }
+
+        app.UseRouting();
+        
+        app.UseMiddleware<RequestLoggingMiddleware>();
         
         app.UseCors();
-
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();

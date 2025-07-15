@@ -17,7 +17,7 @@ public static class DatabaseExtensions
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new InvalidOperationException(
-                "Database connection string is missing. Ensure 'ConnectionStrings__DefaultConnection' is set as an environment variable.");
+                "SelahDbConnectionString is missing");
         }
 
         services.AddDbContext<AppDbContext>(options =>
