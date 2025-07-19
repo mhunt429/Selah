@@ -13,6 +13,7 @@ using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Application.ApplicationUser;
 using Infrastructure.RecurringJobs;
+using OpenTelemetry.Metrics;
 
 namespace WebApi;
 
@@ -81,7 +82,24 @@ public class Program
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
+            }).WithMetrics(x =>
+            {
+                x.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddOtlpExporter()
+                    .AddMeter("Microsoft.AspNetCore.Hosting",
+                        "Microsoft.AspNetCore.Server.Kestrel",
+                        "selah-webapi")
+                    .AddView("request-duration",
+                        new ExplicitBucketHistogramConfiguration
+                        {
+                            Boundaries = new[]
+                                { 0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
+                        }).AddPrometheusExporter();
+                ;
             });
+
+        builder.Services.AddMetrics();
 
         builder.Logging.ClearProviders();
         builder.Logging.AddOpenTelemetry(logging =>
@@ -133,10 +151,12 @@ public class Program
             app.MapScalarApiReference();
         }
 
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
+
         app.UseRouting();
-        
+
         app.UseMiddleware<RequestLoggingMiddleware>();
-        
+
         app.UseCors();
         app.UseHttpsRedirection();
         app.UseAuthentication();
