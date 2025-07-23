@@ -14,7 +14,7 @@ public class AppUserRepository : IApplicationUserRepository
         _appDbContext = appDbContext;
     }
 
-    public async Task<ApplicationUserEntity?> GetUserByIdAsync(Guid id)
+    public async Task<ApplicationUserEntity?> GetUserByIdAsync(int id)
     {
         return await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
     }

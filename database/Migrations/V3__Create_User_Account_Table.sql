@@ -1,6 +1,6 @@
 CREATE TABLE user_account
 (
-    id           UUID PRIMARY KEY,
+    id           SERIAL PRIMARY KEY,
     created_on   TIMESTAMPTZ,
     account_name VARCHAR(20)
 ) INHERITS(base_audit_table);

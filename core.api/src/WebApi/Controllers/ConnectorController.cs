@@ -27,7 +27,7 @@ public class ConnectorController : ControllerBase
     public async Task<IActionResult> GetLinkToken()
     {
         AppRequestContext requestContext = Request.GetAppRequestContext();
-        Guid userId = requestContext.UserId;
+        int userId = requestContext.UserId;
 
         PlaidLinkToken result = await _mediator.Send(new CreateLinkToken.Command { UserId = userId });
 
@@ -38,7 +38,7 @@ public class ConnectorController : ControllerBase
     public async Task<IActionResult> ExchangeToken([FromBody] ExchangeLinkToken.Command request)
     {
         AppRequestContext requestContext = Request.GetAppRequestContext();
-        Guid userId = requestContext.UserId;
+        int userId = requestContext.UserId;
 
         request.UserId = userId;
 

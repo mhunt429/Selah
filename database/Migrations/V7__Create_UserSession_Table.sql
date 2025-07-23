@@ -1,7 +1,6 @@
 CREATE TABLE user_session(
     id UUID PRIMARY KEY,
-    user_id UUID REFERENCES app_user(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
-    session_id UUID,
+    user_id SERIAL REFERENCES app_user(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     issued_at TIMESTAMPTZ,
     expires_at TIMESTAMPTZ
 )INHERITS(base_audit_table);

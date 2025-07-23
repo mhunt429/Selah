@@ -11,16 +11,16 @@ public class UserLogin
 {
     public class Command : LoginRequest, IRequest<Command.Response>
     {
-
         public class Response
         {
             public AccessTokenResponse? AccessToken { get; set; }
-            
-            //Send these back to the controller so the sessionId cookie can be issues
+
+            //Send these back to the controller so the sessionId cookie can be issued
             public Guid SessionId { get; set; }
-            
+
             public DateTimeOffset SessionExpiration { get; set; }
         }
+
         public class Handler : IRequestHandler<Command, Response>
         {
             private readonly IApplicationUserRepository _repository;
@@ -29,7 +29,7 @@ public class UserLogin
             private readonly ITokenService _tokenService;
             private readonly IUserSessionRepository _userSessionRepository;
 
-            
+
             public Handler(
                 IApplicationUserRepository repository,
                 ICryptoService cryptoService,
@@ -55,12 +55,12 @@ public class UserLogin
                 {
                     var sessionId = Guid.NewGuid();
                     var sessionExpiration = DateTimeOffset.UtcNow.AddDays(7);
-                    
+
                     await _userSessionRepository.IssueSession(new UserSessionEntity
                     {
+                        Id = sessionId,
                         AppLastChangedBy = dbUser.Id,
                         UserId = dbUser.Id,
-                        SessionId =sessionId,
                         IssuedAt = DateTimeOffset.UtcNow,
                         ExpiresAt = sessionExpiration,
                         OriginalInsert = DateTimeOffset.UtcNow
@@ -73,7 +73,7 @@ public class UserLogin
                         SessionId = sessionId,
                         SessionExpiration = sessionExpiration,
                     };
-                    
+
                     return response;
                 }
 

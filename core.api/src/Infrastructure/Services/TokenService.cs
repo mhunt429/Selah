@@ -18,7 +18,7 @@ public class TokenService : ITokenService
         _securityConfig = securityConfig;
     }
 
-    public AccessTokenResponse GenerateAccessToken(Guid userId)
+    public AccessTokenResponse GenerateAccessToken(int userId)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         byte[] key = Encoding.UTF8.GetBytes(_securityConfig.JwtSecret);

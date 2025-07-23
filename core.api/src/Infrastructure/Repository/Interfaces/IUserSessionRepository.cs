@@ -4,10 +4,10 @@ namespace Infrastructure.Repository.Interfaces;
 
 public interface IUserSessionRepository
 {
-    Task<UserSessionEntity?> GetUserSessionAsync(Guid userId);
+    Task<UserSessionEntity?> GetUserSessionAsync(int userId);
     
     Task IssueSession(UserSessionEntity userSession);
     
-    Task RevokeSessionsByUser(Guid userId, bool autocommit);
+    Task RevokeSessionsByUser(int userId, bool autocommit);
     
 }

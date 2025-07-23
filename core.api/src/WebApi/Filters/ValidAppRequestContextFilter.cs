@@ -4,16 +4,14 @@ using WebApi.Extensions;
 
 namespace WebApi.Filters;
 
-public class ValidAppRequestContextFilter: ActionFilterAttribute
+public class ValidAppRequestContextFilter : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         var requestContext = context.HttpContext.Request.GetAppRequestContext();
 
-        // Check if UserId is empty
-        if (requestContext.UserId == Guid.Empty)
+        if (requestContext.UserId <= 0)
         {
-            // Return Unauthorized result
             context.Result = new UnauthorizedResult();
         }
 

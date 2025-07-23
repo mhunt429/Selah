@@ -15,20 +15,19 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<Guid> AddAccountAsync(FinancialAccountEntity account)
+    public async Task<int> AddAccountAsync(FinancialAccountEntity account)
     {
-        account.Id = Guid.CreateVersion7(DateTime.UtcNow);
         await dbContext.FinancialAccounts.AddAsync(account);
         await dbContext.SaveChangesAsync();
         return account.Id;
     }
 
-    public async Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(Guid userId)
+    public async Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId)
     {
         return await dbContext.FinancialAccounts.Where(x => x.UserId == userId).ToListAsync();
     }
 
-    public async Task<FinancialAccountEntity?> GetAccountByIdAsync(Guid userId, Guid id)
+    public async Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id)
     {
         return await dbContext.FinancialAccounts
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -36,13 +35,25 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
 
     public async Task<bool> UpdateAccount(FinancialAccountEntity account)
     {
-        dbContext.FinancialAccounts.Update(account);
-        return await dbContext.SaveChangesAsync() > 0;
+        var existing = dbContext.ChangeTracker.Entries<FinancialAccountEntity>()
+            .FirstOrDefault(e => e.Entity.Id == account.Id);
+
+        if (existing != null)
+        {
+            existing.State = EntityState.Detached;
+        }
+
+        dbContext.Attach(account);
+        dbContext.Entry(account).State = EntityState.Modified;
+
+        await dbContext.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAccountAsync(FinancialAccountEntity account)
     {
         dbContext.Remove(account);
-        return await dbContext.SaveChangesAsync() > 0;
+        await dbContext.SaveChangesAsync();
+        return true;
     }
 }

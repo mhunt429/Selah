@@ -1,5 +1,7 @@
+using Domain.Models.Entities.ApplicationUser;
 using FluentAssertions;
 using Domain.Models.Entities.Identity;
+using Domain.Models.Entities.UserAccount;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 
@@ -10,8 +12,8 @@ public class SessionRepositoryTests : IAsyncLifetime
     private readonly BaseRepository _baseRepository = new BaseRepository(TestHelpers.TestDbFactory);
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
-    private Guid _accountId = Guid.NewGuid();
-    private Guid _userId = Guid.NewGuid();
+    private int _accountId;
+    private int _userId;
 
 
     private IUserSessionRepository _userSessionRepository;
@@ -31,14 +33,12 @@ public class SessionRepositoryTests : IAsyncLifetime
             Id = Guid.NewGuid(),
             UserId = _userId,
             ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(1),
-            SessionId = Guid.NewGuid(),
         };
 
         await _userSessionRepository.IssueSession(session);
 
         session = await _userSessionRepository.GetUserSessionAsync(_userId);
         session.Should().NotBeNull();
-        session.SessionId.Should().Be(session.SessionId);
         session.ExpiresAt.Should().Be(session.ExpiresAt);
         session.AppLastChangedBy.Should().Be(session.AppLastChangedBy);
         session.OriginalInsert.Should().Be(session.OriginalInsert);
@@ -53,7 +53,9 @@ public class SessionRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var registrationRepository = new RegistrationRepository(_dbContext);
-        await TestHelpers.SetUpBaseRecords(_accountId, _userId, registrationRepository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _accountId = result.Item1.Id;
+        _userId = result.Item2.Id;;
     }
 
     public async Task DisposeAsync()

@@ -6,9 +6,12 @@ namespace Domain.Models.Entities.ApplicationUser;
 [Table("app_user")]
 public class ApplicationUserEntity : BaseAuditFields
 {
-    [Key] [Column("id")] public Guid Id { get; set; }
+    [Key]
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-    [Column("account_id")] public Guid AccountId { get; set; }
+    [Column("account_id")] public int AccountId { get; set; }
 
     [Column("created_date")] public DateTimeOffset CreatedDate { get; set; }
 

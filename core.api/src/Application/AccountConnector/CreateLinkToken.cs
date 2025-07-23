@@ -8,7 +8,7 @@ public class CreateLinkToken
 {
     public class Command : IRequest<PlaidLinkToken>
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
     }
 
     public class Handler : IRequestHandler<Command, PlaidLinkToken?>

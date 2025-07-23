@@ -1,6 +1,6 @@
 CREATE TABLE connection_sync_data(
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES app_user(id),
+    id SERIAL PRIMARY KEY,
+    user_id SERIAL REFERENCES app_user(id),
     sync_type VARCHAR(20), -- AccountBalance, Investments, Transactions, RecurringTransactions
     last_sync_date TIMESTAMPTZ,
     next_sync_date TIMESTAMPTZ

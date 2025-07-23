@@ -1,3 +1,5 @@
+using Domain.Models.Entities.ApplicationUser;
+using Domain.Models.Entities.UserAccount;
 using FluentAssertions;
 using Infrastructure.Repository;
 
@@ -9,10 +11,8 @@ public class RegistrationRepositoryTests : IAsyncLifetime
 
     private readonly RegistrationRepository _repository;
 
-    private readonly Guid _accountId = Guid.NewGuid();
-
-    private readonly Guid _userId = Guid.NewGuid();
-
+    private int _accountId;
+    private int _userId;
     public RegistrationRepositoryTests()
     {
         _repository = new RegistrationRepository(TestHelpers.BuildTestDbContext());
@@ -21,7 +21,9 @@ public class RegistrationRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task Register_ShouldSaveAccountAndUserRecord()
     {
-        var result = await TestHelpers.SetUpBaseRecords(_accountId, _userId, _repository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(_repository);
+        _accountId = result.Item1.Id;
+        _userId = result.Item2.Id;;
         result.Should().NotBeNull();
         result.Item2.Id.Should().Be(_userId);
     }

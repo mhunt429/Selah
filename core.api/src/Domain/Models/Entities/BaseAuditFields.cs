@@ -8,5 +8,5 @@ public class BaseAuditFields
 
     [Column("last_update")] public DateTimeOffset LastUpdate { get; private set; } = DateTimeOffset.UtcNow;
 
-    [Column("app_last_changed_by")] public required Guid AppLastChangedBy { get; set; }
+    [Column("app_last_changed_by")] public int AppLastChangedBy { get; set; }
 }

@@ -6,7 +6,7 @@ namespace Infrastructure.Repository;
 
 public class UserSessionRepository(AppDbContext dbContext) : IUserSessionRepository
 {
-    public async Task<UserSessionEntity?> GetUserSessionAsync(Guid userId)
+    public async Task<UserSessionEntity?> GetUserSessionAsync(int userId)
     {
         return await dbContext.UserSessions
             .FirstOrDefaultAsync(x => x.UserId == userId);
@@ -23,7 +23,7 @@ public class UserSessionRepository(AppDbContext dbContext) : IUserSessionReposit
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task RevokeSessionsByUser(Guid userId, bool autocommit)
+    public async Task RevokeSessionsByUser(int userId, bool autocommit)
     {
         List<UserSessionEntity>? userSessions =
             await (dbContext.UserSessions.Where(x => x.UserId == userId)).ToListAsync();

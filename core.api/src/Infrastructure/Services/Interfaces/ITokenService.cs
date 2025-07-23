@@ -4,5 +4,5 @@ namespace Infrastructure.Services.Interfaces;
 
 public interface ITokenService
 {
-   AccessTokenResponse GenerateAccessToken(Guid userId);
+   AccessTokenResponse GenerateAccessToken(int userId);
 }

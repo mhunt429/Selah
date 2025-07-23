@@ -27,23 +27,18 @@ public static class TestHelpers
     /// <param name="userId"></param>
     /// <param name="accountId"></param>
     /// <param name="repository"></param>
-    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords(Guid accountId, Guid userId,
+    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords(
         IRegistrationRepository repository)
     {
         UserAccountEntity account = new UserAccountEntity
         {
-            Id = accountId,
             AccountName = "AccountName",
             CreatedOn = DateTimeOffset.UtcNow,
-            AppLastChangedBy = userId,
             OriginalInsert = DateTimeOffset.UtcNow,
         };
 
         ApplicationUserEntity user = new ApplicationUserEntity
         {
-            AppLastChangedBy = userId,
-            AccountId = accountId,
-            Id = userId,
             EncryptedEmail = "email",
             Password = "password",
             EncryptedName = "FirstName|LastName",
@@ -54,12 +49,15 @@ public static class TestHelpers
         };
 
 
-        await repository.RegisterAccount(account, user);
+        (int, int) registrationResult = await repository.RegisterAccount(account, user);
+
+        account.Id = registrationResult.Item1;
+        user.Id = registrationResult.Item2;
 
         return (account, user);
     }
 
-    public static async Task TearDownBaseRecords(Guid userId, Guid accountId, BaseRepository repository)
+    public static async Task TearDownBaseRecords(int userId, int accountId, BaseRepository repository)
     {
         string deleteUserSql = "DELETE FROM app_user WHERE id = @id";
         string deleteAccountUser = "DELETE FROM user_account WHERE id = @id";

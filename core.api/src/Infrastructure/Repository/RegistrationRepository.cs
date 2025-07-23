@@ -5,7 +5,7 @@ namespace Infrastructure.Repository;
 
 public class RegistrationRepository(AppDbContext dbContext) : IRegistrationRepository
 {
-    public async Task<Guid> RegisterAccount(UserAccountEntity userAccount, ApplicationUserEntity user)
+    public async Task<(int, int)> RegisterAccount(UserAccountEntity userAccount, ApplicationUserEntity user)
     {
         using (var transaction = await dbContext.Database.BeginTransactionAsync())
         {
@@ -13,13 +13,17 @@ public class RegistrationRepository(AppDbContext dbContext) : IRegistrationRepos
             {
                 dbContext.UserAccounts.Add(userAccount);
 
-                dbContext.ApplicationUsers.Add(user);
+                await dbContext.SaveChangesAsync();
                 
+                user.AccountId = userAccount.Id;
+
+                dbContext.ApplicationUsers.Add(user);
                 
                 await dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-                return user.Id;
+               
+                return (userAccount.Id, user.Id);
             }
             catch (Exception ex)
             {

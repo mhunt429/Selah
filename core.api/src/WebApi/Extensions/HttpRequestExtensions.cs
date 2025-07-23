@@ -28,11 +28,11 @@ public static class HttpRequestExtensions
         {
             return new AppRequestContext
             {
-                UserId = Guid.Empty,
+                UserId = -1,
             };
         }
         
-        Guid userId = GetUserIdFromToken(bearerToken);
+        int userId = GetUserIdFromToken(bearerToken);
 
         return new AppRequestContext
         {
@@ -42,9 +42,9 @@ public static class HttpRequestExtensions
         };
     }
     
-    private static Guid GetUserIdFromToken(string token)
+    private static int GetUserIdFromToken(string token)
     {
-        Guid userId;
+        int userId = -1;
         try
         {
             var handler = new JwtSecurityTokenHandler();
@@ -53,15 +53,15 @@ public static class HttpRequestExtensions
                 var jwtToken = handler.ReadJwtToken(token);
                 string subjectValue =  jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-                Guid.TryParse(subjectValue, out userId);
+                int.TryParse(subjectValue, out userId);
                 return userId;
             }
         }
         catch
         {
-            return Guid.Empty;
+            return -1;
         }
 
-        return Guid.Empty; // Return null if extraction fails
+        return -1;
     }
 }

@@ -32,7 +32,7 @@ public class IdentityController : ControllerBase
     {
         AppRequestContext? requestContext = Request.GetAppRequestContext();
 
-        Guid userId = requestContext.UserId;
+        int userId = requestContext.UserId;
 
         var query = new GetUserById.Query { UserId = userId };
         ApplicationUser? result = await _mediatr.Send(query);

@@ -11,7 +11,7 @@ public class GetUserById
 {
     public class Query : IRequest<Domain.ApiContracts.ApplicationUser>
     {
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
     }
 
     public class Handler : IRequestHandler<Query, Domain.ApiContracts.ApplicationUser>

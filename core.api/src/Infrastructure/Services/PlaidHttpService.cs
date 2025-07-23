@@ -23,7 +23,7 @@ public class PlaidHttpService : IPlaidHttpService
         _logger = logger;
     }
 
-    public async Task<PlaidLinkToken?> GetLinkToken(Guid userId)
+    public async Task<PlaidLinkToken?> GetLinkToken(int userId)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
@@ -49,7 +49,7 @@ public class PlaidHttpService : IPlaidHttpService
         return JsonSerializer.Deserialize<PlaidLinkToken>(messageBody);
     }
 
-    public async Task<PlaidTokenExchangeResponse?> ExchangePublicToken(Guid userId, string publicToken)
+    public async Task<PlaidTokenExchangeResponse?> ExchangePublicToken(int userId, string publicToken)
     {
         Uri tokenExchangeEndpoint = new Uri($"{_httpClient.BaseAddress}/item/public_token/exchange");
 

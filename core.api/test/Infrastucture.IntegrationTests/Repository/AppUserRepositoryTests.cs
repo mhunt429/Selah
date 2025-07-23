@@ -1,3 +1,5 @@
+using Domain.Models.Entities.ApplicationUser;
+using Domain.Models.Entities.UserAccount;
 using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
@@ -12,9 +14,8 @@ public class AppUserRepositoryTests : IAsyncLifetime
     
     private readonly IApplicationUserRepository _repository;
 
-    private Guid _accountId = Guid.NewGuid();
-    private Guid _userId = Guid.NewGuid();
-
+    private int _accountId;
+    private int _userId;
 
     public AppUserRepositoryTests()
     {
@@ -41,7 +42,9 @@ public class AppUserRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var registrationRepository = new RegistrationRepository(_dbContext);
-        await TestHelpers.SetUpBaseRecords( _accountId, _userId, registrationRepository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _accountId = result.Item1.Id;
+        _userId = result.Item2.Id;;
     }
 
     public async Task DisposeAsync()

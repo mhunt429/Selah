@@ -18,8 +18,7 @@ public class AccountControllerTests
 
     public AccountControllerTests()
     {
-        var userId = Guid.NewGuid();
-        var appRequestContext = new AppRequestContext { UserId = userId };
+        var appRequestContext = new AppRequestContext { UserId = 1 };
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Headers.Authorization = "Bearer my_token";

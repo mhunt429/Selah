@@ -6,11 +6,11 @@ public interface IFinancialAccountRepository
 {
     Task ImportFinancialAccountsAsync(IEnumerable<FinancialAccountEntity> accounts);
 
-    Task<Guid> AddAccountAsync(FinancialAccountEntity account);
+    Task<int> AddAccountAsync(FinancialAccountEntity account);
 
-    Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(Guid userId);
+    Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId);
 
-    Task<FinancialAccountEntity?> GetAccountByIdAsync(Guid userId, Guid id);
+    Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
 
     Task<bool> UpdateAccount(FinancialAccountEntity account);
 

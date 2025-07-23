@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Domain.Models.Entities.AccountConnector;
+using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.FinancialAccount;
+using Domain.Models.Entities.UserAccount;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 
@@ -15,10 +17,10 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     private readonly IFinancialAccountRepository _financialAccountRepository;
     private readonly IAccountConnectorRepository _accountConnectorRepository;
 
-    private Guid _accountId = Guid.NewGuid();
-    private Guid _userId = Guid.NewGuid();
+    private int _accountId;
+    private int _userId;
 
-    private Guid _connectorId = Guid.NewGuid();
+    private int _connectorId;
 
     public FinancialAccountRepositoryTests()
     {
@@ -43,8 +45,8 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 Subtype = "Checking",
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId,
                 OriginalInsert = DateTimeOffset.UtcNow,
+                ConnectorId = _connectorId, 
             },
             new FinancialAccountEntity
             {
@@ -58,8 +60,8 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 Subtype = "Savings",
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId,
                 OriginalInsert = DateTimeOffset.UtcNow,
+                ConnectorId = _connectorId, 
             },
         };
 
@@ -86,15 +88,15 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             Subtype = "Retirement",
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
-            ConnectorId = _connectorId,
             OriginalInsert = DateTimeOffset.UtcNow,
+            ConnectorId = _connectorId,
         };
 
-        Guid newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
-        result.Id.Should().NotBe(Guid.Empty);
+        result.Id.Should().Be(newAccountId);
         result.UserId.Should().Be(_userId);
         result.ExternalId.Should().Be("4321");
         //result.AccountMask.Should().Be("***4321");
@@ -106,7 +108,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         result.LastApiSyncTime.Should().BeAfter(DateTimeOffset.MinValue);
     }
 
-    [Fact(Skip = "Trying to fix some weird change tracking within this test")]
+    [Fact]
     public async Task UpdateAccountAsync_ShouldUpdateAccount()
     {
         var account = new FinancialAccountEntity
@@ -125,7 +127,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             OriginalInsert = DateTimeOffset.UtcNow,
         };
 
-        Guid newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
         var accountUpdate = new FinancialAccountEntity
         {
@@ -136,8 +138,9 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             Subtype = "Retirement",
             AppLastChangedBy = _userId,
             OriginalInsert = DateTimeOffset.UtcNow,
+            ConnectorId = _connectorId,
         };
-
+        
         await _financialAccountRepository.UpdateAccount(accountUpdate);
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
@@ -163,7 +166,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             OriginalInsert = DateTimeOffset.UtcNow,
         };
 
-        Guid newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
         var deleteResult = await _financialAccountRepository.DeleteAccountAsync(account);
         deleteResult.Should().BeTrue();
@@ -175,7 +178,9 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var registrationRepository = new RegistrationRepository(_dbContext);
-        await TestHelpers.SetUpBaseRecords(_accountId, _userId, registrationRepository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _accountId = result.Item1.Id;
+        _userId = result.Item2.Id;;
 
         AccountConnectorEntity data = new AccountConnectorEntity
         {
@@ -186,19 +191,20 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "token",
             TransactionSyncCursor = "",
-            Id = _connectorId,
             OriginalInsert = DateTimeOffset.UtcNow,
         };
-          await _accountConnectorRepository.InsertAccountConnectorRecord(data);
+        _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
     }
 
     public async Task DisposeAsync()
     {
-        await TestHelpers.TearDownBaseRecords(_userId, _accountId, _baseRepository);
+    
+        string financialAccountDelete = "DELETE FROM financial_account WHERE user_id = @user_id";
+        await _baseRepository.DeleteAsync(financialAccountDelete, new { user_id = _userId });
+        
         string accountConnectorDelete = "DELETE FROM account_connector WHERE user_id = @user_id";
         await _baseRepository.DeleteAsync(accountConnectorDelete, new { user_id = _userId });
 
-        string financialAccountDelete = "DELETE FROM financial_account WHERE user_id = @user_id";
-        await _baseRepository.DeleteAsync(financialAccountDelete, new { user_id = _userId });
+        await TestHelpers.TearDownBaseRecords(_userId, _accountId, _baseRepository);
     }
 }

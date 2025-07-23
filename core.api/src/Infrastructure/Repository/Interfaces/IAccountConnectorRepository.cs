@@ -5,5 +5,5 @@ namespace Infrastructure.Repository;
 
 public interface IAccountConnectorRepository
 {
-    Task<DbOperationResult> InsertAccountConnectorRecord(AccountConnectorEntity account);
+    Task<int> InsertAccountConnectorRecord(AccountConnectorEntity account);
 }

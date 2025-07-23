@@ -1,7 +1,7 @@
 CREATE TABLE app_user
 (
-    id              UUID PRIMARY KEY,
-    account_id      UUID REFERENCES user_account(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    id              SERIAL PRIMARY KEY,
+    account_id      SERIAL REFERENCES user_account(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     created_date    TIMESTAMPTZ,
     encrypted_email VARCHAR(64),
     password        VARCHAR(64),

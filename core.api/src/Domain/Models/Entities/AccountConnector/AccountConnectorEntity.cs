@@ -7,9 +7,9 @@ namespace Domain.Models.Entities.AccountConnector;
 public class AccountConnectorEntity : BaseAuditFields
 {
     [Key, Column(name: "id", Order = 0)]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    [Column("user_id")] public Guid UserId { get; set; }
+    [Column("user_id")] public int UserId { get; set; }
 
     [Column("institution_id")] public required string InstitutionId { get; set; }
 

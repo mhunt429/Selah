@@ -48,42 +48,32 @@ public class RegisterAccount
                     message: default, errors: validationResult.Errors.Select(x => x.ErrorMessage));
             }
 
-            //Since this is the entry point of the account creation, initialize 2 unique ids for the account and user
-            Guid accountId = Guid.CreateVersion7(DateTime.UtcNow);
-            Guid userId = Guid.CreateVersion7(DateTime.UtcNow);
+            UserAccountEntity userAccountEntity = MapRequestToUserAccount(command);
+            ApplicationUserEntity applicationUserEntity = MapRequestToUser(command);
 
-            UserAccountEntity userAccountEntity = MapRequestToUserAccount(command, accountId, userId);
-            ApplicationUserEntity applicationUserEntity = MapRequestToUser(command, accountId, userId);
+           (int, int) registrationResult = await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
 
-            await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
+            AccessTokenResponse accessTokenResponse = _tokenService.GenerateAccessToken(registrationResult.Item2);
 
-            AccessTokenResponse accessTokenResponse = _tokenService.GenerateAccessToken(userId);
-
-            _logger.LogInformation("User with id {id} was successfully created", userId);
+            _logger.LogInformation("User with id {id} was successfully created", registrationResult.Item2);
             return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, data: accessTokenResponse,
                 message: default, errors: default);
         }
 
-        private UserAccountEntity MapRequestToUserAccount(AccountRegistrationRequest request, Guid accountId,
-            Guid userId)
+        private UserAccountEntity MapRequestToUserAccount(AccountRegistrationRequest request)
         {
             return new UserAccountEntity
             {
-                AppLastChangedBy = userId,
-                Id = accountId,
                 CreatedOn = DateTime.UtcNow,
                 AccountName = request.AccountName,
                 OriginalInsert = DateTimeOffset.UtcNow,
             };
         }
 
-        private ApplicationUserEntity MapRequestToUser(AccountRegistrationRequest request, Guid accountId, Guid userId)
+        private ApplicationUserEntity MapRequestToUser(AccountRegistrationRequest request)
         {
             return new ApplicationUserEntity
             {
-                AppLastChangedBy = userId,
-                AccountId = accountId,
-                Id = userId,
                 Password = _passwordHasherService.HashPassword(request.Password),
                 EncryptedEmail = _cryptoService.Encrypt(request.Email),
                 EncryptedName = _cryptoService.Encrypt($"{request.FirstName}|{request.LastName}"),

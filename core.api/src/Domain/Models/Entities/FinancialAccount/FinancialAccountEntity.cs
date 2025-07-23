@@ -8,11 +8,11 @@ public class FinancialAccountEntity : BaseAuditFields
 {
    
     [Key, Column(name: "id", Order = 0)]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    [Column("connector_id")] public Guid ConnectorId { get; set; }
+    [Column("connector_id")] public int ConnectorId { get; set; }
 
-    [Column("user_id")] public Guid UserId { get; set; }
+    [Column("user_id")] public int UserId { get; set; }
 
     [Column("external_id")] public string ExternalId { get; set; } = "";
 

@@ -6,8 +6,8 @@ namespace Infrastructure.Repository;
 public interface IRegistrationRepository
 {
     /// <summary>
-    /// Returning simply userId due to the transactional nature of this. User creates an account,
+    /// Returns a tuple of the accountId and the userId since they are auto-incremented from the database. User creates an account,
     /// gets, a token on success
     /// </summary>
-    Task<Guid> RegisterAccount(UserAccountEntity userAccount, ApplicationUserEntity user);
+    Task<(int, int)> RegisterAccount(UserAccountEntity userAccount, ApplicationUserEntity user);
 }

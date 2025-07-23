@@ -1,10 +1,11 @@
 CREATE TABLE financial_account
 (
-    id                     UUID Primary KEY,
-    user_id                UUID REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
-    connector_id           UUID REFERENCES account_connector (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    id                     SERIAL Primary KEY,
+    user_id                SERIAL REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    connector_id           SERIAL REFERENCES account_connector (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     external_id            TEXT,
     current_balance        DECIMAL,
+    available_balance      DECIMAL,
     account_mask           VARCHAR(16),
     display_name           TEXT,
     official_name          TEXT,
@@ -15,7 +16,7 @@ CREATE TABLE financial_account
 
 CREATE INDEX fa_connectorId on financial_account (connector_id);
 CREATE INDEX fa_userId ON financial_account (user_id);
-CREATE INDEX fa_externalId on financial_account(external_id);
+CREATE INDEX fa_externalId on financial_account (external_id);
 
 /*
  ROLLBACK DROP INDEX fa_connectorId;

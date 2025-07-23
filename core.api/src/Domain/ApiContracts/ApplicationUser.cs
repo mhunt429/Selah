@@ -2,9 +2,9 @@ namespace Domain.ApiContracts;
 
 public class ApplicationUser
 {
-    public required Guid Id { get; set; }
+    public required int Id { get; set; }
     
-    public required Guid AccountId { get; set; }
+    public required int AccountId { get; set; }
     
     public required string Email { get; set; } 
     
