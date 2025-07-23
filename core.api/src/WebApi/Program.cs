@@ -109,6 +109,9 @@ public class Program
             logging.ParseStateValues = true;
             logging.AddOtlpExporter();
         });
+
+        builder.Services.AddHostedService<ActiveSessionsWorkerService>();
+
         return builder.Services;
     }
 

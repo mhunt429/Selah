@@ -37,4 +37,10 @@ public class UserSessionRepository(AppDbContext dbContext) : IUserSessionReposit
             }
         }
     }
+
+    public async Task<int> GetActiveSessions()
+    {
+        return await dbContext.UserSessions.Where(x => x.ExpiresAt > DateTimeOffset.UtcNow)
+            .CountAsync();
+    }
 }

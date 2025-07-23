@@ -9,5 +9,6 @@ public interface IUserSessionRepository
     Task IssueSession(UserSessionEntity userSession);
     
     Task RevokeSessionsByUser(int userId, bool autocommit);
-    
+
+    Task<int> GetActiveSessions();
 }
