@@ -29,11 +29,11 @@ public class ExchangeLinkToken
 
         public async Task<ApiResponseResult<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            PlaidTokenExchangeResponse? plaidTokenExchangeResponse =
+            ApiResponseResult<PlaidTokenExchangeResponse> plaidTokenExchangeResponse =
                 await _plaidHttpService.ExchangePublicToken(request.UserId,
                     request.PublicToken);
 
-            if (plaidTokenExchangeResponse == null)
+            if (plaidTokenExchangeResponse.status == ResultStatus.Failed || plaidTokenExchangeResponse.data == null)
             {
                 return new ApiResponseResult<Unit>(status: ResultStatus.Failed, message: "", data: new Unit());
             }
@@ -46,9 +46,9 @@ public class ExchangeLinkToken
                 InstitutionId = request.InstitutionId,
                 InstitutionName = request.InstitutionName,
                 DateConnected = DateTime.UtcNow,
-                EncryptedAccessToken = _cryptoService.Encrypt(plaidTokenExchangeResponse.AccessToken),
+                EncryptedAccessToken = _cryptoService.Encrypt(plaidTokenExchangeResponse.data.AccessToken),
                 TransactionSyncCursor = "",
-                ExternalEventId = plaidTokenExchangeResponse.ItemId,
+                ExternalEventId = plaidTokenExchangeResponse.data.ItemId,
                 OriginalInsert = DateTimeOffset.UtcNow,
             };
 

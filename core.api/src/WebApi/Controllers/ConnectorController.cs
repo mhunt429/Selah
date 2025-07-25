@@ -29,9 +29,15 @@ public class ConnectorController : ControllerBase
         AppRequestContext requestContext = Request.GetAppRequestContext();
         int userId = requestContext.UserId;
 
-        PlaidLinkToken result = await _mediator.Send(new CreateLinkToken.Command { UserId = userId });
+        ApiResponseResult<PlaidLinkToken>
+            result = await _mediator.Send(new CreateLinkToken.Command { UserId = userId });
 
-        return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
+        if (result.status != ResultStatus.Success)
+        {
+            return BadRequest();
+        }
+
+        return Ok(result.data.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
     [HttpPost("exchange")]
@@ -44,7 +50,7 @@ public class ConnectorController : ControllerBase
 
         ApiResponseResult<Unit> result = await _mediator.Send(request);
 
-        if (result.status == ResultStatus.Success)
+        if (result.status != ResultStatus.Success)
         {
             return BadRequest();
         }

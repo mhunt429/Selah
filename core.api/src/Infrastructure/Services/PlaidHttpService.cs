@@ -3,13 +3,13 @@ using System.Net.Http;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Domain.Configuration;
+using Domain.Models;
 using Domain.Models.Plaid;
 using Infrastructure.Extensions;
 using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
 
-[ExcludeFromCodeCoverage]
 public class PlaidHttpService : IPlaidHttpService
 {
     private readonly HttpClient _httpClient;
@@ -23,7 +23,7 @@ public class PlaidHttpService : IPlaidHttpService
         _logger = logger;
     }
 
-    public async Task<PlaidLinkToken?> GetLinkToken(int userId)
+    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
@@ -43,13 +43,15 @@ public class PlaidHttpService : IPlaidHttpService
                 "Link Token Create Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
-            return null;
+            return new ApiResponseResult<PlaidLinkToken>(ResultStatus.Failed, messageBody, null, null);
         }
 
-        return JsonSerializer.Deserialize<PlaidLinkToken>(messageBody);
+
+        return new ApiResponseResult<PlaidLinkToken>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidLinkToken>(messageBody), null);
     }
 
-    public async Task<PlaidTokenExchangeResponse?> ExchangePublicToken(int userId, string publicToken)
+    public async Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken)
     {
         Uri tokenExchangeEndpoint = new Uri($"{_httpClient.BaseAddress}/item/public_token/exchange");
 
@@ -69,9 +71,34 @@ public class PlaidHttpService : IPlaidHttpService
                 "Link Token Exchange Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
-            return null;
+            return new ApiResponseResult<PlaidTokenExchangeResponse>(ResultStatus.Failed, messageBody, null, null);
         }
 
-        return JsonSerializer.Deserialize<PlaidTokenExchangeResponse>(messageBody);
+        return new ApiResponseResult<PlaidTokenExchangeResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidTokenExchangeResponse>(messageBody), null);
+    }
+
+    public async Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken)
+    {
+        Uri balanceEndpoint = new Uri($"{_httpClient.BaseAddress}/accounts/balance/get");
+
+        var request = new PlaidAccountBalanceRequest()
+        {
+            ClientId = _plaidConfig.ClientId,
+            Secret = _plaidConfig.ClientSecret,
+            AccessToken = accessToken
+        };
+
+        HttpResponseMessage response = await _httpClient.PostAsync(balanceEndpoint, request);
+
+        var messageBody = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Failed, messageBody, null, null);
+        }
+
+        return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody), null);
     }
 }

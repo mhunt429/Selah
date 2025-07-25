@@ -13,6 +13,7 @@ using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Application.ApplicationUser;
 using Infrastructure.RecurringJobs;
+using Infrastructure.Services.Workers;
 using OpenTelemetry.Metrics;
 
 namespace WebApi;

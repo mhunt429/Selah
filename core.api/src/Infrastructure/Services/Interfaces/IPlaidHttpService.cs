@@ -1,10 +1,13 @@
+using Domain.Models;
 using Domain.Models.Plaid;
 
 namespace Infrastructure.Services.Interfaces;
 
 public interface IPlaidHttpService
 {
-    Task<PlaidLinkToken?> GetLinkToken(int userId);
+    Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId);
 
-    Task<PlaidTokenExchangeResponse?> ExchangePublicToken(int userId, string publicToken);
+    Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken);
+
+    Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken);
 }

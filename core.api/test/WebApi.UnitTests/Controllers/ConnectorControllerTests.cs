@@ -35,7 +35,7 @@ public class ConnectorControllerTests
     public async Task LinkAccount_ShouldReturnSuccess_WhenLinkAccountIsSuccessful()
     {
         _mediatorMock.Setup(x => x.Send(It.IsAny<CreateLinkToken.Command>(), CancellationToken.None))
-            .ReturnsAsync(new PlaidLinkToken{LinkToken = "Token123"});
+            .ReturnsAsync(new ApiResponseResult<PlaidLinkToken>(ResultStatus.Success, null, new PlaidLinkToken{LinkToken = "Token123"}));
 
         var result = await _controller.GetLinkToken();
         Assert.IsType<OkObjectResult>(result);

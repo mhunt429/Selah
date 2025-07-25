@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+namespace Infrastructure.Services.Workers;
+
 public class ActiveSessionsWorkerService : BackgroundService
 {
     private readonly ILogger<ActiveSessionsWorkerService> _logger;
