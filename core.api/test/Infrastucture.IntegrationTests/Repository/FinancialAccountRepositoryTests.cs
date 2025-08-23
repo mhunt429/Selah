@@ -11,8 +11,8 @@ namespace Infrastructure.IntegrationTests.Repository;
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
     private readonly BaseRepository _baseRepository = new BaseRepository(TestHelpers.TestDbFactory);
-    
-    private readonly AppDbContext _dbContext =  TestHelpers.BuildTestDbContext();
+
+    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
     private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
 
     private readonly IFinancialAccountRepository _financialAccountRepository;
@@ -22,6 +22,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     private int _userId;
 
     private int _connectorId;
+
 
     public FinancialAccountRepositoryTests()
     {
@@ -47,7 +48,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
                 OriginalInsert = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId, 
+                ConnectorId = _connectorId,
             },
             new FinancialAccountEntity
             {
@@ -62,7 +63,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
                 OriginalInsert = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId, 
+                ConnectorId = _connectorId,
             },
         };
 
@@ -138,7 +139,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             Subtype = "Retirement",
             LastApiSyncTime = DateTimeOffset.UtcNow,
         };
-        
+
         await _financialAccountRepository.UpdateAccount(accountUpdate, newAccountId, _userId);
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
@@ -173,12 +174,55 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         result.Should().BeNull();
     }
 
+    [Fact]
+    public async Task Account_Balance_History_Should_Be_Inserted()
+    {
+        var account = new FinancialAccountEntity
+        {
+            AppLastChangedBy = _userId,
+            UserId = _userId,
+            ExternalId = "4321",
+            AccountMask = "***4321",
+            DisplayName = "Vanguard Trust 401k",
+            CurrentBalance = 500,
+            OfficialName = "Vanguard Total Trust 401k",
+            Subtype = "Retirement",
+            IsExternalApiImport = true,
+            LastApiSyncTime = DateTimeOffset.UtcNow,
+            OriginalInsert = DateTimeOffset.UtcNow,
+            ConnectorId = _connectorId,
+        };
+
+        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+
+        var accountBalanceHistory = new AccountBalanceHistoryEntity
+        {
+            UserId = _userId,
+            FinancialAccountId = newAccountId,
+            CurrentBalance = 250.00m,
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+
+        await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory, _userId);
+
+        var result = await _financialAccountRepository.GetBalanceHistory(_userId, newAccountId);
+
+        result.Should().NotBeNull();
+        result.Should().NotBeEmpty();
+        result.Should().HaveCount(1);
+        result.First().FinancialAccountId.Should().Be(newAccountId);
+        result.First().UserId.Should().Be(_userId);
+        result.First().CurrentBalance.Should().Be(250.00m);
+        result.First().CreatedAt.Should().Be(accountBalanceHistory.CreatedAt);
+    }
+
     public async Task InitializeAsync()
     {
         var registrationRepository = new RegistrationRepository(_dbContext);
         (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
         _accountId = result.Item1.Id;
-        _userId = result.Item2.Id;;
+        _userId = result.Item2.Id;
+        ;
 
         AccountConnectorEntity data = new AccountConnectorEntity
         {
@@ -196,12 +240,15 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-    
+        string balanceHistoryDelete = "DELETE FROM account_balance_history WHERE user_id = @user_id";
+        await _baseRepository.DeleteAsync(balanceHistoryDelete, new { user_id = _userId });
+
         string financialAccountDelete = "DELETE FROM financial_account WHERE user_id = @user_id";
         await _baseRepository.DeleteAsync(financialAccountDelete, new { user_id = _userId });
-        
+
         string accountConnectorDelete = "DELETE FROM account_connector WHERE user_id = @user_id";
         await _baseRepository.DeleteAsync(accountConnectorDelete, new { user_id = _userId });
+
 
         await TestHelpers.TearDownBaseRecords(_userId, _accountId, _baseRepository);
     }

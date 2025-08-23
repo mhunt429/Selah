@@ -13,7 +13,5 @@ public class AccountBalanceHistoryEntity
 
     [Column("current_balance")] public decimal CurrentBalance { get; set; }
 
-    [Column("available_balance")] public decimal AvailableBalance { get; set; }
-
-    [Column("created_at")] public DateTime CreatedAt { get; set; }
+    [Column("created_at")] public DateTimeOffset CreatedAt { get; set; }
 }

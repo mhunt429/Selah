@@ -15,4 +15,7 @@ public interface IFinancialAccountRepository
     Task<bool> UpdateAccount(FinancialAccountUpdate account, int id, int userId);
 
     Task<bool> DeleteAccountAsync(FinancialAccountEntity account);
+
+    Task InsertBalanceHistory(AccountBalanceHistoryEntity history, int userId);
+    Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId);
 }
