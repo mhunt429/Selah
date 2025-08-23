@@ -1,5 +1,4 @@
 using Dapper;
-using Domain.Constants;
 using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
 using Infrastructure.Extensions;

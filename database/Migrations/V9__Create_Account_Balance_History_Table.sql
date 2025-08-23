@@ -1,7 +1,7 @@
 CREATE TABLE account_balance_history(
     id SERIAL PRIMARY KEY,
-    user_id SERIAL REFERENCES user_account(id) ON DELETE SET NULL,
-    financial_account_id SERIAL REFERENCES financial_account(id) ON DELETE SET NULL,
+    user_id INT REFERENCES user_account(id) ON DELETE SET NULL,
+    financial_account_id INT REFERENCES financial_account(id) ON DELETE SET NULL,
     current_balance DECIMAL,
     available_balance DECIMAL,
     created_at TIMESTAMPTZ

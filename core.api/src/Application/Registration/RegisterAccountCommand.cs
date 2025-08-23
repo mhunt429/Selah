@@ -45,19 +45,20 @@ public class RegisterAccount
             if (!validationResult.IsValid)
             {
                 return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Failed, data: null,
-                    message: default, errors: validationResult.Errors.Select(x => x.ErrorMessage));
+                    message: string.Join(",", validationResult.Errors.Select(x => x.ErrorMessage)));
             }
 
             UserAccountEntity userAccountEntity = MapRequestToUserAccount(command);
             ApplicationUserEntity applicationUserEntity = MapRequestToUser(command);
 
-           (int, int) registrationResult = await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
+            (int, int) registrationResult =
+                await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
 
             AccessTokenResponse accessTokenResponse = _tokenService.GenerateAccessToken(registrationResult.Item2);
 
             _logger.LogInformation("User with id {id} was successfully created", registrationResult.Item2);
             return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, data: accessTokenResponse,
-                message: default, errors: default);
+                message: default);
         }
 
         private UserAccountEntity MapRequestToUserAccount(AccountRegistrationRequest request)

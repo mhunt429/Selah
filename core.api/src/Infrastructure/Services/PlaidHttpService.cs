@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Domain.Configuration;
 using Domain.Models;
@@ -15,6 +16,12 @@ public class PlaidHttpService : IPlaidHttpService
     private readonly HttpClient _httpClient;
     private readonly PlaidConfig _plaidConfig;
     private readonly ILogger<PlaidHttpService> _logger;
+    
+    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // optional, Plaid API expects camelCase
+    };
 
     public PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, ILogger<PlaidHttpService> logger)
     {
@@ -23,7 +30,7 @@ public class PlaidHttpService : IPlaidHttpService
         _logger = logger;
     }
 
-    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId)
+    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
@@ -43,12 +50,12 @@ public class PlaidHttpService : IPlaidHttpService
                 "Link Token Create Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
-            return new ApiResponseResult<PlaidLinkToken>(ResultStatus.Failed, messageBody, null, null);
+            return new ApiResponseResult<PlaidLinkToken>(ResultStatus.Failed, messageBody, null);
         }
 
 
         return new ApiResponseResult<PlaidLinkToken>(ResultStatus.Success, messageBody,
-            JsonSerializer.Deserialize<PlaidLinkToken>(messageBody), null);
+            JsonSerializer.Deserialize<PlaidLinkToken>(messageBody));
     }
 
     public async Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken)
@@ -71,11 +78,11 @@ public class PlaidHttpService : IPlaidHttpService
                 "Link Token Exchange Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
-            return new ApiResponseResult<PlaidTokenExchangeResponse>(ResultStatus.Failed, messageBody, null, null);
+            return new ApiResponseResult<PlaidTokenExchangeResponse>(ResultStatus.Failed, messageBody, null);
         }
 
         return new ApiResponseResult<PlaidTokenExchangeResponse>(ResultStatus.Success, messageBody,
-            JsonSerializer.Deserialize<PlaidTokenExchangeResponse>(messageBody), null);
+            JsonSerializer.Deserialize<PlaidTokenExchangeResponse>(messageBody));
     }
 
     public async Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken)
@@ -95,10 +102,10 @@ public class PlaidHttpService : IPlaidHttpService
 
         if (!response.IsSuccessStatusCode)
         {
-            return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Failed, messageBody, null, null);
+            return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Failed, messageBody, null);
         }
 
         return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Success, messageBody,
-            JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody), null);
+            JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody));
     }
 }

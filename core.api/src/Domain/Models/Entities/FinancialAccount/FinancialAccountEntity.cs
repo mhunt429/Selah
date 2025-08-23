@@ -31,3 +31,17 @@ public class FinancialAccountEntity : BaseAuditFields
     
     [Column("last_api_sync_time")] public DateTimeOffset LastApiSyncTime { get; set; }
 }
+
+public class FinancialAccountUpdate
+{
+    public decimal CurrentBalance { get; set; }
+    
+    public required string DisplayName { get; set; }
+    
+    public required string OfficialName { get; set; }
+    
+    
+    public required string Subtype { get; set; }
+    
+    public DateTimeOffset LastApiSyncTime { get; set; }
+}

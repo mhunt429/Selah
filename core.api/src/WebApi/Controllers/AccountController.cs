@@ -34,7 +34,7 @@ namespace WebApi.Controllers
                 {
                     StatusCode = 400,
                     Data = null,
-                    Errors = result.errors
+                    Errors = result.message?.Split(','),
                 });
             }
 

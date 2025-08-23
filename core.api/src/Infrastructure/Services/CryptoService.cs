@@ -25,26 +25,22 @@ public class CryptoService: ICryptoService
         using (Aes aesAlg = Aes.Create())
         {
             aesAlg.Key = Convert.FromBase64String(_securityConfig.CryptoSecret);
-            aesAlg.GenerateIV(); // Generate a random 16-byte IV
+            aesAlg.GenerateIV(); 
             aesAlg.Padding = PaddingMode.PKCS7;
 
             using (var msEncrypt = new MemoryStream())
             {
-                // Write the IV to the start of the output
                 msEncrypt.Write(aesAlg.IV, 0, aesAlg.IV.Length);
 
                 using (var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))
                 using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                 {
-                    // Write plaintext into the CryptoStream
                     byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
                     csEncrypt.Write(plainBytes, 0, plainBytes.Length);
 
-                    // Ensure all data is flushed to the stream
                     csEncrypt.FlushFinalBlock();
                 }
 
-                // Return the combined IV and ciphertext
                 return Convert.ToBase64String(msEncrypt.ToArray());
             }
         }
@@ -52,32 +48,25 @@ public class CryptoService: ICryptoService
 
     public string Decrypt(string encryptedData)
     {
-        // Convert the Base64 string to a byte array
         byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
 
-        // Validate input to ensure it contains at least the IV and ciphertext
         if (encryptedBytes.Length <= 16)
         {
             throw new ArgumentException("Encrypted data is too short to contain an IV and ciphertext.");
         }
 
-        // Extract the IV (first 16 bytes)
         var iv = encryptedBytes.ToList().Take(16).ToArray();
         var cipherText = encryptedBytes.Skip(16).ToArray();
 
         using (var aesAlg = Aes.Create())
         {
-            // Set the key and IV
             aesAlg.Key = Convert.FromBase64String(_securityConfig.CryptoSecret);
             aesAlg.IV = iv;
 
-            // Initialize the decryptor
             using (var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
             {
-                // Perform the decryption
                 var decryptedBytes = decryptor.TransformFinalBlock(cipherText, 0, cipherText.Length);
 
-                // Convert decrypted bytes to a UTF-8 string
                 return Encoding.UTF8.GetString(decryptedBytes);
             }
         }
@@ -104,7 +93,7 @@ public class CryptoService: ICryptoService
             StringBuilder hashString = new StringBuilder();
             foreach (byte b in hashBytes)
             {
-                hashString.Append(b.ToString("x2")); // Converts byte to hex
+                hashString.Append(b.ToString("x2")); 
             }
 
             return hashString.ToString();

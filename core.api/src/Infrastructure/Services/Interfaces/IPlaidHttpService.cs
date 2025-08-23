@@ -5,7 +5,7 @@ namespace Infrastructure.Services.Interfaces;
 
 public interface IPlaidHttpService
 {
-    Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId);
+    Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false);
 
     Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken);
 

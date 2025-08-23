@@ -1,7 +1,7 @@
 CREATE TABLE account_connector
 (
     id                      SERIAL PRIMARY KEY,
-    user_id                 SERIAL REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    user_id                 INT REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     institution_id          TEXT,
     institution_name        TEXT,
     date_connected          TIMESTAMPTZ,

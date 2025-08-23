@@ -13,6 +13,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     private readonly BaseRepository _baseRepository = new BaseRepository(TestHelpers.TestDbFactory);
     
     private readonly AppDbContext _dbContext =  TestHelpers.BuildTestDbContext();
+    private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
 
     private readonly IFinancialAccountRepository _financialAccountRepository;
     private readonly IAccountConnectorRepository _accountConnectorRepository;
@@ -24,7 +25,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
     public FinancialAccountRepositoryTests()
     {
-        _financialAccountRepository = new FinancialAccountRepository(_dbContext);
+        _financialAccountRepository = new FinancialAccountRepository(_dbContext, _dbConnectionFactory);
         _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
     }
 
@@ -129,19 +130,16 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
-        var accountUpdate = new FinancialAccountEntity
+        var accountUpdate = new FinancialAccountUpdate()
         {
-            Id = newAccountId,
-            UserId = _userId,
             CurrentBalance = 1000,
             DisplayName = "Vanguard Trust 401k",
+            OfficialName = "Vanguard Total Trust 401k",
             Subtype = "Retirement",
-            AppLastChangedBy = _userId,
-            OriginalInsert = DateTimeOffset.UtcNow,
-            ConnectorId = _connectorId,
+            LastApiSyncTime = DateTimeOffset.UtcNow,
         };
         
-        await _financialAccountRepository.UpdateAccount(accountUpdate);
+        await _financialAccountRepository.UpdateAccount(accountUpdate, newAccountId, _userId);
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
         result.CurrentBalance.Should().Be(1000);

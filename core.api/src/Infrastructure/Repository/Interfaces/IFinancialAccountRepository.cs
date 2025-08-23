@@ -12,7 +12,7 @@ public interface IFinancialAccountRepository
 
     Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
 
-    Task<bool> UpdateAccount(FinancialAccountEntity account);
+    Task<bool> UpdateAccount(FinancialAccountUpdate account, int id, int userId);
 
     Task<bool> DeleteAccountAsync(FinancialAccountEntity account);
 }

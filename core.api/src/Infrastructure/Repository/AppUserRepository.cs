@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Domain.Constants;
 using Domain.Models.Entities.ApplicationUser;
 using Infrastructure.Repository.Interfaces;
 

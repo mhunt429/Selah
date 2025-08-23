@@ -37,7 +37,7 @@ public class AccountControllerTests
     {
         _mediatorMock.Setup(x => x.Send(It.IsAny<RegisterAccount.Command>(), CancellationToken.None))
             .ReturnsAsync(
-                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, default, default, default));
+                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, default, default));
 
         var command = new RegisterAccount.Command
         {
@@ -57,7 +57,7 @@ public class AccountControllerTests
     {
         _mediatorMock.Setup(x => x.Send(It.IsAny<RegisterAccount.Command>(), CancellationToken.None))
             .ReturnsAsync(
-                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Failed, default, default, default));
+                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Failed, default, default));
 
         var result = await _controller.Register(new RegisterAccount.Command());
         Assert.IsType<BadRequestObjectResult>(result);

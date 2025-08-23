@@ -1,8 +1,8 @@
 CREATE TABLE financial_account
 (
     id                     SERIAL Primary KEY,
-    user_id                SERIAL REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
-    connector_id           SERIAL REFERENCES account_connector (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    user_id                INT REFERENCES app_user (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
+    connector_id           INT REFERENCES account_connector (id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     external_id            TEXT,
     current_balance        DECIMAL,
     available_balance      DECIMAL,

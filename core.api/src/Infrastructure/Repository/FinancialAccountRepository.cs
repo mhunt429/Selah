@@ -1,59 +1,72 @@
-using Dapper;
-using Microsoft.EntityFrameworkCore;
-using Domain.Constants;
 using Domain.Models.Entities.FinancialAccount;
-using Infrastructure.Extensions;
 using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAccountRepository
+public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepository
 {
+    private readonly AppDbContext _dbContext;
+
+    public FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFactory dbConnectionFactory) : base(
+        dbConnectionFactory)
+    {
+        _dbContext = dbContext;
+    }
+
     public async Task ImportFinancialAccountsAsync(IEnumerable<FinancialAccountEntity> accounts)
     {
-        await dbContext.FinancialAccounts.AddRangeAsync(accounts);
-        await dbContext.SaveChangesAsync();
+        await _dbContext.FinancialAccounts.AddRangeAsync(accounts);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<int> AddAccountAsync(FinancialAccountEntity account)
     {
-        await dbContext.FinancialAccounts.AddAsync(account);
-        await dbContext.SaveChangesAsync();
+        await _dbContext.FinancialAccounts.AddAsync(account);
+        await _dbContext.SaveChangesAsync();
         return account.Id;
     }
 
     public async Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId)
     {
-        return await dbContext.FinancialAccounts.Where(x => x.UserId == userId).ToListAsync();
+        string sql = "SELECT * FROM financial_account WHERE user_id = @userId";
+       return await GetAllAsync<FinancialAccountEntity>(sql, new { userId });
     }
 
     public async Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id)
     {
-        return await dbContext.FinancialAccounts
-            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+        string sql = "SELECT * FROM financial_account WHERE id = @id AND user_id = @userId";
+        return await GetFirstOrDefaultAsync<FinancialAccountEntity>(sql, new { id, userId });
     }
-
-    public async Task<bool> UpdateAccount(FinancialAccountEntity account)
+    
+    public async Task<bool> UpdateAccount(FinancialAccountUpdate account, int id, int userId)
     {
-        var existing = dbContext.ChangeTracker.Entries<FinancialAccountEntity>()
-            .FirstOrDefault(e => e.Entity.Id == account.Id);
+        string sql = @"UPDATE financial_account SET current_balance = @currentBalance, 
+            display_name = @displayName, 
+            official_name = @officialName, 
+            subtype = @subtype,
+            last_api_sync_time = @lastApiSyncTime,
+            app_last_changed_by = @appLastChangedBy,
+            last_update = @lastUpdate
+            WHERE id = @id AND user_id = @userId";
 
-        if (existing != null)
+        var modelToSave = new
         {
-            existing.State = EntityState.Detached;
-        }
+            id,
+            userId,
+            displayName = account.DisplayName,
+            officialName = account.OfficialName,
+            subtype = account.Subtype,
+            lastApiSyncTime = account.LastApiSyncTime,
+            appLastChangedBy = userId,
+            lastUpdate = DateTimeOffset.UtcNow,
+            currentBalance = account.CurrentBalance,
+        };
 
-        dbContext.Attach(account);
-        dbContext.Entry(account).State = EntityState.Modified;
-
-        await dbContext.SaveChangesAsync();
-        return true;
+        return await UpdateAsync(sql, modelToSave);
     }
 
     public async Task<bool> DeleteAccountAsync(FinancialAccountEntity account)
     {
-        dbContext.Remove(account);
-        await dbContext.SaveChangesAsync();
-        return true;
+       return await DeleteAsync("DELETE FROM financial_account WHERE id = @id AND user_id = @userId", new { account.Id, account.UserId });
     }
 }
