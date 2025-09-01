@@ -6,7 +6,7 @@ namespace Domain.Models.Entities.FinancialAccount;
 [Table("financial_account")]
 public class FinancialAccountEntity : BaseAuditFields
 {
-   
+
     [Key, Column(name: "id", Order = 0)]
     public int Id { get; set; }
 
@@ -28,20 +28,20 @@ public class FinancialAccountEntity : BaseAuditFields
 
     [Column("is_external_api_import")] public bool IsExternalApiImport { get; set; }
 
-    
+
     [Column("last_api_sync_time")] public DateTimeOffset LastApiSyncTime { get; set; }
 }
 
 public class FinancialAccountUpdate
 {
     public decimal CurrentBalance { get; set; }
-    
+
     public required string DisplayName { get; set; }
-    
+
     public required string OfficialName { get; set; }
-    
-    
+
+
     public required string Subtype { get; set; }
-    
+
     public DateTimeOffset LastApiSyncTime { get; set; }
 }

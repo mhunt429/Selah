@@ -28,13 +28,13 @@ public class ActiveSessionsWorkerService : BackgroundService
                 _logger.LogInformation($"{nameof(ActiveSessionsWorkerService)} is starting");
                 using var scope = _scopeFactory.CreateScope();
                 var sessionRepository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
-                
+
                 var activeSessions = await sessionRepository.GetActiveSessions();
 
                 _logger.LogInformation("Current active sessions: {ActiveSessions}", activeSessions);
-                
+
                 MetricsRegistry.ActiveSessions = activeSessions;
-                
+
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
             catch (TaskCanceledException)

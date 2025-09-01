@@ -1,10 +1,9 @@
 using System.Net;
+using Application.AccountConnector;
+using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Application.AccountConnector;
-using Domain.Models;
-using Domain.Models.Plaid;
 using WebApi.Extensions;
 using WebApi.Filters;
 
@@ -26,34 +25,27 @@ public class ConnectorController : ControllerBase
     [HttpGet("link")]
     public async Task<IActionResult> GetLinkToken()
     {
-        AppRequestContext requestContext = Request.GetAppRequestContext();
-        int userId = requestContext.UserId;
+        var requestContext = Request.GetAppRequestContext();
+        var userId = requestContext.UserId;
 
-        ApiResponseResult<PlaidLinkToken>
-            result = await _mediator.Send(new CreateLinkToken.Command { UserId = userId });
+        var result = await _mediator.Send(new CreateLinkToken.Command
+            { UserId = userId, AppRequestContext = requestContext });
 
-        if (result.status != ResultStatus.Success)
-        {
-            return BadRequest();
-        }
+        if (result.status != ResultStatus.Success) return BadRequest();
 
         return Ok(result.data.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
-    [HttpPost("exchange")]
     public async Task<IActionResult> ExchangeToken([FromBody] ExchangeLinkToken.Command request)
     {
-        AppRequestContext requestContext = Request.GetAppRequestContext();
-        int userId = requestContext.UserId;
+        var requestContext = Request.GetAppRequestContext();
+        var userId = requestContext.UserId;
 
         request.UserId = userId;
 
-        ApiResponseResult<Unit> result = await _mediator.Send(request);
+        var result = await _mediator.Send(request);
 
-        if (result.status != ResultStatus.Success)
-        {
-            return BadRequest();
-        }
+        if (result.status != ResultStatus.Success) return BadRequest();
 
         return NoContent();
     }

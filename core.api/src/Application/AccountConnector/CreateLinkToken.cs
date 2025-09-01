@@ -1,7 +1,7 @@
 using Domain.Models;
-using MediatR;
 using Domain.Models.Plaid;
 using Infrastructure.Services.Interfaces;
+using MediatR;
 
 namespace Application.AccountConnector;
 
@@ -10,6 +10,7 @@ public class CreateLinkToken
     public class Command : IRequest<ApiResponseResult<PlaidLinkToken>>
     {
         public int UserId { get; set; }
+        public required AppRequestContext AppRequestContext { get; set; }
     }
 
     public class Handler : IRequestHandler<Command, ApiResponseResult<PlaidLinkToken>>

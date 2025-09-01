@@ -1,8 +1,9 @@
-using FluentAssertions;
 using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Entities.UserAccount;
+using FluentAssertions;
+using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 

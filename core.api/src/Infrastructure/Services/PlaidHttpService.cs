@@ -16,7 +16,7 @@ public class PlaidHttpService : IPlaidHttpService
     private readonly HttpClient _httpClient;
     private readonly PlaidConfig _plaidConfig;
     private readonly ILogger<PlaidHttpService> _logger;
-    
+
     private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

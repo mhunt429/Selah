@@ -3,15 +3,15 @@ namespace Domain.Configuration;
 public class RabbitMqConfig
 {
     public required string UserName { get; set; }
-    
+
     public required string Password { get; set; }
-    
+
     public required string Host { get; set; }
-    
+
     public bool UseSsl { get; set; }
 
     //Optional SSL settings
-    
+
     /*
      * openssl genrsa -out ca.key 2048
        openssl req -x509 -new -nodes -key ca.key -days 365 -out ca.crt

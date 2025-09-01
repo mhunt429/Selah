@@ -3,7 +3,7 @@ using Dapper;
 
 namespace Infrastructure.Repository;
 
-public class BaseRepository 
+public class BaseRepository
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
 

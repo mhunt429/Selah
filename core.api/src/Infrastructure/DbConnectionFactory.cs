@@ -8,7 +8,7 @@ namespace Infrastructure
     {
         public Task<IDbConnection> CreateConnectionAsync();
     }
-    
+
     [ExcludeFromCodeCoverage]
     public class SelahDbConnectionFactory : IDbConnectionFactory
     {

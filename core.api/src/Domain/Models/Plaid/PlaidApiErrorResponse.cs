@@ -6,10 +6,10 @@ public class PlaidApiErrorResponse
 {
     [JsonPropertyName("error_type")]
     public string? ErrorType { get; set; }
-    
+
     [JsonPropertyName("error_code")]
     public string? ErrorCode { get; set; }
-    
+
     [JsonPropertyName("error_message")]
     public string? ErrorMessage { get; set; }
 }

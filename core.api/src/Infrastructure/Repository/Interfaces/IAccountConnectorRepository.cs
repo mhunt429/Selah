@@ -1,7 +1,7 @@
 using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repository.Interfaces;
 
 public interface IAccountConnectorRepository
 {

@@ -16,7 +16,7 @@ public class ExceptionHandler
         _next = next;
         _logger = logger;
     }
-    
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -33,7 +33,7 @@ public class ExceptionHandler
             await HandleExceptionAsync(context);
         }
     }
-    
+
     private static Task HandleExceptionAsync(HttpContext context)
     {
         context.Response.ContentType = "application/json";

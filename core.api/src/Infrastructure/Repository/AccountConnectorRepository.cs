@@ -1,7 +1,5 @@
-using Dapper;
-using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
-using Infrastructure.Extensions;
+using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
@@ -16,7 +14,7 @@ public class AccountConnectorRepository : IAccountConnectorRepository
 
 
     /// <summary>
-    /// Insert into account_connector upon successful connection through Plaid or Finicity
+    ///     Insert into account_connector upon successful connection through Plaid or Finicity
     /// </summary>
     public async Task<int> InsertAccountConnectorRecord(AccountConnectorEntity account)
     {

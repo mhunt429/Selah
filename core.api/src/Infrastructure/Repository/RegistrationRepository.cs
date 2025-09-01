@@ -14,21 +14,21 @@ public class RegistrationRepository(AppDbContext dbContext) : IRegistrationRepos
                 dbContext.UserAccounts.Add(userAccount);
 
                 await dbContext.SaveChangesAsync();
-                
+
                 user.AccountId = userAccount.Id;
 
                 dbContext.ApplicationUsers.Add(user);
-                
+
                 await dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-               
+
                 return (userAccount.Id, user.Id);
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw ex;
+                throw;
             }
         }
     }

@@ -6,9 +6,9 @@ using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
 
-public class CryptoService: ICryptoService
+public class CryptoService : ICryptoService
 {
-    
+
     private readonly SecurityConfig _securityConfig;
     private readonly IHashids _hashIds;
     private readonly IPasswordHasherService _passwordHasherService;
@@ -19,13 +19,13 @@ public class CryptoService: ICryptoService
         _hashIds = hashIds;
         _passwordHasherService = passwordHasherService;
     }
-    
+
     public string Encrypt(string plainText)
     {
         using (Aes aesAlg = Aes.Create())
         {
             aesAlg.Key = Convert.FromBase64String(_securityConfig.CryptoSecret);
-            aesAlg.GenerateIV(); 
+            aesAlg.GenerateIV();
             aesAlg.Padding = PaddingMode.PKCS7;
 
             using (var msEncrypt = new MemoryStream())
@@ -79,7 +79,7 @@ public class CryptoService: ICryptoService
 
     public bool VerifyPassword(string password, string passwordHash)
     {
-      return _passwordHasherService.VerifyPassword(password, passwordHash);
+        return _passwordHasherService.VerifyPassword(password, passwordHash);
     }
 
     public string HashValue(string plainText)
@@ -93,7 +93,7 @@ public class CryptoService: ICryptoService
             StringBuilder hashString = new StringBuilder();
             foreach (byte b in hashBytes)
             {
-                hashString.Append(b.ToString("x2")); 
+                hashString.Append(b.ToString("x2"));
             }
 
             return hashString.ToString();
@@ -102,7 +102,7 @@ public class CryptoService: ICryptoService
 
     public long DecodeHashId(string hashId)
     {
-       return _hashIds.DecodeSingle((hashId));
+        return _hashIds.DecodeSingle((hashId));
     }
 
     public string EncodeHashId(long id)

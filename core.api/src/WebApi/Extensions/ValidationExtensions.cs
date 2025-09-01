@@ -9,7 +9,7 @@ public static class ValidationExtensions
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<AccountRegistrationRequest>, RegisterAccountValidator>();
-        
+
         return services;
     }
 }

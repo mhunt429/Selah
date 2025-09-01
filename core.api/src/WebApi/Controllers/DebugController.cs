@@ -13,7 +13,7 @@ namespace WebApi.Controllers;
 [TypeFilter(typeof(DebugOnlyAsyncActionFilter))]
 [Route("api/[controller]")]
 
-public class DebugController: ControllerBase
+public class DebugController : ControllerBase
 {
 
     private readonly ICryptoService _cryptoService;
@@ -22,7 +22,7 @@ public class DebugController: ControllerBase
     {
         _cryptoService = cryptoService;
     }
-    
+
     [HttpPost("decrypt")]
     [Consumes("text/plain", "application/json")]
     public IActionResult Decrypt([FromBody] DecryptStringRequest? request)
@@ -32,7 +32,7 @@ public class DebugController: ControllerBase
             return BadRequest("Missing encrypted string");
         }
         string decrypted = _cryptoService.Decrypt(request.EncryptedString);
-        
-        return Ok(new DecryptStringResponse{DecryptedString = decrypted});
+
+        return Ok(new DecryptStringResponse { DecryptedString = decrypted });
     }
 }

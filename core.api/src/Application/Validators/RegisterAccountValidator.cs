@@ -12,7 +12,7 @@ public class RegisterAccountValidator : AbstractValidator<AccountRegistrationReq
     {
         var userRepository1 = userRepository;
         var cryptoService1 = cryptoService;
-        
+
         RuleFor(user => user.Email)
             .NotEmpty().WithMessage("Email is required.")
             .Matches(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")

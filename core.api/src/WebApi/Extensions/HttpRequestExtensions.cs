@@ -18,12 +18,12 @@ public static class HttpRequestExtensions
         string? bearerToken = request.Headers["Authorization"]
             .FirstOrDefault(h => h.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
             ?.Substring("Bearer ".Length);
-        
+
         if (string.IsNullOrWhiteSpace(bearerToken))
         {
             request.Cookies.TryGetValue("x_token", out bearerToken);
         }
-        
+
         if (string.IsNullOrWhiteSpace(bearerToken))
         {
             return new AppRequestContext
@@ -31,7 +31,7 @@ public static class HttpRequestExtensions
                 UserId = -1,
             };
         }
-        
+
         int userId = GetUserIdFromToken(bearerToken);
 
         return new AppRequestContext
@@ -41,7 +41,7 @@ public static class HttpRequestExtensions
             TraceId = request.HttpContext.TraceIdentifier,
         };
     }
-    
+
     private static int GetUserIdFromToken(string token)
     {
         int userId = -1;
@@ -51,7 +51,7 @@ public static class HttpRequestExtensions
             if (handler.CanReadToken(token))
             {
                 var jwtToken = handler.ReadJwtToken(token);
-                string subjectValue =  jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                string subjectValue = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
                 int.TryParse(subjectValue, out userId);
                 return userId;

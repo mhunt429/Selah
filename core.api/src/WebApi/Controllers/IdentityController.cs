@@ -57,9 +57,9 @@ public class IdentityController : ControllerBase
 
         Response.Cookies.Append("x_sessionId", result.SessionId.ToString(), new CookieOptions
         {
-            HttpOnly = true, 
-            Secure = true, 
-            SameSite = SameSiteMode.Strict, 
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
             Expires = result.SessionExpiration
         });
 

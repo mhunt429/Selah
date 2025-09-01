@@ -15,5 +15,5 @@ public class PlaidAccountBalanceImportService
         _plaidHttpService = plaidHttpService;
         _financialAccountRepository = financialAccountRepository;
     }
-    
+
 }

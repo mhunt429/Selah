@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Extensions;
 
@@ -12,13 +12,10 @@ public static class DatabaseExtensions
     public static IServiceCollection RegisterRepositories(this IServiceCollection services,
         IConfiguration configuration)
     {
-        string? connectionString = configuration.GetValue<string>("SelahDbConnectionString");
+        var connectionString = configuration.GetValue<string>("SelahDbConnectionString");
 
         if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                "SelahDbConnectionString is missing");
-        }
+            throw new InvalidOperationException("SelahDbConnectionString is missing");
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));

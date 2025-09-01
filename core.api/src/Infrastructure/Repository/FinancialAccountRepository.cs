@@ -93,6 +93,6 @@ public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepos
     public async Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId)
     {
         var sql = "SELECT * FROM account_balance_history WHERE user_id = @userId AND financial_account_id = @accountId";
-        return await GetAllAsync<AccountBalanceHistoryEntity>(sql, new { userId, accountId });   
+        return await GetAllAsync<AccountBalanceHistoryEntity>(sql, new { userId, accountId });
     }
 }

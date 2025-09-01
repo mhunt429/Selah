@@ -4,7 +4,7 @@ public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestLoggingMiddleware> _logger;
-    
+
     public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
     {
         _next = next;
@@ -17,7 +17,7 @@ public class RequestLoggingMiddleware
         var method = context.Request.Method;
         var path = context.Request.Path;
 
-        await _next(context); 
+        await _next(context);
 
         var statusCode = context.Response.StatusCode;
 
