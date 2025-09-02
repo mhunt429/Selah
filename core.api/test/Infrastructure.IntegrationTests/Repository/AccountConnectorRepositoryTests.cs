@@ -2,52 +2,38 @@ using Domain.Models.Entities.AccountConnector;
 using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Respawn;
-using Respawn.Graph;
 
 namespace Infrastructure.IntegrationTests.Repository;
 
+[Collection("Database")]
 public class AccountConnectorRepositoryTests : IAsyncLifetime
 {
     private readonly IAccountConnectorRepository _accountConnectorRepository;
     private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
-
-    private int _accountId;
-    private Respawner _respawner;
+    private readonly DatabaseFixture _fixture;
 
     private int _userId;
 
-    public AccountConnectorRepositoryTests()
+    public AccountConnectorRepositoryTests(DatabaseFixture fixture)
     {
+        _fixture = fixture;
         _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
     }
 
     public async Task InitializeAsync()
     {
-        await using var conn = new NpgsqlConnection(TestHelpers.TestConnectionString);
-        await conn.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.Postgres,
-            TablesToIgnore = new[] { new Table("flyway_schema_history") } // ignore migration table
-        });
+        await _fixture.ResetDatabaseAsync();
 
         RegistrationRepository registrationRepository = new(_dbContext);
         var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
-        _accountId = result.Item1.Id;
+
         _userId = result.Item2.Id;
-        ;
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        using var conn = _dbContext.Database.GetDbConnection();
-        await conn.OpenAsync();
-        await _respawner.ResetAsync(conn);
+        return Task.CompletedTask;
     }
 
     [Fact]

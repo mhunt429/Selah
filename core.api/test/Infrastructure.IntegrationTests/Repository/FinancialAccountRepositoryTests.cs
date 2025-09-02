@@ -3,45 +3,35 @@ using Domain.Models.Entities.FinancialAccount;
 using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Respawn;
-using Respawn.Graph;
 
 namespace Infrastructure.IntegrationTests.Repository;
 
+[Collection("Database")]
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
     private readonly IAccountConnectorRepository _accountConnectorRepository;
     private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
     private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
-
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
     private readonly IFinancialAccountRepository _financialAccountRepository;
+    private readonly DatabaseFixture _fixture;
 
 
     private int _connectorId;
-    private Respawner _respawner;
     private int _userId;
 
 
-    public FinancialAccountRepositoryTests()
+    public FinancialAccountRepositoryTests(DatabaseFixture fixture)
     {
+        _fixture = fixture;
         _financialAccountRepository = new FinancialAccountRepository(_dbContext, _dbConnectionFactory);
         _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
     }
 
     public async Task InitializeAsync()
     {
-        await using var conn = new NpgsqlConnection(TestHelpers.TestConnectionString);
-        await conn.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.Postgres,
-            TablesToIgnore = new[] { new Table("flyway_schema_history") } // ignore migration table
-        });
+        await _fixture.ResetDatabaseAsync();
 
         RegistrationRepository registrationRepository = new(_dbContext);
         var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
@@ -61,11 +51,9 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        using var conn = _dbContext.Database.GetDbConnection();
-        await conn.OpenAsync();
-        await _respawner.ResetAsync(conn);
+        return Task.CompletedTask;
     }
 
     [Fact]

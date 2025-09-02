@@ -1,42 +1,31 @@
 using FluentAssertions;
 using Infrastructure.Repository;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Respawn;
-using Respawn.Graph;
 
 namespace Infrastructure.IntegrationTests.Repository;
 
+[Collection("Database")]
 public class RegistrationRepositoryTests : IAsyncLifetime
 {
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
+    private readonly DatabaseFixture _fixture;
     private readonly RegistrationRepository _repository;
-    private Respawner _respawner;
     private int _userId;
 
 
-    public RegistrationRepositoryTests()
+    public RegistrationRepositoryTests(DatabaseFixture fixture)
     {
+        _fixture = fixture;
         _repository = new RegistrationRepository(TestHelpers.BuildTestDbContext());
     }
 
     public async Task InitializeAsync()
     {
-        await using var conn = new NpgsqlConnection(TestHelpers.TestConnectionString);
-        await conn.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.Postgres,
-            TablesToIgnore = new[] { new Table("flyway_schema_history") } // ignore migration table
-        });
+        await _fixture.ResetDatabaseAsync();
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        using var conn = _dbContext.Database.GetDbConnection();
-        await conn.OpenAsync();
-        await _respawner.ResetAsync(conn);
+        return Task.CompletedTask;
     }
 
     [Fact]
