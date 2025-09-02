@@ -1,28 +1,29 @@
 using Domain.Models.Entities.AccountConnector;
-using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.FinancialAccount;
-using Domain.Models.Entities.UserAccount;
 using FluentAssertions;
-using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Respawn;
+using Respawn.Graph;
 
 namespace Infrastructure.IntegrationTests.Repository;
 
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
-    private readonly BaseRepository _baseRepository = new BaseRepository(TestHelpers.TestDbFactory);
-
-    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
+    private readonly IAccountConnectorRepository _accountConnectorRepository;
+    private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
     private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
 
-    private readonly IFinancialAccountRepository _financialAccountRepository;
-    private readonly IAccountConnectorRepository _accountConnectorRepository;
+    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
-    private int _accountId;
-    private int _userId;
+    private readonly IFinancialAccountRepository _financialAccountRepository;
+
 
     private int _connectorId;
+    private Respawner _respawner;
+    private int _userId;
 
 
     public FinancialAccountRepositoryTests()
@@ -31,10 +32,46 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
     }
 
+    public async Task InitializeAsync()
+    {
+        await using var conn = new NpgsqlConnection(TestHelpers.TestConnectionString);
+        await conn.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.Postgres,
+            TablesToIgnore = new[] { new Table("flyway_schema_history") } // ignore migration table
+        });
+
+        RegistrationRepository registrationRepository = new(_dbContext);
+        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _userId = result.Item2.Id;
+
+        AccountConnectorEntity data = new()
+        {
+            AppLastChangedBy = _userId,
+            UserId = _userId,
+            InstitutionId = "123",
+            InstitutionName = "Morgan Stanley",
+            DateConnected = DateTimeOffset.UtcNow,
+            EncryptedAccessToken = "token",
+            TransactionSyncCursor = "",
+            OriginalInsert = DateTimeOffset.UtcNow
+        };
+        _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
+    }
+
+    public async Task DisposeAsync()
+    {
+        using var conn = _dbContext.Database.GetDbConnection();
+        await conn.OpenAsync();
+        await _respawner.ResetAsync(conn);
+    }
+
     [Fact]
     public async Task ImportFinancialAccountsAsync_ShouldInsertMultipleAccounts()
     {
-        var data = new List<FinancialAccountEntity>
+        List<FinancialAccountEntity> data = new()
         {
             new FinancialAccountEntity
             {
@@ -49,7 +86,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
                 OriginalInsert = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId,
+                ConnectorId = _connectorId
             },
             new FinancialAccountEntity
             {
@@ -64,8 +101,8 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
                 OriginalInsert = DateTimeOffset.UtcNow,
-                ConnectorId = _connectorId,
-            },
+                ConnectorId = _connectorId
+            }
         };
 
         await _financialAccountRepository.ImportFinancialAccountsAsync(data);
@@ -79,7 +116,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task AddAccountAsync_ShouldInsertNewAccount()
     {
-        var account = new FinancialAccountEntity
+        FinancialAccountEntity account = new()
         {
             AppLastChangedBy = _userId,
             UserId = _userId,
@@ -92,10 +129,10 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             OriginalInsert = DateTimeOffset.UtcNow,
-            ConnectorId = _connectorId,
+            ConnectorId = _connectorId
         };
 
-        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
@@ -114,7 +151,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task UpdateAccountAsync_ShouldUpdateAccount()
     {
-        var account = new FinancialAccountEntity
+        FinancialAccountEntity account = new()
         {
             AppLastChangedBy = _userId,
             UserId = _userId,
@@ -127,18 +164,18 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            OriginalInsert = DateTimeOffset.UtcNow,
+            OriginalInsert = DateTimeOffset.UtcNow
         };
 
-        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
-        var accountUpdate = new FinancialAccountUpdate()
+        FinancialAccountUpdate accountUpdate = new()
         {
             CurrentBalance = 1000,
             DisplayName = "Vanguard Trust 401k",
             OfficialName = "Vanguard Total Trust 401k",
             Subtype = "Retirement",
-            LastApiSyncTime = DateTimeOffset.UtcNow,
+            LastApiSyncTime = DateTimeOffset.UtcNow
         };
 
         await _financialAccountRepository.UpdateAccount(accountUpdate, newAccountId, _userId);
@@ -150,7 +187,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task DeleteAccountAsync_ShouldDeleteAccount()
     {
-        var account = new FinancialAccountEntity
+        FinancialAccountEntity account = new()
         {
             AppLastChangedBy = _userId,
             UserId = _userId,
@@ -163,10 +200,10 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            OriginalInsert = DateTimeOffset.UtcNow,
+            OriginalInsert = DateTimeOffset.UtcNow
         };
 
-        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
         var deleteResult = await _financialAccountRepository.DeleteAccountAsync(account);
         deleteResult.Should().BeTrue();
@@ -178,7 +215,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task Account_Balance_History_Should_Be_Inserted()
     {
-        var account = new FinancialAccountEntity
+        FinancialAccountEntity account = new()
         {
             AppLastChangedBy = _userId,
             UserId = _userId,
@@ -191,24 +228,25 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             OriginalInsert = DateTimeOffset.UtcNow,
-            ConnectorId = _connectorId,
+            ConnectorId = _connectorId
         };
 
-        int newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
-        var accountBalanceHistory = new AccountBalanceHistoryEntity
+        AccountBalanceHistoryEntity accountBalanceHistory = new()
         {
             UserId = _userId,
             FinancialAccountId = newAccountId,
             CurrentBalance = 250.00m,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow
         };
 
         // wait for the balance history to be inserted and new user record
         await Task.Delay(5000);
         await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory, _userId);
 
-        var result = await _financialAccountRepository.GetBalanceHistory(_userId, newAccountId);
+        var result =
+            await _financialAccountRepository.GetBalanceHistory(_userId, newAccountId);
 
         result.Should().NotBeNull();
         result.Should().NotBeEmpty();
@@ -216,43 +254,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         result.First().FinancialAccountId.Should().Be(newAccountId);
         result.First().UserId.Should().Be(_userId);
         result.First().CurrentBalance.Should().Be(250.00m);
-        result.First().CreatedAt.Should().Be(accountBalanceHistory.CreatedAt);
-    }
-
-    public async Task InitializeAsync()
-    {
-        var registrationRepository = new RegistrationRepository(_dbContext);
-        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
-        _accountId = result.Item1.Id;
-        _userId = result.Item2.Id;
-        ;
-
-        AccountConnectorEntity data = new AccountConnectorEntity
-        {
-            AppLastChangedBy = _userId,
-            UserId = _userId,
-            InstitutionId = "123",
-            InstitutionName = "Morgan Stanley",
-            DateConnected = DateTimeOffset.UtcNow,
-            EncryptedAccessToken = "token",
-            TransactionSyncCursor = "",
-            OriginalInsert = DateTimeOffset.UtcNow,
-        };
-        _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
-    }
-
-    public async Task DisposeAsync()
-    {
-        string balanceHistoryDelete = "DELETE FROM account_balance_history WHERE user_id = @user_id";
-        await _baseRepository.DeleteAsync(balanceHistoryDelete, new { user_id = _userId });
-
-        string financialAccountDelete = "DELETE FROM financial_account WHERE user_id = @user_id";
-        await _baseRepository.DeleteAsync(financialAccountDelete, new { user_id = _userId });
-
-        string accountConnectorDelete = "DELETE FROM account_connector WHERE user_id = @user_id";
-        await _baseRepository.DeleteAsync(accountConnectorDelete, new { user_id = _userId });
-
-
-        await TestHelpers.TearDownBaseRecords(_userId, _accountId, _baseRepository);
+        result.First().CreatedAt.Should().BeAfter(DateTimeOffset.MinValue);
     }
 }

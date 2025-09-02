@@ -1,4 +1,5 @@
 using Application.Mappings;
+using Domain.Models.Entities.ApplicationUser;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using MediatR;
@@ -25,7 +26,7 @@ public class GetUserById
 
         public async Task<Domain.ApiContracts.ApplicationUser> Handle(Query query, CancellationToken cancellationToken)
         {
-            var userSql = await _repository.GetUserByIdAsync(query.UserId);
+            ApplicationUserEntity? userSql = await _repository.GetUserByIdAsync(query.UserId);
             if (userSql == null) return null!;
 
             return userSql.MapAppUserDataAccessToApiContract(_cryptoService);

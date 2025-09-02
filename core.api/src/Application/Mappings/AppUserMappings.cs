@@ -6,10 +6,12 @@ namespace Application.Mappings;
 public static class AppUserMappings
 {
     /// <summary>
-    /// Takes a record from the app_user table and maps it to the API response for a given user
+    ///     Takes a record from the app_user table and maps it to the API response for a given user
     /// </summary>
     /// <param name="user"></param>
-    public static Domain.ApiContracts.ApplicationUser MapAppUserDataAccessToApiContract(this ApplicationUserEntity user, ICryptoService cryptoService)
+    /// <param name="cryptoService"></param>
+    public static Domain.ApiContracts.ApplicationUser MapAppUserDataAccessToApiContract(this ApplicationUserEntity user,
+        ICryptoService cryptoService)
     {
         string[] parsedName = cryptoService.Decrypt(user.EncryptedName).Split("|");
         return new Domain.ApiContracts.ApplicationUser

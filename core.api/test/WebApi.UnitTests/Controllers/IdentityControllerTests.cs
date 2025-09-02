@@ -30,7 +30,7 @@ public class IdentityControllerTests
         };
 
         _controller = new IdentityController(_mediatorMock.Object)
-            { ControllerContext = controllerContext };
+        { ControllerContext = controllerContext };
     }
 
     [Fact]

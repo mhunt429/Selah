@@ -29,7 +29,7 @@ public class AccountControllerTests
         };
 
         _controller = new AccountController(_mediatorMock.Object)
-            { ControllerContext = controllerContext };
+        { ControllerContext = controllerContext };
     }
 
     [Fact]

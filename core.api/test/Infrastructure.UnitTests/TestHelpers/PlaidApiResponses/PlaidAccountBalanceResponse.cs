@@ -1,6 +1,6 @@
 namespace Infrastructure.UnitTests.TestHelpers.PlaidApiResponses;
 
-public static  class PlaidAccountBalanceResponse
+public static class PlaidAccountBalanceResponse
 {
     public static string HappyPathAccountBalance = @" 
 {

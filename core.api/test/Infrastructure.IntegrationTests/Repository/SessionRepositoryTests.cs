@@ -1,26 +1,50 @@
-using Domain.Models.Entities.ApplicationUser;
-using FluentAssertions;
 using Domain.Models.Entities.Identity;
-using Domain.Models.Entities.UserAccount;
+using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Respawn;
+using Respawn.Graph;
 
 namespace Infrastructure.IntegrationTests.Repository;
 
 public class SessionRepositoryTests : IAsyncLifetime
 {
-    private readonly BaseRepository _baseRepository = new BaseRepository(TestHelpers.TestDbFactory);
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
-    private int _accountId;
+
+    private readonly IUserSessionRepository _userSessionRepository;
+    private Respawner _respawner;
     private int _userId;
-
-
-    private IUserSessionRepository _userSessionRepository;
 
     public SessionRepositoryTests()
     {
         _userSessionRepository = new UserSessionRepository(_dbContext);
+    }
+
+
+    public async Task InitializeAsync()
+    {
+        await using var conn = new NpgsqlConnection(TestHelpers.TestConnectionString);
+        await conn.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(conn, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.Postgres, // explicitly PostgreSQL
+            TablesToIgnore = new[] { new Table("flyway_schema_history") } // ignore migration table
+        });
+        var registrationRepository = new RegistrationRepository(_dbContext);
+        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _userId = result.Item2.Id;
+        ;
+    }
+
+    public async Task DisposeAsync()
+    {
+        using var conn = _dbContext.Database.GetDbConnection();
+        await conn.OpenAsync();
+        await _respawner.ResetAsync(conn);
     }
 
     [Fact]
@@ -32,7 +56,7 @@ public class SessionRepositoryTests : IAsyncLifetime
             AppLastChangedBy = _userId,
             Id = Guid.NewGuid(),
             UserId = _userId,
-            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(1),
+            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(1)
         };
 
         await _userSessionRepository.IssueSession(session);
@@ -47,22 +71,5 @@ public class SessionRepositoryTests : IAsyncLifetime
         await _userSessionRepository.RevokeSessionsByUser(_userId, true);
         session = await _userSessionRepository.GetUserSessionAsync(_userId);
         session.Should().BeNull();
-    }
-
-
-    public async Task InitializeAsync()
-    {
-        var registrationRepository = new RegistrationRepository(_dbContext);
-        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
-        _accountId = result.Item1.Id;
-        _userId = result.Item2.Id;;
-    }
-
-    public async Task DisposeAsync()
-    {
-        await TestHelpers.TearDownBaseRecords(_userId, _accountId, _baseRepository);
-
-        string accountConnectorDelete = "DELETE FROM account_connector WHERE user_id = @user_id";
-        await _baseRepository.DeleteAsync(accountConnectorDelete, new { user_id = _userId });
     }
 }

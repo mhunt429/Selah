@@ -24,7 +24,7 @@ public class PlaidHttpServiceTests
     {
         _mockLogger = new Mock<ILogger<PlaidHttpService>>();
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        
+
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
         {
             BaseAddress = new Uri("https://api.plaid.com/")
@@ -135,7 +135,7 @@ public class PlaidHttpServiceTests
         var result = await _plaidHttpService.ExchangePublicToken(userId, publicToken);
 
         // Assert
-        Assert.Equal(ResultStatus.Success, result.status); 
+        Assert.Equal(ResultStatus.Success, result.status);
         Assert.NotNull(result.data);
         Assert.Equal(expectedResponse.AccessToken, result.data.AccessToken);
         Assert.Equal(expectedResponse.ItemId, result.data.ItemId);
@@ -215,7 +215,7 @@ public class PlaidHttpServiceTests
         Assert.Equal(ResultStatus.Success, result.status); // Note: The service returns Failed even on success - this might be a bug
         Assert.NotNull(result.data);
         Assert.Single(result.data.Accounts);
-        Assert.Equal(expectedResponse.Accounts.FirstOrDefault().AccountId, result.data.Accounts.FirstOrDefault().AccountId);;
+        Assert.Equal(expectedResponse.Accounts.FirstOrDefault().AccountId, result.data.Accounts.FirstOrDefault().AccountId); ;
     }
 
     [Fact]
@@ -257,7 +257,7 @@ public class PlaidHttpServiceTests
         {
             LinkToken = "test-link-token",
         };
-        
+
         _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -277,10 +277,10 @@ public class PlaidHttpServiceTests
         Assert.NotNull(capturedRequest);
         Assert.Equal(HttpMethod.Post, capturedRequest.Method);
         Assert.Contains("link/token/create", capturedRequest.RequestUri.ToString());
-        
+
         var requestContent = await capturedRequest.Content.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<PlainLinkTokenRequest>(requestContent);
-        
+
         Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(userId, requestPayload.User.UserId);
@@ -298,7 +298,7 @@ public class PlaidHttpServiceTests
         {
             AccessToken = "test-access-token",
         };
-        
+
         _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -318,10 +318,10 @@ public class PlaidHttpServiceTests
         Assert.NotNull(capturedRequest);
         Assert.Equal(HttpMethod.Post, capturedRequest.Method);
         Assert.Contains("item/public_token/exchange", capturedRequest.RequestUri.ToString());
-        
+
         var requestContent = await capturedRequest.Content.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<PlaidTokenExchangeRequest>(requestContent);
-        
+
         Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(publicToken, requestPayload.PublicToken);
@@ -351,7 +351,7 @@ public class PlaidHttpServiceTests
                 }
             }
         };
-        
+
         _mockHttpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -371,10 +371,10 @@ public class PlaidHttpServiceTests
         Assert.NotNull(capturedRequest);
         Assert.Equal(HttpMethod.Post, capturedRequest.Method);
         Assert.Contains("accounts/balance/get", capturedRequest.RequestUri.ToString());
-        
+
         var requestContent = await capturedRequest.Content.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<PlaidAccountBalanceRequest>(requestContent);
-        
+
         Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(accessToken, requestPayload.AccessToken);

@@ -29,7 +29,7 @@ public class ConnectorController : ControllerBase
         var userId = requestContext.UserId;
 
         var result = await _mediator.Send(new CreateLinkToken.Command
-            { UserId = userId, AppRequestContext = requestContext });
+        { UserId = userId, AppRequestContext = requestContext });
 
         if (result.status != ResultStatus.Success) return BadRequest();
 
