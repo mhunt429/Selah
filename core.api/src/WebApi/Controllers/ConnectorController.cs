@@ -25,6 +25,7 @@ public class ConnectorController : ControllerBase
     [HttpGet("link")]
     public async Task<IActionResult> GetLinkToken()
     {
+        // The ValidAppRequestContextFilter handles the case where request context is null
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
 

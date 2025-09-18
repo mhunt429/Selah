@@ -8,7 +8,7 @@ namespace WebApi.Extensions;
 [ExcludeFromCodeCoverage]
 public static class HttpRequestExtensions
 {
-    public static AppRequestContext GetAppRequestContext(this HttpRequest request)
+    public static AppRequestContext? GetAppRequestContext(this HttpRequest request)
     {
         string? forwardedFor = request.Headers["X-Forwarded-For"].FirstOrDefault();
         string? ipAddress = !string.IsNullOrWhiteSpace(forwardedFor)
@@ -26,10 +26,7 @@ public static class HttpRequestExtensions
 
         if (string.IsNullOrWhiteSpace(bearerToken))
         {
-            return new AppRequestContext
-            {
-                UserId = -1,
-            };
+            return null;
         }
 
         int userId = GetUserIdFromToken(bearerToken);

@@ -10,7 +10,7 @@ public class ValidAppRequestContextFilter : ActionFilterAttribute
     {
         var requestContext = context.HttpContext.Request.GetAppRequestContext();
 
-        if (requestContext.UserId <= 0)
+        if (requestContext == null)
         {
             context.Result = new UnauthorizedResult();
         }

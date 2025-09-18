@@ -12,6 +12,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Application.ApplicationUser;
+using Domain.Constants;
 using Infrastructure.RecurringJobs;
 using Infrastructure.Services.Workers;
 using OpenTelemetry.Metrics;
@@ -64,7 +65,7 @@ public class Program
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
-                policy.WithOrigins("http://localhost:5173", "https://selah.fi")
+                policy.WithOrigins(ClientUrls.Localhost, ClientUrls.Production)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials());
