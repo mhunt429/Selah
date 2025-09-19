@@ -8,7 +8,7 @@ public interface IFinancialAccountRepository
 
     Task<int> AddAccountAsync(FinancialAccountEntity account);
 
-    Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId);
+    Task<IEnumerable<FinancialAccountEntity>> GetAccountsAsync(int userId);
 
     Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
 

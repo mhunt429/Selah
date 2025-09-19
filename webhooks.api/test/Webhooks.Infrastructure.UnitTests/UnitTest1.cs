@@ -1,4 +1,4 @@
-﻿namespace Webhooks.ApiUnitTests;
+﻿namespace Webhooks.Infrastructure.UnitTests;
 
 public class UnitTest1
 {
