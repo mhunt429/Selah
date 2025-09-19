@@ -17,7 +17,7 @@ public class SessionRepositoryTests : IAsyncLifetime
     public SessionRepositoryTests(DatabaseFixture fixture)
     {
         _fixture = fixture;
-        _userSessionRepository = new UserSessionRepository(_dbContext);
+        _userSessionRepository = new UserSessionRepository(TestHelpers.TestDbFactory);
     }
 
 
@@ -43,7 +43,8 @@ public class SessionRepositoryTests : IAsyncLifetime
             AppLastChangedBy = _userId,
             Id = Guid.NewGuid(),
             UserId = _userId,
-            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(1)
+            ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(1),
+            IssuedAt = DateTimeOffset.UtcNow,
         };
 
         await _userSessionRepository.IssueSession(session);
@@ -55,7 +56,7 @@ public class SessionRepositoryTests : IAsyncLifetime
         session.OriginalInsert.Should().Be(session.OriginalInsert);
         session.UserId.Should().Be(session.UserId);
 
-        await _userSessionRepository.RevokeSessionsByUser(_userId, true);
+        await _userSessionRepository.RevokeSessionsByUser(_userId);
         session = await _userSessionRepository.GetUserSessionAsync(_userId);
         session.Should().BeNull();
     }

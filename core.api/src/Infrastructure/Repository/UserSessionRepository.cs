@@ -4,12 +4,13 @@ using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class UserSessionRepository(AppDbContext dbContext) : IUserSessionRepository
+public class UserSessionRepository :BaseRepository, IUserSessionRepository
 {
+    
+    public UserSessionRepository  (IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory){}
     public async Task<UserSessionEntity?> GetUserSessionAsync(int userId)
     {
-        return await dbContext.UserSessions
-            .FirstOrDefaultAsync(x => x.UserId == userId);
+        return await GetFirstOrDefaultAsync<UserSessionEntity>("select * from user_session where user_id = @user_id", new {user_id = userId });
     }
 
     /// <summary>
@@ -18,29 +19,33 @@ public class UserSessionRepository(AppDbContext dbContext) : IUserSessionReposit
     /// <param name="userSession"></param>
     public async Task IssueSession(UserSessionEntity userSession)
     {
-        await RevokeSessionsByUser(userSession.UserId, false);
-        await dbContext.UserSessions.AddAsync(userSession);
-        await dbContext.SaveChangesAsync();
+        await RevokeSessionsByUser(userSession.UserId);
+
+        string sql =
+            @"INSERT INTO user_session(id, user_id, issued_at, 
+                         expires_at, 
+                         app_last_changed_by) 
+                         VALUES (@id, @user_id, @issued_at, @expires_at, @app_last_changed_by)";
+        
+        await AddAsync<int>(sql, new
+        {
+            id = userSession.Id,
+            user_id = userSession.UserId, 
+            issued_at = userSession.IssuedAt,
+            expires_at = userSession.ExpiresAt,
+            app_last_changed_by = userSession.AppLastChangedBy
+        });
     }
 
-    public async Task RevokeSessionsByUser(int userId, bool autocommit)
+    public async Task RevokeSessionsByUser(int userId)
     {
-        List<UserSessionEntity>? userSessions =
-            await (dbContext.UserSessions.Where(x => x.UserId == userId)).ToListAsync();
-
-        if (userSessions.Any())
-        {
-            dbContext.UserSessions.RemoveRange(userSessions);
-            if (autocommit)
-            {
-                await dbContext.SaveChangesAsync();
-            }
-        }
+        await DeleteAsync("DELETE FROM user_session WHERE user_id = @user_id", new { user_id = userId });
     }
 
     public async Task<int> GetActiveSessions()
     {
-        return await dbContext.UserSessions.Where(x => x.ExpiresAt > DateTimeOffset.UtcNow)
-            .CountAsync();
+        string sql = "SELECT COUNT(*) FROM user_session WHERE expires_at > @currentDate";
+   
+        return await GetFirstOrDefaultAsync<int>(sql, new { currentDate = DateTimeOffset.UtcNow } );
     }
 }

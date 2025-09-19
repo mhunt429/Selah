@@ -15,6 +15,7 @@ using Application.ApplicationUser;
 using Domain.Constants;
 using Infrastructure.RecurringJobs;
 using Infrastructure.Services.Workers;
+using Npgsql;
 using OpenTelemetry.Metrics;
 
 namespace WebApi;
@@ -81,7 +82,7 @@ public class Program
             {
                 tracing
                     .AddAspNetCoreInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddNpgsql()
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
             }).WithMetrics(x =>
