@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Akka.Actor;
+using Akka.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +16,8 @@ using Domain.Constants;
 using Infrastructure.Services.Workers;
 using Npgsql;
 using OpenTelemetry.Metrics;
+using Amazon.SQS;
+using Infrastructure.BackgroundWorkers;
 
 namespace WebApi;
 
@@ -109,7 +113,17 @@ public class Program
             logging.ParseStateValues = true;
             logging.AddOtlpExporter();
         });
+        
+        builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+        builder.Services.AddAWSService<IAmazonSQS>();
+        
+        var bootstrap = BootstrapSetup.Create();
+        var di = DependencyResolverSetup.Create(builder.Services.BuildServiceProvider());
+        var actorSystemSetup = bootstrap.And(di);
+        builder.Services.AddSingleton(provider =>
+            ActorSystem.Create("SelahActorSystem", actorSystemSetup));
 
+        builder.Services.AddHostedService<AmazonSqsListener>();
         builder.Services.AddHostedService<ActiveSessionsWorkerService>();
 
         return builder.Services;

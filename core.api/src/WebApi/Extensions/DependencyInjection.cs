@@ -49,10 +49,7 @@ public static class DependencyInjection
         
         services.AddQuartz(q =>
         {
-            // Use Microsoft DI job factory
-            q.UseMicrosoftDependencyInjectionJobFactory();
-
-            // Register job + trigger
+       
             var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");
             q.AddJob<RecurringAccountBalanceUpdateJob>(opts => opts.WithIdentity(jobKey));
 
@@ -60,7 +57,7 @@ public static class DependencyInjection
                     .ForJob(jobKey)
                     .WithIdentity("RecurringAccountBalanceUpdateJob-startup-trigger")
                     .StartNow()
-                    .WithSimpleSchedule(x => x.WithRepeatCount(0)) // run only once
+                    .WithSimpleSchedule(x => x.WithRepeatCount(0))
             );
             
             q.AddTrigger(opts => opts
