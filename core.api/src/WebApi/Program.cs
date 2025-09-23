@@ -1,19 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Infrastructure;
 using WebApi.Extensions;
 using WebApi.Middleware;
-using Hangfire.Dashboard.BasicAuthorization;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using Application.ApplicationUser;
 using Domain.Constants;
-using Infrastructure.RecurringJobs;
 using Infrastructure.Services.Workers;
 using Npgsql;
 using OpenTelemetry.Metrics;
@@ -169,35 +166,5 @@ public class Program
         app.UseAuthorization();
         app.UseMiddleware<ExceptionHandler>();
         app.MapControllers();
-        app.UseHangfireDashboard("/hangfire", new DashboardOptions
-        {
-            Authorization = new[]
-            {
-                new BasicAuthAuthorizationFilter(new BasicAuthAuthorizationFilterOptions()
-                {
-                    SslRedirect = false,
-                    RequireSsl = false,
-                    LoginCaseSensitive = true,
-                    Users = new[]
-                    {
-                        new BasicAuthAuthorizationUser
-                        {
-                            Login = configuration.GetValue<string>("HangfireUsername"),
-                            PasswordClear = configuration.GetValue<string>("HangfirePassword")
-                        }
-                    }
-                })
-            }
-        });
-
-        RegisterHangfireJobs();
-    }
-
-    private static void RegisterHangfireJobs()
-    {
-        RecurringJob.AddOrUpdate<RecurringAccountBalanceUpdateJob>(
-            methodCall: job => job.DoWork(),
-            cronExpression: Cron.Daily(3) //Run this job daily at 3 AM 
-        );
     }
 }

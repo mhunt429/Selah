@@ -2,8 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using Hangfire;
-using Hangfire.PostgreSql;
+using Quartz;
 using MassTransit;
 using Domain.Configuration;
 using Infrastructure.RecurringJobs;
@@ -21,7 +20,7 @@ public static class DependencyInjection
             .AddValidators()
             .AddApplicationServices()
             .AddHttpClients(configuration)
-            .RegisterHangfire(configuration)
+            .RegisterQuartz(configuration)
             .RegisterRabbitMq(configuration)
             ;
     }
@@ -39,18 +38,45 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection RegisterHangfire(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterQuartz(this IServiceCollection services, IConfiguration configuration)
     {
-        string connectionString = configuration.GetValue<string>("SelahDbConnectionString");
-        services.AddHangfire(x =>
-            x.UseRecommendedSerializerSettings()
-                .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString))
-        );
-        services.AddHangfireServer();
-        services.AddTransient<RecurringAccountBalanceUpdateJob>();
+        
+        QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
+        if (quartzConfig == null)
+        {
+            throw new ArgumentNullException(nameof(quartzConfig));
+        }
+        
+        services.AddQuartz(q =>
+        {
+            // Use Microsoft DI job factory
+            q.UseMicrosoftDependencyInjectionJobFactory();
+
+            // Register job + trigger
+            var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");
+            q.AddJob<RecurringAccountBalanceUpdateJob>(opts => opts.WithIdentity(jobKey));
+
+            q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity("RecurringAccountBalanceUpdateJob-startup-trigger")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithRepeatCount(0)) // run only once
+            );
+            
+            q.AddTrigger(opts => opts
+                .ForJob(jobKey)
+                .WithIdentity("RecurringAccountBalanceUpdateJob-daily-trigger")
+                .WithCronSchedule(quartzConfig.AccountBalanceRefreshJobCronExpression)
+            );
+        });
+ 
+        services.AddQuartzHostedService(options =>
+        {
+            options.WaitForJobsToComplete = true;
+        });
+
         return services;
     }
-
     public static IServiceCollection RegisterRabbitMq(this IServiceCollection services, IConfiguration configuration)
     {
         RabbitMqConfig rabbitMqConfig = configuration.GetSection("RabbitMQSettings").Get<RabbitMqConfig>();
