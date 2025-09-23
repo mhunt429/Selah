@@ -7,14 +7,10 @@ public class AccountBalanceImportActor : ReceiveActor
 {
     public AccountBalanceImportActor()
     {
-        Receive<ImportAccountBalanceActorCommand>(async command =>
+        ReceiveAsync<ImportAccountBalanceActorCommand>(command =>
         {
-            if (command.InstitutionId is null) throw new ArgumentNullException(nameof(command.InstitutionId));
 
-            await ImportBalances(command.InstitutionId)
-                .PipeTo(Sender);
-            
-            return 1;
+            return Task.CompletedTask;
         });
     }
 
