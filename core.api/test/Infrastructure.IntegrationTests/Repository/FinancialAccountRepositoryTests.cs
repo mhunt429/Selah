@@ -229,8 +229,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             CreatedAt = DateTimeOffset.UtcNow
         };
 
-        // wait for the balance history to be inserted and new user record
-        await Task.Delay(5000);
         await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory, _userId);
 
         var result =
