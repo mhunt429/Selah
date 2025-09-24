@@ -40,37 +40,32 @@ public static class DependencyInjection
 
     public static IServiceCollection RegisterQuartz(this IServiceCollection services, IConfiguration configuration)
     {
-        
         QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
         if (quartzConfig == null)
         {
             throw new ArgumentNullException(nameof(quartzConfig));
         }
-        
+
         services.AddQuartz(q =>
         {
-       
             var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");
             q.AddJob<RecurringAccountBalanceUpdateJob>(opts => opts.WithIdentity(jobKey));
 
             q.AddTrigger(opts => opts
-                    .ForJob(jobKey)
-                    .WithIdentity("RecurringAccountBalanceUpdateJob-startup-trigger")
-                    .StartNow()
-                    .WithSimpleSchedule(x => x.WithRepeatCount(0))
+                .ForJob(jobKey)
+                .WithIdentity("RecurringAccountBalanceUpdateJob-startup-trigger")
+                .StartNow()
+                .WithSimpleSchedule(x => x.WithRepeatCount(0))
             );
-            
+
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)
                 .WithIdentity("RecurringAccountBalanceUpdateJob-daily-trigger")
                 .WithCronSchedule(quartzConfig.AccountBalanceRefreshJobCronExpression)
             );
         });
- 
-        services.AddQuartzHostedService(options =>
-        {
-            options.WaitForJobsToComplete = true;
-        });
+
+        services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });
 
         return services;
     }

@@ -1,3 +1,4 @@
+using System.Net;
 using Application.Banking;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +29,6 @@ public class BankingController : ControllerBase
         var query = new GetAccountsByUserId.Query { UserId = appRequestContext.UserId };
         var result = await _mediator.Send(query);
 
-        return Ok(result);
+        return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 }

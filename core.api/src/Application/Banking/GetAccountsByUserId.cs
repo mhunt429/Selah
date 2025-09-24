@@ -5,14 +5,14 @@ using MediatR;
 
 namespace Application.Banking;
 
-public class GetAccountsByUserId : IRequest<ApiResponseResult<IEnumerable<FinancialAccountDto>>>
+public class GetAccountsByUserId : IRequest<IEnumerable<FinancialAccountDto>>
 {
-    public class Query : IRequest<ApiResponseResult<IEnumerable<FinancialAccountDto>>>
+    public class Query : IRequest<IEnumerable<FinancialAccountDto>>
     {
         public int UserId { get; set; }
     }
 
-    public class Handler : IRequestHandler<Query, ApiResponseResult<IEnumerable<FinancialAccountDto>>>
+    public class Handler : IRequestHandler<Query, IEnumerable<FinancialAccountDto>>
     {
         private readonly IFinancialAccountRepository _financialAccountRepository;
 
@@ -21,12 +21,12 @@ public class GetAccountsByUserId : IRequest<ApiResponseResult<IEnumerable<Financ
             _financialAccountRepository = financialAccountRepository;
         }
 
-        public async Task<ApiResponseResult<IEnumerable<FinancialAccountDto>>> Handle(Query request,
+        public async Task<IEnumerable<FinancialAccountDto>> Handle(Query request,
             CancellationToken cancellationToken)
         {
             var dbAccounts = await _financialAccountRepository.GetAccountsAsync(request.UserId);
 
-            var dto = dbAccounts.Select(x => new FinancialAccountDto
+            return dbAccounts.Select(x => new FinancialAccountDto
             {
                 Id = x.Id,
                 CurrentBalance = x.CurrentBalance,
@@ -36,8 +36,6 @@ public class GetAccountsByUserId : IRequest<ApiResponseResult<IEnumerable<Financ
                 Subtype = x.Subtype,
                 LastApiSyncTime = x.LastApiSyncTime
             });
-
-            return new ApiResponseResult<IEnumerable<FinancialAccountDto>>(ResultStatus.Success, null, dto);
         }
     }
 }

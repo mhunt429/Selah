@@ -22,5 +22,7 @@ public class SqsMessageActor : ReceiveActor
         });
     }
 
-    public sealed class Ack { }
+    public sealed class Ack
+    {
+    }
 }

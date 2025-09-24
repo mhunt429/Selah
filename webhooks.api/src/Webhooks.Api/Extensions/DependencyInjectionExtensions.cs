@@ -15,7 +15,7 @@ public static class DependencyInjectionExtensions
             configuration.GetSection("AwsMessageSettings").Get<AwsMessageSettings>();
         if (awsMessageSettings == null)
         {
-            throw new ArgumentNullException(nameof(awsMessageSettings));
+            //throw new ArgumentNullException(nameof(awsMessageSettings));
         }
 
         services.AddDefaultAWSOptions(new AWSOptions
