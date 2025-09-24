@@ -1,9 +1,10 @@
 CREATE TABLE connection_sync_data(
     id SERIAL PRIMARY KEY,
-    user_id SERIAL REFERENCES app_user(id),
-    sync_type VARCHAR(20), -- AccountBalance, Investments, Transactions, RecurringTransactions
+    user_id INT REFERENCES app_user(id),
+    sync_type VARCHAR(40), -- AccountBalance, Investments, Transactions, RecurringTransactions
     last_sync_date TIMESTAMPTZ,
-    next_sync_date TIMESTAMPTZ
+    next_sync_date TIMESTAMPTZ,
+    connector_id INT REFERENCES account_connector(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED
 ) INHERITS(base_audit_table);
 
 CREATE INDEX connection_sync_userId on connection_sync_data(user_id);

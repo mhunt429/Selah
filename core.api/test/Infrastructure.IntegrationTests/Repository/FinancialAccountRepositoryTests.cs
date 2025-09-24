@@ -26,7 +26,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     {
         _fixture = fixture;
         _financialAccountRepository = new FinancialAccountRepository(_dbContext, _dbConnectionFactory);
-        _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
+        _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
     }
 
     public async Task InitializeAsync()
