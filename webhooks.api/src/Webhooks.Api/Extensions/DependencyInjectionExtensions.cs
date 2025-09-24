@@ -1,5 +1,6 @@
 using Amazon;
 using Amazon.Extensions.NETCore.Setup;
+using Amazon.SQS;
 using Webhooks.Core.Config;
 using Webhooks.Core.MessageContracts;
 
@@ -27,6 +28,8 @@ public static class DependencyInjectionExtensions
         {
             bus.AddSNSPublisher<PlaidWebhookEvent>(awsMessageSettings.PlaidWebhookTopic);
         });
+        
+       services.AddAWSService<IAmazonSQS>();
         return services;
     }
 }

@@ -113,8 +113,7 @@ public class Program
             logging.ParseStateValues = true;
             logging.AddOtlpExporter();
         });
-        
-        builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+     
         builder.Services.AddAWSService<IAmazonSQS>();
         
         var bootstrap = BootstrapSetup.Create();
