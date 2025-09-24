@@ -31,32 +31,6 @@ public class AmazonSqsListener: BackgroundService
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Starting SQS listener on {QueueUrl}", _queueUrl);
-
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                var receiveRequest = new ReceiveMessageRequest{
-                    QueueUrl= _queueUrl,
-                    MaxNumberOfMessages=1,
-                    WaitTimeSeconds=TimeSpan.FromSeconds(10).Seconds,
-                };
-
-                var response = await _sqs.ReceiveMessageAsync(receiveRequest, stoppingToken);
-
-                foreach (var msg in response.Messages)
-                {
-                    _messageActor.Tell(msg.Body);
-
-                    await _sqs.DeleteMessageAsync(_queueUrl, msg.ReceiptHandle, stoppingToken);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error polling SQS");
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            }
-        }
+      
     }
 }

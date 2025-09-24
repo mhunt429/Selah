@@ -21,7 +21,7 @@ public static class DependencyInjection
             .AddApplicationServices()
             .AddHttpClients(configuration)
             .RegisterQuartz(configuration)
-            .RegisterRabbitMq(configuration)
+            .AddMessageQueuing(configuration)
             ;
     }
 
@@ -74,46 +74,5 @@ public static class DependencyInjection
 
         return services;
     }
-    public static IServiceCollection RegisterRabbitMq(this IServiceCollection services, IConfiguration configuration)
-    {
-        RabbitMqConfig rabbitMqConfig = configuration.GetSection("RabbitMQSettings").Get<RabbitMqConfig>();
-        if (rabbitMqConfig == null)
-        {
-            throw new NullReferenceException("RabbitMq configuration is null");
-        }
-
-        services.AddMassTransit(x =>
-        {
-            x.SetKebabCaseEndpointNameFormatter();
-            x.SetInMemorySagaRepositoryProvider();
-            var assembly = typeof(Program).Assembly;
-            x.AddConsumers(assembly);
-            x.AddSagaStateMachines(assembly);
-            x.AddSagas(assembly);
-            x.AddActivities(assembly);
-            x.UsingRabbitMq((context, configuration) =>
-            {
-                configuration.Host(rabbitMqConfig.Host);
-                configuration.Host(rabbitMqConfig.Host, hostConfigurator =>
-                {
-                    hostConfigurator.Username(rabbitMqConfig.UserName);
-                    hostConfigurator.Password(rabbitMqConfig.Password);
-                    if (rabbitMqConfig.UseSsl)
-                    {
-                        hostConfigurator.UseSsl(s =>
-                        {
-                            s.Protocol = SslProtocols.Tls13;
-                            s.ServerName = rabbitMqConfig.SslServerName;
-                            var clientCertificate = new X509Certificate2(
-                                rabbitMqConfig.ClientCertificatePath
-                            );
-                            s.Certificate = clientCertificate;
-                        });
-                    }
-                });
-            });
-        });
-
-        return services;
-    }
+    
 }
