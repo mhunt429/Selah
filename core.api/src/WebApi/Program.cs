@@ -17,7 +17,7 @@ using Infrastructure.Services.Workers;
 using Npgsql;
 using OpenTelemetry.Metrics;
 using Amazon.SQS;
-using Infrastructure.BackgroundWorkers;
+//using Infrastructure.BackgroundWorkers;
 
 namespace WebApi;
 
@@ -115,9 +115,7 @@ public class Program
         
         var bootstrap = BootstrapSetup.Create();
         var di = DependencyResolverSetup.Create(builder.Services.BuildServiceProvider());
-        var actorSystemSetup = bootstrap.And(di);
-        builder.Services.AddSingleton(provider =>
-            ActorSystem.Create("SelahActorSystem", actorSystemSetup));
+       
 
         //builder.Services.AddHostedService<AmazonSqsListener>();
         builder.Services.AddHostedService<ActiveSessionsWorkerService>();

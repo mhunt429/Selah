@@ -8,5 +8,5 @@ public interface IAccountConnectorRepository
 
     Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecords(int userId);
 
-    Task UpdateConnectionSync(int id, int userId);
+    Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate);
 }

@@ -54,7 +54,7 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
         return await GetAllAsync<AccountConnectorEntity>(sql, new { userId });
     }
 
-    public async Task UpdateConnectionSync(int id, int userId)
+    public async Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate)
     {
         string sql = @"UPDATE connection_sync_data 
             SET 
@@ -64,7 +64,7 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
         await UpdateAsync(sql,
             new
             {
-                id = id, userId = userId, @lastSyncDate = DateTimeOffset.UtcNow, @nextSyncDate = DateTimeOffset.UtcNow
+                id = id, userId = userId, @lastSyncDate = DateTimeOffset.UtcNow, @nextSyncDate = nextDate
             });
     }
 }

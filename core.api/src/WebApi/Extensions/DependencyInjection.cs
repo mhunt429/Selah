@@ -21,7 +21,7 @@ public static class DependencyInjection
             .AddApplicationServices()
             .AddHttpClients(configuration)
             .RegisterQuartz(configuration)
-            .AddMessageQueuing(configuration)
+            .RegisterActorSystem()
             ;
     }
 
