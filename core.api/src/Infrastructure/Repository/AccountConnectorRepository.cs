@@ -12,7 +12,7 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
     /// </summary>
     public async Task<int> InsertAccountConnectorRecord(AccountConnectorEntity account)
     {
-        var sql =
+        var connectorSql =
             @"INSERT INTO account_connector (
                                original_insert, 
                                last_update,
@@ -33,7 +33,8 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
                                    @date_connected, 
                                    @encrypted_access_token, 
                                    @external_event_id)returning(id);";
-        return await AddAsync<int>(sql, new
+
+        var connectorDataToSave = new
         {
             original_insert = DateTimeOffset.UtcNow,
             last_update = DateTimeOffset.UtcNow,
@@ -44,7 +45,25 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
             date_connected = DateTimeOffset.UtcNow,
             encrypted_access_token = account.EncryptedAccessToken,
             external_event_id = account.ExternalEventId
-        });
+        };
+        
+        int accountConnectorId = await AddAsync<int>(connectorSql,connectorDataToSave);
+
+        var connectionSyncSql =
+            @"INSERT INTO connection_sync_data(user_id, last_sync_date, next_sync_date, connector_id, original_insert, last_update, app_last_changed_by)
+                VALUES(@userId, CURRENT_TIMESTAMP, @nextSyncDate, @connectorId,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, @appLastChangedBy)";
+
+        var connectorSyncDataToSave = new
+        {
+            userId = account.UserId,
+            nextSyncDate = DateTimeOffset.UtcNow.AddDays(3),
+            connectorId = accountConnectorId,
+            appLastChangedBy = account.UserId
+        };
+        
+        await AddAsync<int>(connectionSyncSql,connectorSyncDataToSave);
+        
+        return accountConnectorId;
     }
 
     public async Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecords(int userId)
@@ -66,5 +85,19 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
             {
                 id = id, userId = userId, @lastSyncDate = DateTimeOffset.UtcNow, @nextSyncDate = nextDate
             });
+    }
+
+    public async Task<IEnumerable<ConnectionSyncDataEntity>> GetConnectorRecordsToImport()
+    {
+        var sql = "SELECT * FROM connection_sync_data WHERE CURRENT_TIMESTAMP > next_sync_date";
+
+        return await GetAllAsync<ConnectionSyncDataEntity>(sql, null);
+    }
+    
+    public async Task<ConnectionSyncDataEntity> GetConnectorSyncRecordByConnectorId(int userId, int connectorId)
+    {
+        var sql = "SELECT * FROM connection_sync_data WHERE connector_id = @connectorId AND user_id = @userId";
+
+        return await GetFirstOrDefaultAsync<ConnectionSyncDataEntity>(sql, new { connectorId, userId });
     }
 }

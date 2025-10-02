@@ -111,7 +111,7 @@ public class BaseRepository
     /// </summary>
     /// <param name="transactions"></param>
     /// <param name="sql"></param>
-    public async Task PerformTransaction(IEnumerable<DynamicParameters> transactions, string sql)
+    public async Task PerformTransaction<T>(IEnumerable<T> transactions, string sql)
     {
         using (IDbConnection connection = await _dbConnectionFactory.CreateConnectionAsync())
         {

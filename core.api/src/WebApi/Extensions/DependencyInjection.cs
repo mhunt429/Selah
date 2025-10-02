@@ -49,7 +49,7 @@ public static class DependencyInjection
         services.AddQuartz(q =>
         {
             var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");
-            q.AddJob<RecurringAccountBalanceUpdateJob>(opts => opts.WithIdentity(jobKey));
+            q.AddJob<ConnectorDataSyncRecurringJob>(opts => opts.WithIdentity(jobKey));
 
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)

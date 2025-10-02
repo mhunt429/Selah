@@ -49,17 +49,26 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
             TransactionSyncCursor = "",
             OriginalInsert = DateTimeOffset.UtcNow
         };
-        await _accountConnectorRepository.InsertAccountConnectorRecord(data);
+        int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
 
         var queryResult =
             await _baseRepository.GetFirstOrDefaultAsync<AccountConnectorEntity>(
                 "SELECT * FROM account_connector WHERE user_id = @user_id", new { user_id = _userId });
 
+        connectorId.Should().BeGreaterThan(0);
         queryResult.Should().NotBeNull();
         queryResult.UserId.Should().Be(_userId);
         queryResult.EncryptedAccessToken.Should().Be(data.EncryptedAccessToken);
         queryResult.DateConnected.Should().BeAfter(DateTimeOffset.MinValue);
         queryResult.InstitutionId.Should().Be(data.InstitutionId);
         queryResult.InstitutionName.Should().Be(data.InstitutionName);
+
+        var connectionSync = await _accountConnectorRepository.GetConnectorSyncRecordByConnectorId(_userId, connectorId);
+        connectionSync.Should().NotBeNull();
+        connectionSync.UserId.Should().Be(_userId);
+        connectionSync.Id.Should().BeGreaterThan(0);
+        connectionSync.ConnectorId.Should().Be(connectorId);
+        connectionSync.LastSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
+        connectionSync.NextSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
     }
 }
