@@ -11,8 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Akka" Version="1.5.50" />
+        <PackageReference Include="Akka" Version="1.5.51" />
         <PackageReference Include="Akka.DependencyInjection" Version="1.5.50" />
+        <PackageReference Include="Akka.Streams" Version="1.5.51" />
         <PackageReference Include="AWSSDK.SQS" Version="4.0.1.4" />
         <PackageReference Include="Dapper" Version="2.1.66"/>
         <PackageReference Include="EFCore.BulkExtensions" Version="9.0.1"/>

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Infrastructure;
 using Infrastructure.Services;
+using Infrastructure.Services.Connector;
 using Infrastructure.Services.Interfaces;
 
 namespace WebApi.Extensions;
@@ -14,6 +15,7 @@ public static class ApplicationServicesExtensions
             .AddScoped<ITokenService, TokenService>()
             .AddScoped<IPasswordHasherService, PasswordHasherService>()
             .AddScoped<ICryptoService, CryptoService>()
+            .AddScoped<IPlaidAccountBalanceImportService, PlaidAccountBalanceImportService>()
             ;
 
         return services;
