@@ -47,7 +47,6 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "token",
             TransactionSyncCursor = "",
-            OriginalInsert = DateTimeOffset.UtcNow
         };
         int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
 

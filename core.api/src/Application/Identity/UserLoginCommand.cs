@@ -62,8 +62,7 @@ public class UserLogin
                         AppLastChangedBy = dbUser.Id,
                         UserId = dbUser.Id,
                         IssuedAt = DateTimeOffset.UtcNow,
-                        ExpiresAt = sessionExpiration,
-                        OriginalInsert = DateTimeOffset.UtcNow
+                        ExpiresAt = sessionExpiration
                     });
 
 

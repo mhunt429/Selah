@@ -7,6 +7,11 @@ CREATE TABLE account_balance_history(
     created_at TIMESTAMPTZ
 ) INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON account_balance_history
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
 CREATE INDEX account_history_user_id ON account_balance_history(user_id);
 CREATE INDEX account_history_financial_account_id ON account_balance_history(financial_account_id);
 

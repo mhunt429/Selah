@@ -45,8 +45,7 @@ public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepos
             official_name = @officialName, 
             subtype = @subtype,
             last_api_sync_time = @lastApiSyncTime,
-            app_last_changed_by = @appLastChangedBy,
-            last_update = @lastUpdate
+            app_last_changed_by = @appLastChangedBy
             WHERE id = @id AND user_id = @userId";
 
         var modelToSave = new
@@ -58,7 +57,6 @@ public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepos
             subtype = account.Subtype,
             lastApiSyncTime = account.LastApiSyncTime,
             appLastChangedBy = userId,
-            lastUpdate = DateTimeOffset.UtcNow,
             currentBalance = account.CurrentBalance,
         };
 
@@ -74,13 +72,12 @@ public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepos
     public async Task InsertBalanceHistory(AccountBalanceHistoryEntity history, int userId)
     {
         var sql =
-            @"INSERT INTO account_balance_history(app_last_changed_by, last_update, user_id, financial_account_id, current_balance, created_at)
-            VALUES(@appLastChangedBy, @lastUpdate, @userId, @financialAccountId, @currentBalance, @createdAt)";
+            @"INSERT INTO account_balance_history(app_last_changed_by, user_id, financial_account_id, current_balance, created_at)
+            VALUES(@appLastChangedBy, @userId, @financialAccountId, @currentBalance, @createdAt)";
 
         var objectToSave = new
         {
             appLastChangedBy = userId,
-            lastUpdate = DateTimeOffset.UtcNow,
             userId,
             financialAccountId = history.FinancialAccountId,
             currentBalance = history.CurrentBalance,

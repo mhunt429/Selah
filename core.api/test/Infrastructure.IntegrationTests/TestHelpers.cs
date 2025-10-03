@@ -33,8 +33,7 @@ public static class TestHelpers
         UserAccountEntity account = new UserAccountEntity
         {
             AccountName = "AccountName",
-            CreatedOn = DateTimeOffset.UtcNow,
-            OriginalInsert = DateTimeOffset.UtcNow,
+            CreatedOn = DateTimeOffset.UtcNow
         };
 
         ApplicationUserEntity user = new ApplicationUserEntity
@@ -44,8 +43,7 @@ public static class TestHelpers
             EncryptedName = "FirstName|LastName",
             EncryptedPhone = "123-123-1234",
             LastLoginIp = "127.0.0.1",
-            EmailHash = "email",
-            OriginalInsert = DateTimeOffset.UtcNow,
+            EmailHash = "email"
         };
 
 

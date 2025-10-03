@@ -14,6 +14,13 @@ CREATE TABLE app_user
     email_hash      CHAR(64)
 )INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON app_user
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
+
+
 CREATE INDEX au_email_hash_indx ON app_user (email_hash);
 
 CREATE INDEX au_user_id ON app_user (account_id)

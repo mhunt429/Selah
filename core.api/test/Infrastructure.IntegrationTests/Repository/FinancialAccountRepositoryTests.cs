@@ -46,7 +46,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "token",
             TransactionSyncCursor = "",
-            OriginalInsert = DateTimeOffset.UtcNow
+            
         };
         _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
     }
@@ -73,7 +73,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 Subtype = "Checking",
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
-                OriginalInsert = DateTimeOffset.UtcNow,
                 ConnectorId = _connectorId
             },
             new FinancialAccountEntity
@@ -88,7 +87,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
                 Subtype = "Savings",
                 IsExternalApiImport = true,
                 LastApiSyncTime = DateTimeOffset.UtcNow,
-                OriginalInsert = DateTimeOffset.UtcNow,
                 ConnectorId = _connectorId
             }
         };
@@ -116,7 +114,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             Subtype = "Retirement",
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
-            OriginalInsert = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId
         };
 
@@ -152,7 +149,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            OriginalInsert = DateTimeOffset.UtcNow
+            
         };
 
         var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
@@ -188,7 +185,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            OriginalInsert = DateTimeOffset.UtcNow
+            
         };
 
         var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
@@ -215,7 +212,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             Subtype = "Retirement",
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
-            OriginalInsert = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId
         };
 

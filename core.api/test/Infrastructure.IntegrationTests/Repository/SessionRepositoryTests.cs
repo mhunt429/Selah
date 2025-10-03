@@ -39,7 +39,6 @@ public class SessionRepositoryTests : IAsyncLifetime
     {
         var session = new UserSessionEntity
         {
-            OriginalInsert = DateTimeOffset.UtcNow,
             AppLastChangedBy = _userId,
             Id = Guid.NewGuid(),
             UserId = _userId,
@@ -53,7 +52,6 @@ public class SessionRepositoryTests : IAsyncLifetime
         session.Should().NotBeNull();
         session.ExpiresAt.Should().Be(session.ExpiresAt);
         session.AppLastChangedBy.Should().Be(session.AppLastChangedBy);
-        session.OriginalInsert.Should().Be(session.OriginalInsert);
         session.UserId.Should().Be(session.UserId);
 
         await _userSessionRepository.RevokeSessionsByUser(_userId);

@@ -14,8 +14,6 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
     {
         var connectorSql =
             @"INSERT INTO account_connector (
-                               original_insert, 
-                               last_update,
                                app_last_changed_by,
                                user_id, 
                                institution_id, 
@@ -24,8 +22,6 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
                                encrypted_access_token, 
                                external_event_id) 
                             VALUES(
-                                   @original_insert, 
-                                   @last_update,
                                    @app_last_changed_by,
                                    @user_id, 
                                    @institution_id, 
@@ -36,8 +32,6 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
 
         var connectorDataToSave = new
         {
-            original_insert = DateTimeOffset.UtcNow,
-            last_update = DateTimeOffset.UtcNow,
             app_last_changed_by = account.UserId,
             user_id = account.UserId,
             institution_id = account.InstitutionId,
@@ -50,8 +44,8 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
         int accountConnectorId = await AddAsync<int>(connectorSql,connectorDataToSave);
 
         var connectionSyncSql =
-            @"INSERT INTO connection_sync_data(user_id, last_sync_date, next_sync_date, connector_id, original_insert, last_update, app_last_changed_by)
-                VALUES(@userId, CURRENT_TIMESTAMP, @nextSyncDate, @connectorId,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, @appLastChangedBy)";
+            @"INSERT INTO connection_sync_data(user_id, last_sync_date, next_sync_date, connector_id, app_last_changed_by)
+                VALUES(@userId, CURRENT_TIMESTAMP, @nextSyncDate, @connectorId, @appLastChangedBy)";
 
         var connectorSyncDataToSave = new
         {

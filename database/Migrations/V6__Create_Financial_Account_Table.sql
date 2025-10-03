@@ -14,6 +14,11 @@ CREATE TABLE financial_account
     last_api_sync_time     TIMESTAMPTZ
 ) INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON financial_account
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
 CREATE INDEX fa_connectorId on financial_account (connector_id);
 CREATE INDEX fa_userId ON financial_account (user_id);
 CREATE INDEX fa_externalId on financial_account (external_id);

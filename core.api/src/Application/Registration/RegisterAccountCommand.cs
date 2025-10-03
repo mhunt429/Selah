@@ -66,8 +66,7 @@ public class RegisterAccount
             return new UserAccountEntity
             {
                 CreatedOn = DateTime.UtcNow,
-                AccountName = request.AccountName,
-                OriginalInsert = DateTimeOffset.UtcNow,
+                AccountName = request.AccountName
             };
         }
 
@@ -82,8 +81,7 @@ public class RegisterAccount
                 PhoneVerified = false,
                 EmailVerified = false,
                 EmailHash = _cryptoService.HashValue(request.Email),
-                CreatedDate = DateTimeOffset.UtcNow,
-                OriginalInsert = DateTimeOffset.UtcNow,
+                CreatedDate = DateTimeOffset.UtcNow
             };
         }
     }

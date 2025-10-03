@@ -7,6 +7,11 @@ CREATE TABLE connection_sync_data(
     connector_id INT REFERENCES account_connector(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED
 ) INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON connection_sync_data
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
 CREATE INDEX connection_sync_userId on connection_sync_data(user_id);
 
 /*

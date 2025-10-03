@@ -10,6 +10,11 @@ CREATE TABLE account_connector
     external_event_id       TEXT
 ) INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON account_connector
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
 CREATE INDEX ac_userId ON account_connector (user_id);
 
 /*

@@ -5,6 +5,12 @@ CREATE TABLE user_session(
     expires_at TIMESTAMPTZ
 )INHERITS(base_audit_table);
 
+CREATE TRIGGER set_audit_timestamps
+BEFORE INSERT OR UPDATE ON user_session
+FOR EACH ROW
+EXECUTE FUNCTION set_audit_timestamps();
+
+
 CREATE INDEX user_session_user_id ON user_session(user_id);
 
 /*
