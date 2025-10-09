@@ -3,9 +3,9 @@ using Domain.Actors;
 
 namespace Infrastructure.Actors;
 
-public class AccountBalanceImportActor : ReceiveActor
+public class AccountBalanceSyncActor : ReceiveActor
 {
-    public AccountBalanceImportActor()
+    public AccountBalanceSyncActor()
     {
         ReceiveAsync<ImportAccountBalanceActorCommand>(command =>
         {

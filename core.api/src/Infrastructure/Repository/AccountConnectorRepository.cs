@@ -60,11 +60,17 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
         return accountConnectorId;
     }
 
-    public async Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecords(int userId)
+    public async Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecordsByUserId(int userId)
     {
         var sql = "SELECT * FROM AccountConnector WHERE user_id = @userId";
 
         return await GetAllAsync<AccountConnectorEntity>(sql, new { userId });
+    }
+
+    public async Task<AccountConnectorEntity> GetAccountConnectorRecordById(int id)
+    {
+        var sql = "SELECT * FROM AccountConnector WHERE id = @id";
+        return await GetFirstOrDefaultAsync<AccountConnectorEntity>(sql, new { id });
     }
 
     public async Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate)

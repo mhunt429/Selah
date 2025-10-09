@@ -7,6 +7,11 @@ namespace WebApi.Extensions;
 
 public static class AkkaExtensions
 {
+    /// <summary>
+    /// Extensions methods for Akka dependency injection
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection RegisterActorSystem(this IServiceCollection services)
     {
         var bootstrap = BootstrapSetup.Create();
@@ -22,6 +27,9 @@ public static class AkkaExtensions
         var plaidActorRef = actorSystem.ActorOf(resolver.Props<PlaidWebhookActor>(), "plaidWebhookActor");
         services.AddSingleton(plaidActorRef);
 
+        var accountBalanceSyncActorRef = actorSystem.ActorOf(resolver.Props<AccountBalanceSyncActor>());
+        services.AddSingleton(accountBalanceSyncActorRef);
+        
         return services;
     }
 }

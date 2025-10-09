@@ -16,7 +16,7 @@ public interface IAccountConnectorRepository
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecords(int userId);
+    Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecordsByUserId(int userId);
 
     /// <summary>
     /// Updates the specific connector record after the recurring job as has ran
