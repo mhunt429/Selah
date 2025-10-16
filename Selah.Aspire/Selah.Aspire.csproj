@@ -19,7 +19,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\core.api\src\WebApi\WebApi.csproj" />
-      <ProjectReference Include="..\webhooks.api\src\Webhooks.Api\Webhooks.Api.csproj" />
     </ItemGroup>
 
 </Project>
