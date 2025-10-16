@@ -2,13 +2,10 @@
   class="w-full bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300"
 >
   <div class="container mx-auto px-6">
-    <div class="flex h-16 items-center justify-around">
-      <!-- Logo -->
-
-      <!-- Desktop Menu -->
+    <div class="flex h-16 items-center">
       <div class="hidden sm:flex items-center space-x-6">
         <a
-          href="#"
+          routerLink="/profile/dashboard"
           class="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
           >Dashboard</a
         >
@@ -35,7 +32,7 @@
           type="button"
           (click)="toggleMobileMenu()"
           [attr.aria-expanded]="mobileMenuOpen"
-          class="inline-flex items-center justify-center rounded-md p-2 text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 focus:outline-none transition"
+          class="inline-flex items-center justify-center rounded-md p-2 text-teal-600 dark:hover:text-teal-400 focus:outline-none transition"
         >
           <!-- Hamburger -->
           @if(!mobileMenuOpen){
