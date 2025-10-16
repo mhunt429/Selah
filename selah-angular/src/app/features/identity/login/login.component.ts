@@ -1,15 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { FloatingLabelComponent } from '../../../shared/inputs/floating-label/floating-label.component';
-
+import { AuthService } from '../../../shared/services/auth.service';
+import { Login } from '../../../core/models/identity/login';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  imports: [FloatingLabelComponent],
+  imports: [FloatingLabelComponent, ReactiveFormsModule],
 })
 export class LoginComponent implements OnInit {
-  // private titleService: TitleSer;
-  constructor() {}
+  email: string = 'test';
+  password: string = 'test';
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {}
+
+  handleLogin(event: Event) {
+    event.preventDefault();
+    const request: Login = {
+      email: this.email,
+      password: this.password,
+    };
+    this.authService.loginUser$(request).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (e) => console.log(e),
+    });
+  }
 }
