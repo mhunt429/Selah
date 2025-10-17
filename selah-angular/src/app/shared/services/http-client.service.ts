@@ -39,7 +39,7 @@ export class HttpClientService {
   public patch$ = <T = any>(url: string, requestBody: any, options = {}) =>
     this.http.patch<T>(`${HttpClientService.API_BASE}${url}`, requestBody, options);
 
-  public delete$ = <T = any>(url: string, queryParams?: object) =>
+  public delete$ = <T>(url: string, queryParams?: object) =>
     this.http.delete<T>(
       `${HttpClientService.API_BASE}${url}${this.serializeQueryParams(queryParams)}`
     );
