@@ -11,7 +11,7 @@ import {
 export type ColumnHeader = {
   name: string;
   sortable: boolean;
-  handleSort$: (name: string) => void;
+  //handleSort$: (name: string) => void;
 };
 
 @Component({
@@ -32,7 +32,7 @@ export type ColumnHeader = {
   ],
 })
 export class PagedTableComponent implements OnInit {
-  @Input() columnsHeaders: ColumnHeader[] = [];
+  @Input() columnHeaders: ColumnHeader[] = [];
   @Input() totalPages: number = 0;
 
   currentPage: number = 1;

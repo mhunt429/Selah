@@ -2,7 +2,7 @@
   <table class="w-full">
     <thead>
       <tr class="bg-gray-50 dark:bg-gray-700"></tr>
-      @for (header of columnsHeaders; track $index) {
+      @for (header of columnHeaders; track $index) {
       <th class="px-6 py-3 text-left cursor-pointer">
         <div
           class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -26,7 +26,9 @@
 >
   <div>
     <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-      <button>
+      <button
+        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <span class="sr-only">Previous</span>
         <lucide-angular name="arrow-left" class="h-5 w-5" />
       </button>
@@ -39,7 +41,9 @@
         }}"
       ></button>
       currentPage }
-      <button>
+      <button
+        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <span class="sr-only">Next</span>
         <lucide-angular name="arrow-right" class="h-5 w-5" />
       </button>

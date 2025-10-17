@@ -3,15 +3,22 @@ import { LandingPageComponent } from './features/landing-page/landing-page.compo
 import { LoginComponent } from './features/identity/login/login.component';
 import { MainLayoutComponent } from './shared/main-layout/main-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { RegisterComponent } from './features/identity/register/register.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: LandingPageComponent,
   },
-  { path: 'login', component: LoginComponent },
   {
-    path: 'profile',
+    path: 'identity',
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+    ],
+  },
+  {
+    path: '',
     component: MainLayoutComponent,
     children: [
       {
