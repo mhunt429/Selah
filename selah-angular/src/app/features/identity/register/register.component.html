@@ -6,61 +6,84 @@
       </h2>
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Your personal finance companion</p>
     </div>
-    <form onSubmit="{handleLogin}" class="mt-8 space-y-6">
+    <form
+      [formGroup]="registrationForm"
+      (ngSubmit)="registrationSubmit($event)"
+      class="mt-8 space-y-6"
+    >
       <div class="space-y-4">
         <app-floating-label
+          formControlName="accountName"
           class="py-3 px-4"
-          id="register-accountName"
+          id="accountName"
           label="Account Name (Optional)"
           name="accountName"
           type="text"
           [required]="false"
         />
         <app-floating-label
+          formControlName="firstName"
           class="py-3 px-4"
-          id="register-first-name"
+          id="firstName"
           label="First Name"
           name="firstName"
           type="text"
           [required]="true"
         />
+        @if( registrationForm.get('firstName')?.invalid &&
+        (registrationForm.get('firstName')?.touched || registrationForm.get('firstName')?.dirty)) {
+        <div class="text-red-500 text-sm mt-1">First Name is required</div>
+        }
         <app-floating-label
+          formControlName="lastName"
           class="py-3 px-4"
-          id="register-last-name"
+          id="lastName"
           label="Last Name"
           name="lastName"
           type="text"
           [required]="true"
         />
+        @if( registrationForm.get('lastName')?.invalid && (registrationForm.get('lastName')?.touched
+        || registrationForm.get('lastName')?.dirty)) {
+        <div class="text-red-500 text-sm mt-1">Last Name is required</div>
+        }
         <app-floating-label
+          formControlName="emailAddress"
           class="py-3 px-4"
-          id="register-email"
+          id="emailAddress"
           label="Email Address"
           name="emailAddress"
           type="text"
           [required]="true"
         />
+        @if( registrationForm.get('emailAddress')?.invalid &&
+        (registrationForm.get('emailAddress')?.touched ||
+        registrationForm.get('emailAddress')?.dirty)) {
+        <div class="text-red-500 text-sm mt-1">Email is required</div>
+        }
         <app-floating-label
+          formControlName="password"
           class="py-3 px-4"
-          id="register-password"
+          id="password"
           label="Password"
           name="password"
           type="password"
           [required]="true"
         />
         <app-floating-label
+          formControlName="passwordConfirmation"
           class="py-3 px-4"
-          id="register-password-confirm"
+          id="passwordConfirmation"
           label="Password Confirmation"
           name="passwordConfirmation"
           type="password"
           [required]="true"
         />
       </div>
-
       <button
+        [disabled]="!registrationForm.valid"
         type="submit"
-        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal-600"
       >
         Register
       </button>
