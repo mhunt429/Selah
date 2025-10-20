@@ -1,11 +1,12 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { Component, forwardRef, Input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-floating-label',
+  standalone: true,
   templateUrl: './floating-label.component.html',
   styleUrls: ['./floating-label.component.scss'],
-  imports: [ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -14,24 +15,20 @@ import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
     },
   ],
 })
-export class FloatingLabelComponent implements OnInit {
-  @Input() id: string = '';
-  @Input() label: string = '';
-  @Input() name: string = '';
-  @Input() type: string = '';
-  @Input() required: boolean = false;
+export class FloatingLabelComponent {
+  @Input() id = '';
+  @Input() label = '';
+  @Input() name = '';
+  @Input() type = 'text';
+  @Input() required = false;
 
-  value?: number | string | Date = undefined;
+  value: string | number | Date | null = '';
 
-  constructor() {}
-
-  ngOnInit() {}
-
-  private onChange: any = () => {};
-  private onTouched: any = () => {};
+  onChange: (value: any) => void = () => {};
+  private onTouched: () => void = () => {};
 
   writeValue(value: any): void {
-    this.value = value;
+    this.value = value ?? '';
   }
 
   registerOnChange(fn: any): void {
@@ -45,5 +42,9 @@ export class FloatingLabelComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.value = input.value;
     this.onChange(this.value);
+  }
+
+  onBlur() {
+    this.onTouched();
   }
 }

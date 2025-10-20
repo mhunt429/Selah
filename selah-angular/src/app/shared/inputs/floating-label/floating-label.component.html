@@ -1,7 +1,7 @@
 <div class="relative">
   <input
-    [value]="value"
-    (input)="onInput($event)"
+    [ngModel]="value"
+    (ngModelChange)="onChange($event)"
     [id]="id"
     [name]="name"
     [type]="type"
