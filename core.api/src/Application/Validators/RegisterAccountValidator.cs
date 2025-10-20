@@ -24,9 +24,9 @@ public class RegisterAccountValidator : AbstractValidator<AccountRegistrationReq
             .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter.")
             .Matches(@"\d").WithMessage("Password must contain at least one digit.")
             .Matches(@"[\W_]").WithMessage("Password must contain at least one special character.");
-        RuleFor(x => x.FirstName).NotEmpty().WithMessage("First name is required");
-        RuleFor(x => x.LastName).NotEmpty().WithMessage("Last name is required");
-        RuleFor(x => x.Password).Equal(x => x.PasswordConfirmation).WithMessage("Passwords don't match");
+        RuleFor(x => x.FirstName).NotEmpty().WithMessage("First name is required.");
+        RuleFor(x => x.LastName).NotEmpty().WithMessage("Last name is required.");
+        RuleFor(x => x.Password).Equal(x => x.PasswordConfirmation).WithMessage("Passwords don't match.");
 
         RuleFor(user => user.Email).MustAsync(async (email, cancellation) =>
         {

@@ -6,6 +6,13 @@
       </h2>
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Your personal finance companion</p>
     </div>
+    @if(errors.length > 0){
+    <app-alert [alertType]="AlertType.Error">
+      @for (error of errors; track $index) {
+      <div>{{ error }}</div>
+      }
+    </app-alert>
+    }
     <form
       [formGroup]="registrationForm"
       (ngSubmit)="registrationSubmit($event)"

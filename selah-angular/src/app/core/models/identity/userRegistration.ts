@@ -3,7 +3,7 @@ export type UserRegistration = {
   email: string;
   password: string;
   passwordConfirmation: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   firstName: string;
   lastName: string;
 };

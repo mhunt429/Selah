@@ -1,17 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FloatingLabelComponent } from '../../../shared/inputs/floating-label/floating-label.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { passwordMatchValidator } from '../../../core/validators';
 import { PasswordValidationSummaryComponent } from '../../../shared/password-validation-summary/password-validation-summary.component';
-import { PagedTableComponent } from '../../../shared/paged-table/paged-table.component';
+import { AccountService } from '../../../shared/services/account.service';
+import { UserRegistration } from '../../../core/models/identity/userRegistration';
+import { AlertComponent, AlertType } from '../../../shared/alert/alert.component';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
-  imports: [FloatingLabelComponent, ReactiveFormsModule, PasswordValidationSummaryComponent],
+  imports: [
+    FloatingLabelComponent,
+    ReactiveFormsModule,
+    PasswordValidationSummaryComponent,
+    AlertComponent,
+  ],
 })
 export class RegisterComponent implements OnInit {
+  AlertType = AlertType;
+  private accountService = inject(AccountService);
+
+  errors: string[] = [];
+
   registrationForm = new FormGroup(
     {
       accountName: new FormControl(''),
@@ -38,6 +50,22 @@ export class RegisterComponent implements OnInit {
 
   registrationSubmit(event: Event) {
     event.preventDefault();
+
+    const request: UserRegistration = {
+      accountName: this.registrationForm.get('accountName')?.value || '',
+      firstName: this.registrationForm.get('firstName')?.value || '',
+      lastName: this.registrationForm.get('lastName')?.value || '',
+      email: this.registrationForm.get('emailAddress')?.value || '',
+      password: this.registrationForm.get('password')?.value || '',
+      passwordConfirmation: this.registrationForm.get('passwordConfirmation')?.value || '',
+    };
+
+    this.accountService.registerAccount$(request).subscribe({
+      next: (v) => {
+        console.log(v);
+      },
+      error: (e) => (this.errors = e.error.errors),
+    });
   }
 
   updatePasswordRules() {
