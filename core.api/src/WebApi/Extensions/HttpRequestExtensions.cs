@@ -21,7 +21,7 @@ public static class HttpRequestExtensions
 
         if (string.IsNullOrWhiteSpace(bearerToken))
         {
-            request.Cookies.TryGetValue("x_token", out bearerToken);
+            request.Cookies.TryGetValue("x_api_token", out bearerToken);
         }
 
         if (string.IsNullOrWhiteSpace(bearerToken))

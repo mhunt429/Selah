@@ -9,9 +9,12 @@ namespace Application.Identity;
 
 public class UserLogin
 {
-    public class Command : LoginRequest, IRequest<Command.Response>
+    public class Command : LoginRequest, IRequest<Response?>
     {
-        public class Response
+       
+    }
+    
+     public class Response
         {
             public AccessTokenResponse? AccessToken { get; set; }
 
@@ -21,7 +24,7 @@ public class UserLogin
             public DateTimeOffset SessionExpiration { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command, Response>
+        public class Handler : IRequestHandler<Command, Response?>
         {
             private readonly IApplicationUserRepository _repository;
             private readonly ICryptoService _cryptoService;
@@ -44,7 +47,7 @@ public class UserLogin
                 _userSessionRepository = userSessionRepository;
             }
 
-            public async Task<Response> Handle(Command command, CancellationToken cancellationToken)
+            public async Task<Response?> Handle(Command command, CancellationToken cancellationToken)
             {
                 string hashedEmail = _cryptoService.HashValue(command.Email);
                 ApplicationUserEntity? dbUser = await _repository.GetUserByEmail(hashedEmail);
@@ -76,8 +79,7 @@ public class UserLogin
                     return response;
                 }
 
-                return null;
+                return null!;
             }
         }
-    }
 }

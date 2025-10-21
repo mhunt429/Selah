@@ -17,4 +17,12 @@ export class AuthService {
       loginRequest
     );
   }
+
+  public getAccessToken() {
+    return sessionStorage.getItem('access_token');
+  }
+
+  public getSessionId() {
+    return sessionStorage.getItem('sessionId');
+  }
 }

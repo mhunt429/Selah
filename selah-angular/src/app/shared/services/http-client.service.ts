@@ -21,7 +21,7 @@ export class HttpClientService {
   public get$ = <T>(url: string, queryParams?: object, options = {}) =>
     this.http.get<T>(
       `${HttpClientService.API_BASE}${url}${this.serializeQueryParams(queryParams)}`,
-      options
+      { ...options, withCredentials: true }
     );
 
   public getWithResponse$ = <T = any>(url: string, queryParams?: object) =>
@@ -31,17 +31,27 @@ export class HttpClientService {
     );
 
   public post$ = <T, U>(url: string, requestBody: U, options = {}) =>
-    this.http.post<T>(`${HttpClientService.API_BASE}${url}`, requestBody, options);
+    this.http.post<T>(`${HttpClientService.API_BASE}${url}`, requestBody, {
+      ...options,
+      withCredentials: true,
+    });
 
   public put$ = <T, U>(url: string, requestBody: U, options = {}) =>
-    this.http.put<T>(`${HttpClientService.API_BASE}${url}`, requestBody, options);
+    this.http.put<T>(`${HttpClientService.API_BASE}${url}`, requestBody, {
+      ...options,
+      withCredentials: true,
+    });
 
   public patch$ = <T = any>(url: string, requestBody: any, options = {}) =>
-    this.http.patch<T>(`${HttpClientService.API_BASE}${url}`, requestBody, options);
+    this.http.patch<T>(`${HttpClientService.API_BASE}${url}`, requestBody, {
+      ...options,
+      withCredentials: true,
+    });
 
-  public delete$ = <T>(url: string, queryParams?: object) =>
+  public delete$ = <T>(url: string, queryParams?: object, options = {}) =>
     this.http.delete<T>(
-      `${HttpClientService.API_BASE}${url}${this.serializeQueryParams(queryParams)}`
+      `${HttpClientService.API_BASE}${url}${this.serializeQueryParams(queryParams)}`,
+      { ...options, withCredentials: true }
     );
   private serializeQueryParams = (params: any) => {
     if (!params) {

@@ -6,6 +6,8 @@ import { PasswordValidationSummaryComponent } from '../../../shared/password-val
 import { AccountService } from '../../../shared/services/account.service';
 import { UserRegistration } from '../../../core/models/identity/userRegistration';
 import { AlertComponent, AlertType } from '../../../shared/alert/alert.component';
+import { BaseApiResponse } from '../../../core/models/baseApiResponse';
+import { AccessToken } from '../../../core/models/identity/accessToken';
 
 @Component({
   selector: 'app-register',
@@ -61,10 +63,12 @@ export class RegisterComponent implements OnInit {
     };
 
     this.accountService.registerAccount$(request).subscribe({
-      next: (v) => {
-        console.log(v);
+      next: (accessTokenRsp: BaseApiResponse<AccessToken>) => {
+        sessionStorage.setItem('access_token', accessTokenRsp.data.accessToken);
       },
-      error: (e) => (this.errors = e.error.errors),
+      error: (e) => {
+        this.errors = e.error.errors;
+      },
     });
   }
 

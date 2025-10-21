@@ -29,7 +29,7 @@ public class AccountControllerTests
         };
 
         _controller = new AccountController(_mediatorMock.Object)
-        { ControllerContext = controllerContext };
+            { ControllerContext = controllerContext };
     }
 
     [Fact]
@@ -37,7 +37,11 @@ public class AccountControllerTests
     {
         _mediatorMock.Setup(x => x.Send(It.IsAny<RegisterAccount.Command>(), CancellationToken.None))
             .ReturnsAsync(
-                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, default, default));
+                new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, default,
+                    new AccessTokenResponse
+                    {
+                        AccessToken = "ABC123"
+                    }));
 
         var command = new RegisterAccount.Command
         {

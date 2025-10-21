@@ -48,19 +48,19 @@ public class IdentityController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserLogin.Command request)
     {
-        UserLogin.Command.Response result = await _mediatr.Send(request);
+        UserLogin.Response? result = await _mediatr.Send(request);
 
         if (result == null)
         {
             return Unauthorized();
         }
 
-        Response.Cookies.Append("x_sessionId", result.SessionId.ToString(), new CookieOptions
+        Response.Cookies.Append("x_api_token", result.AccessToken.ToString(), new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = result.SessionExpiration
+            Expires = DateTimeOffset.UtcNow.AddMinutes(30)
         });
 
         return Ok(result.AccessToken.ToBaseHttpResponse(HttpStatusCode.OK));

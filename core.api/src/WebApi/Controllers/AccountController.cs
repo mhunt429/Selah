@@ -37,6 +37,14 @@ namespace WebApi.Controllers
                     Errors = result.message?.Split(','),
                 });
             }
+            
+            Response.Cookies.Append("x_api_token", result.data.AccessToken.ToString(), new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+            });
 
             return Ok(new BaseHttpResponse<AccessTokenResponse>
             {
