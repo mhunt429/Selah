@@ -3,6 +3,7 @@ import { FloatingLabelComponent } from '../../../shared/inputs/floating-label/fl
 import { AuthService } from '../../../shared/services/auth.service';
 import { Login } from '../../../core/models/identity/login';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -20,13 +21,15 @@ export class LoginComponent implements OnInit {
       password: [''],
     });
   }
-  constructor() {}
+  constructor(private router: Router) {}
 
   handleLogin(event: Event) {
     event.preventDefault();
     const request: Login = this.form.value;
     this.authService.loginUser$(request).subscribe({
-      next: (response) => console.log(response),
+      next: (response) => {
+        this.router.navigateByUrl('/dashboard');
+      },
       error: (e) => console.log(e),
     });
   }

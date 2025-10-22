@@ -50,19 +50,36 @@ public class IdentityController : ControllerBase
     {
         UserLogin.Response? result = await _mediatr.Send(request);
 
-        if (result == null)
+        if (result == null || result.AccessToken == null)
         {
             return Unauthorized();
         }
 
-        Response.Cookies.Append("x_api_token", result.AccessToken.ToString(), new CookieOptions
+        if (request.RememberMe)
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(30)
-        });
+            Response.Cookies.Append("x_session_id", result.SessionId.ToString(), new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+        }
+
 
         return Ok(result.AccessToken.ToBaseHttpResponse(HttpStatusCode.OK));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("current-session")]
+    public async Task<IActionResult> GetCurrentSession()
+    {
+        var sessionIdHeader = Request.Cookies.FirstOrDefault(x => x.Key == "x_session_id");
+        if (sessionIdHeader.Value == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok();
     }
 }
