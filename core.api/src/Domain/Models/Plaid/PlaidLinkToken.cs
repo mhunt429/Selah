@@ -27,7 +27,7 @@ public class PlainLinkTokenRequest
 
 public class PlaidUser
 {
-    [JsonPropertyName("client_user_id")] public int UserId { get; set; }
+    [JsonPropertyName("client_user_id")] public string UserId { get; set; }
 }
 
 public class PlaidTokenExchangeRequest

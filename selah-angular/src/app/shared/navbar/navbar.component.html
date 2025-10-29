@@ -5,23 +5,45 @@
     <div class="flex h-16 items-center">
       <div class="hidden sm:flex items-center space-x-6">
         <a
+          (click)="setSelectedTab('Dashboard')"
           routerLink="/profile/dashboard"
-          class="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
-          >Dashboard</a
+          class="px-4 py-2 rounded-md transition cursor-pointer"
+          [ngClass]="{
+            'bg-teal-500 text-white shadow-md': selectedTab() === 'Dashboard',
+            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
+              selectedTab() !== 'Dashboard'
+          }"
         >
+          Dashboard
+        </a>
         <a
-          href="#"
-          class="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
+          [ngClass]="{
+            'bg-teal-500 text-white shadow-md': selectedTab() === 'Accounts',
+            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
+              selectedTab() !== 'Accounts'
+          }"
+          (click)="setSelectedTab('Accounts')"
+          class="px-4 py-2 rounded-md transition cursor-pointer"
           >Accounts</a
         >
         <a
-          href="#"
-          class="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
+          [ngClass]="{
+            'bg-teal-500 text-white shadow-md': selectedTab() === 'Transactions',
+            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
+              selectedTab() !== 'Transactions'
+          }"
+          (click)="setSelectedTab('Transactions')"
+          class="px-4 py-2 rounded-md transition cursor-pointer"
           >Transactions</a
         >
         <a
-          href="#"
-          class="text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
+          [ngClass]="{
+            'bg-teal-500 text-white shadow-md': selectedTab() === 'Investments',
+            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
+              selectedTab() !== 'Investments'
+          }"
+          (click)="setSelectedTab('Investments')"
+          class="px-4 py-2 rounded-md transition cursor-pointer"
           >Investments</a
         >
       </div>
@@ -78,22 +100,18 @@
   >
     <div class="space-y-2 px-6 py-4">
       <a
-        href="#"
         class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
         >Dashboard</a
       >
       <a
-        href="#"
         class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
         >Accounts</a
       >
       <a
-        href="#"
         class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
         >Transactions</a
       >
       <a
-        href="#"
         class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
         >Investments</a
       >

@@ -283,7 +283,7 @@ public class PlaidHttpServiceTests
 
         Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
-        Assert.Equal(userId, requestPayload.User.UserId);
+        Assert.Equal(userId.ToString(), requestPayload.User.UserId);
     }
 
     [Fact]

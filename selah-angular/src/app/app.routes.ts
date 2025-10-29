@@ -4,6 +4,7 @@ import { LoginComponent } from './features/identity/login/login.component';
 import { MainLayoutComponent } from './shared/main-layout/main-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { RegisterComponent } from './features/identity/register/register.component';
+import { ConnectorComponent } from './features/connector/connector/connector.component';
 
 export const routes: Routes = [
   {
@@ -25,6 +26,7 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
       },
+      { path: 'connector', component: ConnectorComponent },
     ],
   },
 ];

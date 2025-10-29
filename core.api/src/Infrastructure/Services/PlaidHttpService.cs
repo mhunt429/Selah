@@ -36,7 +36,7 @@ public class PlaidHttpService : IPlaidHttpService
         {
             ClientId = _plaidConfig.ClientId,
             Secret = _plaidConfig.ClientSecret,
-            User = new PlaidUser { UserId = userId }
+            User = new PlaidUser { UserId = userId.ToString() }
         };
 
         Uri linkTokenEndpoint = new Uri($"{_httpClient.BaseAddress}link/token/create");
