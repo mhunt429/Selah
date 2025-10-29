@@ -41,7 +41,7 @@ public class PlaidAccountBalanceImportService : IPlaidAccountBalanceImportServic
                     batch.Count(), DateTimeOffset.UtcNow);
 
                 // Run the inner stream and return its Task<Done>
-                var result = await Source.From(batch)
+                Done? processed = await Source.From(batch)
                     .SelectAsync(8, async record =>
                     {
                         // Fire-and-forget message to actor
@@ -56,7 +56,7 @@ public class PlaidAccountBalanceImportService : IPlaidAccountBalanceImportServic
                     "PlaidAccountBalanceImportService => Finished batch of {BatchSize} records at {TimestampUtc}",
                     batch.Count(), DateTimeOffset.UtcNow);
 
-                return result; // Task<Done>
+                return processed; // Task<Done>
             })
             .RunWith(Sink.Ignore<Done>(), _materializer); // consume outer stream
     }
