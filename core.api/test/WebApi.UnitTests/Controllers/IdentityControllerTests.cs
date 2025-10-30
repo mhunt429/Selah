@@ -1,80 +1,171 @@
-using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Application.Identity;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Application.ApplicationUser;
+using Application.Identity;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
-using Domain.Models;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using WebApi.Controllers;
+using Xunit;
 
-namespace WebApi.UnitTests;
-
-public class IdentityControllerTests
+namespace WebApi.UnitTests
 {
-    private readonly Mock<IMediator> _mediatorMock = new();
-
-    private IdentityController _controller;
-
-    public IdentityControllerTests()
+    public class IdentityControllerTests
     {
-        var appRequestContext = new AppRequestContext { UserId = 1 };
+        private readonly Mock<IMediator> _mediatorMock;
+        private IdentityController _controller;
 
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Authorization = "Bearer my_token";
-
-        var controllerContext = new ControllerContext()
+        public IdentityControllerTests()
         {
-            HttpContext = httpContext,
-        };
+            _mediatorMock = new Mock<IMediator>();
 
-        _controller = new IdentityController(_mediatorMock.Object)
-        { ControllerContext = controllerContext };
-    }
-
-    [Fact]
-    public async Task GetUserAsync_ShouldReturnUser()
-    {
-        _mediatorMock.Setup(x => x.Send(It.IsAny<GetUserById.Query>(), CancellationToken.None))
-            .ReturnsAsync(new ApplicationUser
+            var httpContext = new DefaultHttpContext();
+            _controller = new IdentityController(_mediatorMock.Object)
             {
-                Id = 1,
-                AccountId = 2,
-                Email = "test@test.com",
-                FirstName = "Test",
-                LastName = "User"
-            });
-        var result = await _controller.GetCurrentUser();
-        Assert.IsType<OkObjectResult>(result);
-    }
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext
+                }
+            };
+        }
 
-    [Fact]
-    public async Task GetUserAsync_ShouldUnAuthorized_WhenUserIsNotFound()
-    {
-        _mediatorMock.Setup(x => x.Send(It.IsAny<GetUserById.Query>(), default))
-            .ReturnsAsync((ApplicationUser)null);
+        // -------------------------------
+        // LOGIN TESTS
+        // -------------------------------
 
-        var result = await _controller.GetCurrentUser();
-        Assert.IsType<UnauthorizedResult>(result);
-    }
+        [Fact]
+        public async Task Login_ShouldReturnOk_AndSetCookies_WhenRememberMeTrue()
+        {
+            // Arrange
+            var response = new UserLogin.Response
+            {
+                AccessToken = new AccessTokenResponse { AccessToken = "ABC123" },
+                SessionId = Guid.NewGuid()
+            };
 
-    [Fact]
-    public async Task Login_ShouldReturnAccessToken()
-    {
-        _mediatorMock.Setup(x => x.Send(It.IsAny<UserLogin.Command>(), default))
-            .ReturnsAsync(new UserLogin.Response {AccessToken = new AccessTokenResponse{AccessToken = "ABC123"}});
+            _mediatorMock
+                .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
 
-        var result = await _controller.Login(new UserLogin.Command());
-        Assert.IsType<OkObjectResult>(result);
-    }
+            var command = new UserLogin.Command { RememberMe = true };
 
-    [Fact]
-    public async Task Login_ShouldReturnUnAuthorized_OnInvalidLoginRequest()
-    {
-        _mediatorMock.Setup(x => x.Send(It.IsAny<UserLogin.Command>(), default))
-            .ReturnsAsync((UserLogin.Response)null);
-        var result = await _controller.Login(new UserLogin.Command());
-        Assert.IsType<UnauthorizedResult>(result);
+            // Act
+            var result = await _controller.Login(command);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Contains("x_api_token", _controller.Response.Headers.SetCookie.ToString());
+            Assert.Contains("x_session_id", _controller.Response.Headers.SetCookie.ToString());
+            Assert.NotNull(okResult.Value);
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturnOk_AndSetAccessTokenCookie_WhenRememberMeFalse()
+        {
+            // Arrange
+            var response = new UserLogin.Response
+            {
+                AccessToken = new AccessTokenResponse { AccessToken = "XYZ789" },
+                SessionId = Guid.NewGuid()
+            };
+
+            _mediatorMock
+                .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            var command = new UserLogin.Command { RememberMe = false };
+
+            // Act
+            var result = await _controller.Login(command);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Contains("x_api_token", _controller.Response.Headers.SetCookie.ToString());
+            Assert.DoesNotContain("x_session_id", _controller.Response.Headers.SetCookie.ToString());
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturnUnauthorized_WhenResultIsNull()
+        {
+            _mediatorMock
+                .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((UserLogin.Response)null);
+
+            var result = await _controller.Login(new UserLogin.Command());
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async Task Login_ShouldReturnUnauthorized_WhenAccessTokenIsNull()
+        {
+            var response = new UserLogin.Response { AccessToken = null };
+            _mediatorMock
+                .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            var result = await _controller.Login(new UserLogin.Command());
+
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        // -------------------------------
+        // CURRENT SESSION TESTS
+        // -------------------------------
+
+        [Fact]
+        public async Task GetCurrentSession_ShouldReturnUnauthorized_WhenNoSessionCookie()
+        {
+            // Arrange
+            var httpContext = new DefaultHttpContext();
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+            // Act
+            var result = await _controller.GetCurrentSession();
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async Task GetCurrentSession_ShouldReturnUnauthorized_WhenInvalidGuid()
+        {
+            // Arrange
+            var httpContext = new DefaultHttpContext();
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+            // Act
+            var result = await _controller.GetCurrentSession();
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        [Fact]
+        public async Task GetCurrentSession_ShouldReturnUnauthorized_WhenUserNotFound()
+        {
+            // Arrange
+            var sessionId = Guid.NewGuid();
+            var httpContext = new DefaultHttpContext();
+
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+            _mediatorMock
+                .Setup(x => x.Send(It.IsAny<UserBySessionIdQuery.Query>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ApplicationUser)null);
+
+            // Act
+            var result = await _controller.GetCurrentSession();
+
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
     }
 }

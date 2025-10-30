@@ -66,7 +66,13 @@ public class IdentityController : ControllerBase
             });
         }
 
-
+        Response.Cookies.Append("x_api_token", result.AccessToken.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(30)
+        });
         return Ok(result.AccessToken.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
@@ -80,6 +86,18 @@ public class IdentityController : ControllerBase
             return Unauthorized();
         }
 
-        return Ok();
+        var sessionId = Guid.Empty;
+        if (Guid.TryParse(sessionIdHeader.Value, out sessionId))
+        {
+            var query = new UserBySessionIdQuery.Query { SessionId = sessionId };
+
+            var result = await _mediatr.Send(query);
+            if (result != null)
+            {
+                return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
+            }
+        }
+
+        return Unauthorized();
     }
 }

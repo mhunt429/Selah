@@ -3,4 +3,5 @@ export type AccessToken = {
   refreshToken: string;
   accessTokenExpiration: string;
   refreshTokenExpiration: string;
+  sessionId: string;
 };
