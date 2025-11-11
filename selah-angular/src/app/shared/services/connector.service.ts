@@ -11,6 +11,6 @@ export class ConnectorService {
   private httpClient = inject(HttpClientService);
 
   public getLinkToken$(): Observable<BaseApiResponse<ConnectorLinkTokenResponse>> {
-    return this.httpClient.get$<BaseApiResponse<ConnectorLinkTokenResponse>>('connector/link');
+    return this.httpClient.get$<BaseApiResponse<ConnectorLinkTokenResponse>>('/connector/link');
   }
 }

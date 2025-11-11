@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FloatingLabelComponent } from '../../../shared/inputs/floating-label/floating-label.component';
+import { FloatingLabelComponent } from '../../../shared/components/inputs/floating-label/floating-label.component';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { passwordMatchValidator } from '../../../core/validators';
-import { PasswordValidationSummaryComponent } from '../../../shared/password-validation-summary/password-validation-summary.component';
+import { PasswordValidationSummaryComponent } from '../../../shared/components/password-validation-summary/password-validation-summary.component';
 import { AccountService } from '../../../shared/services/account.service';
 import { UserRegistration } from '../../../core/models/identity/userRegistration';
-import { AlertComponent, AlertType } from '../../../shared/alert/alert.component';
+import { AlertComponent, AlertType } from '../../../shared/components/alert/alert.component';
 import { BaseApiResponse } from '../../../core/models/baseApiResponse';
 import { AccessToken } from '../../../core/models/identity/accessToken';
 

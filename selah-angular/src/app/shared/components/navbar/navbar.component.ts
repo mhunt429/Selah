@@ -18,7 +18,7 @@ export class NavbarComponent implements OnInit {
   }
 
   constructor() {
-    effect(() => console.log(this.selectedTab));
+    //effect(() => console.log(this.selectedTab));
   }
 
   ngOnInit() {}

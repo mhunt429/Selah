@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './features/landing-page/landing-page.component';
 import { LoginComponent } from './features/identity/login/login.component';
-import { MainLayoutComponent } from './shared/main-layout/main-layout.component';
+
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { RegisterComponent } from './features/identity/register/register.component';
 import { ConnectorComponent } from './features/connector/connector/connector.component';
+import { MainLayoutComponent } from './shared/components/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {

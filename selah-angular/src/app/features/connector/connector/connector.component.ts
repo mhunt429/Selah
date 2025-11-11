@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-connector',
@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ConnectorComponent implements OnInit {
   constructor() {}
+  @Input() linkToken = '';
 
   ngOnInit() {
     this.loadPlaidScript()
@@ -33,7 +34,7 @@ export class ConnectorComponent implements OnInit {
   }
   private initializePlaid() {
     const handler = (window as any).Plaid?.create({
-      token: 'link-sandbox-c2ce3214-4ad7-4841-a483-461793cad23f',
+      token: this.linkToken,
       onSuccess: (public_token: string, metadata: any) => {
         console.log('Plaid success:', public_token, metadata);
       },

@@ -4,14 +4,12 @@
   <div class="text-2xl font-semibold text-gray-900 dark:text-white">No data available</div>
   <p class="pt-4 text-sm text-gray-600 dark:text-gray-400">Get started by connecting an account.</p>
   <p class="pt-4">
-    <button
-      class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 transition"
-    >
+    <app-primary-button (onClick)="linkAccount($event)">
       <div class="flex items-center">
         <lucide-angular name="plus" class="h-4 w-4 ml-1"></lucide-angular>
         <span class="pl-2"> Connect Account</span>
       </div>
-    </button>
+    </app-primary-button>
   </p>
 </app-card>
 
@@ -49,4 +47,6 @@
   <app-paged-table [columnHeaders]="recentTransactionTableHeaders"></app-paged-table>
 </div>
 
+} @if(showConnectorOverlay){
+<app-connector [linkToken]="linkToken"></app-connector>
 }

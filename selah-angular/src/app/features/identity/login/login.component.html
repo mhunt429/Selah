@@ -6,7 +6,12 @@
       </h2>
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Your personal finance companion</p>
     </div>
-    <form [formGroup]="form" (ngSubmit)="handleLogin($event)" class="mt-8 space-y-6">
+    @if(loginError != ''){
+    <app-alert [alertType]="AlertType.Error">
+      <div>{{ loginError }}</div>
+    </app-alert>
+    }
+    <form [formGroup]="loginForm" (ngSubmit)="handleLogin($event)" class="mt-8 space-y-6">
       <div class="space-y-4">
         <app-floating-label
           formControlName="email"
@@ -28,8 +33,9 @@
       </div>
 
       <button
+        [disabled]="!loginForm.valid"
         type="submit"
-        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+        class="mt-4 w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal-600"
       >
         Sign in
       </button>
