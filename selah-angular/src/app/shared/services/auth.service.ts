@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AccessToken } from '../../core/models/identity/accessToken';
 import { HttpClientService } from './http-client.service';
 import { BaseApiResponse } from '../../core/models/baseApiResponse';
+import { getCookieValue } from '../helpers/cookie-helper';
 
 @Injectable({
   providedIn: 'root',
@@ -24,5 +25,11 @@ export class AuthService {
 
   public getSessionId() {
     return sessionStorage.getItem('sessionId');
+  }
+
+  public isAuthenticated(): boolean {
+    const x_api_token = getCookieValue('x_api_token');
+    const sessionExpiration = parseInt(sessionStorage.getItem('sessionExpiration') ?? '18000');
+    return x_api_token !== '' && Date.now() < sessionExpiration;
   }
 }

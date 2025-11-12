@@ -10,7 +10,7 @@ import { EventEmitter } from 'stream';
 import { ConnectorService } from '../../shared/services/connector.service';
 import { BaseApiResponse } from '../../core/models/baseApiResponse';
 import { ConnectorLinkTokenResponse } from '../../core/models/connector/connectorLinkTokenResponse';
-import { ConnectorComponent } from '../connector/connector/connector.component';
+import { ConnectorComponent } from '../connector/connector.component';
 import { ToastService } from '../../shared/services/toast.service';
 
 @Component({

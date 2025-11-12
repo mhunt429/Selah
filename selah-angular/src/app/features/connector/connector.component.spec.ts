@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { ConnectorComponent } from './connector.component';
+import { ConnectorComponent } from './connector/connector.component';
 
 describe('ConnectorComponent', () => {
   let component: ConnectorComponent;
@@ -11,9 +11,8 @@ describe('ConnectorComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ConnectorComponent ]
-    })
-    .compileComponents();
+      declarations: [ConnectorComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
