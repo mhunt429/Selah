@@ -47,8 +47,8 @@ public class TokenService : ITokenService
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            AccessTokenExpiration = accessTokenExpiration,
-            RefreshTokenExpiration = DateTime.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays)
+            AccessTokenExpiration = new DateTimeOffset(accessTokenExpiration).ToUnixTimeMilliseconds(),
+            RefreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays).ToUnixTimeMilliseconds()
         };
     }
 

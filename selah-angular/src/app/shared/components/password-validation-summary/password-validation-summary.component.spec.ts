@@ -1,5 +1,5 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
@@ -9,11 +9,10 @@ describe('PasswordValidationSummaryComponent', () => {
   let component: PasswordValidationSummaryComponent;
   let fixture: ComponentFixture<PasswordValidationSummaryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PasswordValidationSummaryComponent ]
-    })
-    .compileComponents();
+      declarations: [PasswordValidationSummaryComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

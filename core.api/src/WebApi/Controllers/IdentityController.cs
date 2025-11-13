@@ -61,8 +61,7 @@ public class IdentityController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
+                SameSite = SameSiteMode.Strict
             });
         }
 
@@ -71,7 +70,6 @@ public class IdentityController : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(30)
         });
         return Ok(result.AccessToken.ToBaseHttpResponse(HttpStatusCode.OK));
     }
@@ -99,5 +97,21 @@ public class IdentityController : ControllerBase
         }
 
         return Unauthorized();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var sessionIdHeader = Request.Cookies.FirstOrDefault(x => x.Key == "x_api_token");
+        if (sessionIdHeader.Value == null)
+        {
+            return Forbid();
+        }
+        
+        AppRequestContext? requestContext = Request.GetAppRequestContext();
+        if(requestContext == null) return Forbid();
+        
+        return Ok();
     }
 }

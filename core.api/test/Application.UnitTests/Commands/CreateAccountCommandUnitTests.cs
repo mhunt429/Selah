@@ -48,8 +48,8 @@ public class CreateAccountCommandUnitTests
             {
                 AccessToken = "token",
                 RefreshToken = "refreshToken",
-                AccessTokenExpiration = DateTime.UtcNow.AddMinutes(5),
-                RefreshTokenExpiration = DateTime.UtcNow.AddMinutes(10),
+                AccessTokenExpiration = DateTime.UtcNow.AddMinutes(5).Millisecond,
+                RefreshTokenExpiration = DateTime.UtcNow.AddMinutes(10).Millisecond,
             });
     }
 
@@ -73,7 +73,7 @@ public class CreateAccountCommandUnitTests
 
         result.data?.AccessToken.Should().Be("token");
         result.data?.RefreshToken.Should().Be("refreshToken");
-        result.data?.AccessTokenExpiration.Should().BeAfter(DateTime.MinValue);
-        result.data?.RefreshTokenExpiration.Should().BeAfter(DateTime.MinValue);
+        result.data?.AccessTokenExpiration.Should().BeGreaterThan(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        result.data?.RefreshTokenExpiration.Should().BeGreaterThan(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
     }
 }

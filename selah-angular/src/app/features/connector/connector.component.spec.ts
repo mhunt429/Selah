@@ -1,15 +1,15 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { ConnectorComponent } from './connector/connector.component';
+import { ConnectorComponent } from './connector.component';
 
 describe('ConnectorComponent', () => {
   let component: ConnectorComponent;
   let fixture: ComponentFixture<ConnectorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ConnectorComponent],
     }).compileComponents();

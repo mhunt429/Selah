@@ -1,5 +1,5 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
@@ -9,11 +9,10 @@ describe('PrimaryButtonComponent', () => {
   let component: PrimaryButtonComponent;
   let fixture: ComponentFixture<PrimaryButtonComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PrimaryButtonComponent ]
-    })
-    .compileComponents();
+      imports: [PrimaryButtonComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

@@ -57,7 +57,7 @@ public class UserLogin
                 if (_passwordHasherService.VerifyPassword(command.Password, dbUser.Password))
                 {
                     var sessionId = Guid.NewGuid();
-                    var sessionExpiration = DateTimeOffset.UtcNow.AddDays(7);
+                    var sessionExpiration = command.RememberMe ?  DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30);
 
                     await _userSessionRepository.IssueSession(new UserSessionEntity
                     {

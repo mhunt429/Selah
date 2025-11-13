@@ -25,7 +25,8 @@ public static class DatabaseExtensions
             .AddScoped<IApplicationUserRepository, AppUserRepository>()
             .AddScoped<IAccountConnectorRepository, AccountConnectorRepository>()
             .AddScoped<IFinancialAccountRepository, FinancialAccountRepository>()
-            .AddScoped<IUserSessionRepository, UserSessionRepository>();
+            .AddScoped<IUserSessionRepository, UserSessionRepository>()
+            .AddScoped<TokenRepository>();
 
         return services;
     }

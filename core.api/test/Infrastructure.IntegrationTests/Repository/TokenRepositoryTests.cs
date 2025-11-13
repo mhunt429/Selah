@@ -1,0 +1,90 @@
+using System.Text;
+using Domain.Models.Entities.Identity;
+using FluentAssertions;
+using Infrastructure.Repository;
+
+namespace Infrastructure.IntegrationTests.Repository;
+
+[Collection("Database")]
+public class TokenRepositoryTests : IAsyncLifetime
+{
+    private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
+    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
+
+    private TokenRepository _tokenRepo;
+
+    private readonly DatabaseFixture _fixture;
+    private int _userId;
+
+    public TokenRepositoryTests(DatabaseFixture fixture)
+    {
+        _fixture = fixture;
+        _tokenRepo = new TokenRepository(_dbConnectionFactory);
+    }
+
+    [Fact]
+    public async Task RepoShouldSaveToken()
+    {
+        var entityToSave = new TokenEntity
+        {
+            UserId = _userId,
+            Token = "abc123"u8.ToArray(),
+            TokenType = TokenType.AccessToken,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        int tokenId = await _tokenRepo.CreateTokenAsync(entityToSave);
+        tokenId.Should().BeGreaterThan(0);
+
+
+        entityToSave.TokenType = TokenType.RefreshToken;
+        await _tokenRepo.CreateTokenAsync(entityToSave);
+    }
+
+    [Fact]
+    public async Task RepoShouldGetTokenByUser()
+    {
+        var entityToSave = new TokenEntity
+        {
+            UserId = _userId,
+            Token = "abc123"u8.ToArray(),
+            TokenType = TokenType.RefreshToken,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)
+        };
+
+        await _tokenRepo.CreateTokenAsync(entityToSave);
+
+        var token = await _tokenRepo.GetTokenByUserId(_userId, TokenType.RefreshToken);
+        token.Should().NotBeNull();
+        token.Token.Should().NotBeNullOrEmpty();
+        token.ExpiresAt.Should().BeAfter(DateTimeOffset.UtcNow);
+        token.CreatedAt.Should().BeBefore(DateTimeOffset.UtcNow);
+        token.UserId.Should().Be(_userId);
+        token.TokenType.Should().Be(TokenType.RefreshToken);
+        token.Id.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task RepoShouldDeleteTokenByUser()
+    {
+        await _tokenRepo.DeleteTokenAsync(_userId, TokenType.AccessToken);
+        var token = await _tokenRepo.GetTokenByUserId(_userId, TokenType.AccessToken);
+        token.Should().BeNull();
+    }
+
+    public async Task InitializeAsync()
+    {
+        await _fixture.ResetDatabaseAsync();
+
+        RegistrationRepository registrationRepository = new(_dbContext);
+        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        _userId = result.Item2.Id;
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+}

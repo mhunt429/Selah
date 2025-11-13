@@ -6,7 +6,6 @@ import {
 } from '../../shared/components/paged-table/paged-table.component';
 import { LUCIDE_ICONS, LucideIconProvider, Plus, LucideAngularModule } from 'lucide-angular';
 import { PrimaryButtonComponent } from '../../shared/components/primary-button/primary-button.component';
-import { EventEmitter } from 'stream';
 import { ConnectorService } from '../../shared/services/connector.service';
 import { BaseApiResponse } from '../../core/models/baseApiResponse';
 import { ConnectorLinkTokenResponse } from '../../core/models/connector/connectorLinkTokenResponse';
