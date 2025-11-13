@@ -32,20 +32,23 @@ public class SecurityServiceTests
     [Fact]
     public void Encrypt_ShouldCreateTwoDifferentEncryptedValues_ForTheSameInput()
     {
-        string string1 = "This is super secret!!!";
-        string string2 = "This is super secret!!!";
+        string string1 = "abc123";
+        string string2 = "abc123";
 
-        string encryptedString1 = _cryptoService.Encrypt(string1);
-        string encryptedString2 = _cryptoService.Encrypt(string2);
+        byte[] encryptedString1 = _cryptoService.Encrypt(string1);
+        byte[] encryptedString2 = _cryptoService.Encrypt(string2);
 
-        encryptedString1.Should().NotBe(encryptedString2);
+        var hex1 = Convert.ToHexString(encryptedString1);
+        var hex2 = Convert.ToHexString(encryptedString2);
+
+        hex1.Should().NotBe(hex2);
     }
 
     [Fact]
     public void Decrypt_ShouldDecryptTheInput()
     {
         string plaintext = "test";
-        string encryptedString = _cryptoService.Encrypt(plaintext);
+        byte[] encryptedString = _cryptoService.Encrypt(plaintext);
         string decryptedString = _cryptoService.Decrypt(encryptedString);
         decryptedString.Should().Be("test");
     }

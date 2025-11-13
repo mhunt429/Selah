@@ -64,6 +64,7 @@ public class TokenRepositoryTests : IAsyncLifetime
         token.UserId.Should().Be(_userId);
         token.TokenType.Should().Be(TokenType.RefreshToken);
         token.Id.Should().BeGreaterThan(0);
+        
     }
 
     [Fact]

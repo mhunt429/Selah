@@ -48,8 +48,8 @@ public class CreateAccountCommandUnitTests
             {
                 AccessToken = "token",
                 RefreshToken = "refreshToken",
-                AccessTokenExpiration = DateTime.UtcNow.AddMinutes(5).Millisecond,
-                RefreshTokenExpiration = DateTime.UtcNow.AddMinutes(10).Millisecond,
+                AccessTokenExpiration = DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeMilliseconds(),
+                RefreshTokenExpiration = DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeMilliseconds(),
             });
     }
 

@@ -2,9 +2,9 @@ namespace Infrastructure.Services.Interfaces;
 
 public interface ICryptoService
 {
-    string Encrypt(string plainText);
+    byte[] Encrypt(string plainText);
 
-    string Decrypt(string encryptedData);
+    string Decrypt(byte[] encryptedData);
 
     string HashPassword(string password);
 

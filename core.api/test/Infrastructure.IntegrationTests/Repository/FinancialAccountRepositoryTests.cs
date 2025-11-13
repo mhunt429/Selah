@@ -3,7 +3,7 @@ using Domain.Models.Entities.FinancialAccount;
 using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-
+using System.Text;
 namespace Infrastructure.IntegrationTests.Repository;
 
 [Collection("Database")]
@@ -44,7 +44,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             InstitutionId = "123",
             InstitutionName = "Morgan Stanley",
             DateConnected = DateTimeOffset.UtcNow,
-            EncryptedAccessToken = "token",
+            EncryptedAccessToken = "abc123"u8.ToArray(),
             TransactionSyncCursor = "",
             
         };

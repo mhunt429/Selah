@@ -2,7 +2,7 @@ using Domain.Models.Entities.AccountConnector;
 using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-
+using System.Text;
 namespace Infrastructure.IntegrationTests.Repository;
 
 [Collection("Database")]
@@ -45,7 +45,7 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
             InstitutionId = "123",
             InstitutionName = "Morgan Stanley",
             DateConnected = DateTimeOffset.UtcNow,
-            EncryptedAccessToken = "token",
+            EncryptedAccessToken ="abc123"u8.ToArray(),
             TransactionSyncCursor = "",
         };
         int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
@@ -57,7 +57,7 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
         connectorId.Should().BeGreaterThan(0);
         queryResult.Should().NotBeNull();
         queryResult.UserId.Should().Be(_userId);
-        queryResult.EncryptedAccessToken.Should().Be(data.EncryptedAccessToken);
+        queryResult.EncryptedAccessToken.Should().BeEquivalentTo(data.EncryptedAccessToken);
         queryResult.DateConnected.Should().BeAfter(DateTimeOffset.MinValue);
         queryResult.InstitutionId.Should().Be(data.InstitutionId);
         queryResult.InstitutionName.Should().Be(data.InstitutionName);

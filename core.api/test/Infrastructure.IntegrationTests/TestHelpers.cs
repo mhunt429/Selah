@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
 using Infrastructure.Repository;
-
+using System.Text;
 namespace Infrastructure.IntegrationTests;
 
 public static class TestHelpers
@@ -38,10 +38,10 @@ public static class TestHelpers
 
         ApplicationUserEntity user = new ApplicationUserEntity
         {
-            EncryptedEmail = "email",
+            EncryptedEmail = "email"u8.ToArray(),
             Password = "password",
-            EncryptedName = "FirstName|LastName",
-            EncryptedPhone = "123-123-1234",
+            EncryptedName = "FirstName|LastName"u8.ToArray(),
+            EncryptedPhone = "123-123-1234"u8.ToArray(),
             LastLoginIp = "127.0.0.1",
             EmailHash = "email"
         };

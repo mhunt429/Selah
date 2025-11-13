@@ -5,7 +5,7 @@ CREATE TABLE account_connector
     institution_id          TEXT,
     institution_name        TEXT,
     date_connected          TIMESTAMPTZ,
-    encrypted_access_token  VARCHAR(64),
+    encrypted_access_token  BYTEA,
     transaction_sync_cursor TEXT,
     external_event_id       TEXT
 ) INHERITS(base_audit_table);

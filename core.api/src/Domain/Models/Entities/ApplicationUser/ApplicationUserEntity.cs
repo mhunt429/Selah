@@ -15,13 +15,13 @@ public class ApplicationUserEntity : BaseAuditFields
 
     [Column("created_date")] public DateTimeOffset CreatedDate { get; set; }
 
-    [Column("encrypted_email")] public required string EncryptedEmail { get; set; }
+    [Column("encrypted_email")] public required  byte[] EncryptedEmail { get; set; }
 
     [Column("password")] public required string Password { get; set; }
 
-    [Column("encrypted_name")] public required string EncryptedName { get; set; }
+    [Column("encrypted_name")] public required byte[] EncryptedName { get; set; }
 
-    [Column("encrypted_phone")] public required string EncryptedPhone { get; set; }
+    [Column("encrypted_phone")] public required  byte[] EncryptedPhone { get; set; }
 
     [Column("last_login_date")] public DateTimeOffset? LastLoginDate { get; set; }
 

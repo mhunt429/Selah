@@ -17,7 +17,7 @@ public class AccountConnectorEntity : BaseAuditFields
 
     [Column("date_connected")] public required DateTimeOffset DateConnected { get; set; }
 
-    [Column("encrypted_access_token")] public required string EncryptedAccessToken { get; set; }
+    [Column("encrypted_access_token")] public required byte[] EncryptedAccessToken { get; set; }
 
     [Column("transaction_sync_cursor")] public required string TransactionSyncCursor { get; set; } = "";
 

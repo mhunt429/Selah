@@ -20,7 +20,7 @@ public class CryptoService : ICryptoService
         _passwordHasherService = passwordHasherService;
     }
 
-    public string Encrypt(string plainText)
+    public byte[] Encrypt(string plainText)
     {
         using (Aes aesAlg = Aes.Create())
         {
@@ -41,14 +41,13 @@ public class CryptoService : ICryptoService
                     csEncrypt.FlushFinalBlock();
                 }
 
-                return Convert.ToBase64String(msEncrypt.ToArray());
+                return msEncrypt.ToArray();
             }
         }
     }
 
-    public string Decrypt(string encryptedData)
+    public string Decrypt(byte [] encryptedBytes)
     {
-        byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
 
         if (encryptedBytes.Length <= 16)
         {
@@ -109,4 +108,5 @@ public class CryptoService : ICryptoService
     {
         return _hashIds.EncodeLong(id);
     }
+    
 }

@@ -31,7 +31,7 @@ public class DebugController : ControllerBase
         {
             return BadRequest("Missing encrypted string");
         }
-        string decrypted = _cryptoService.Decrypt(request.EncryptedString);
+        string decrypted = _cryptoService.Decrypt(Convert.FromHexString(request.EncryptedString));
 
         return Ok(new DecryptStringResponse { DecryptedString = decrypted });
     }

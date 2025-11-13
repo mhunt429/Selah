@@ -3,10 +3,10 @@ CREATE TABLE app_user
     id              SERIAL PRIMARY KEY,
     account_id      INT REFERENCES user_account(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
     created_date    TIMESTAMPTZ,
-    encrypted_email VARCHAR(64),
+    encrypted_email BYTEA,
     password        VARCHAR(64),
-    encrypted_name  VARCHAR(64),
-    encrypted_phone VARCHAR(64),
+    encrypted_name  BYTEA,
+    encrypted_phone BYTEA,
     last_login_date TIMESTAMPTZ,
     last_login_ip   VARCHAR(39), --supports ipv6 and v4
     phone_verified  BOOLEAN,
