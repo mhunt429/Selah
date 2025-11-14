@@ -14,18 +14,18 @@ public class TokenRepository: BaseRepository
 
   public async Task<int> CreateTokenAsync(TokenEntity token)
   { 
-    var sql = @"INSERT INTO token 
-    (app_last_changed_by, user_id, token, token_type, created_at, expires_at) 
-VALUES (@app_last_changed_by, @user_id, @token, @token_type, @created_at, @expires_at) returning(id)";
-    return await AddAsync<int>(sql, new
-    {
-      app_last_changed_by = token.AppLastChangedBy,
-      user_id = token.UserId,
-      token = token.Token,
-      token_type = token.TokenType,
-      created_at = token.CreatedAt,
-      expires_at = token.ExpiresAt
-    });
+      var sql = @"INSERT INTO token 
+      (app_last_changed_by, user_id, token, token_type, created_at, expires_at) 
+        VALUES (@app_last_changed_by, @user_id, @token, @token_type, @created_at, @expires_at) returning(id)";
+      return await AddAsync<int>(sql, new
+      {
+        app_last_changed_by = token.AppLastChangedBy,
+        user_id = token.UserId,
+        token = token.Token,
+        token_type = token.TokenType,
+        created_at = token.CreatedAt,
+        expires_at = token.ExpiresAt
+      });
   }
 
   public async Task<TokenEntity?> GetTokenByUserId(int userId, string tokenType )

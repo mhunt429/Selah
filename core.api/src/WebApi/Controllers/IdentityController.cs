@@ -102,17 +102,11 @@ public class IdentityController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshAccessToken.Command request)
     {
-        var sessionIdHeader = Request.Cookies.FirstOrDefault(x => x.Key == "x_api_token");
-        if (sessionIdHeader.Value == null)
-        {
-            return Forbid();
-        }
+        LoginResult result = await _mediatr.Send(request);
+        if (!result.Success) return Unauthorized();
 
-        AppRequestContext? requestContext = Request.GetAppRequestContext();
-        if (requestContext == null) return Forbid();
-
-        return Ok();
+        return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 }
