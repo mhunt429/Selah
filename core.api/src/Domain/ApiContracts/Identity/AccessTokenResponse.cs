@@ -9,4 +9,8 @@ public class AccessTokenResponse
     public long AccessTokenExpiration { get; set; }
 
     public long RefreshTokenExpiration { get; set; }
+    
+    public Guid SessionId { get; set; }
+
+    public DateTimeOffset SessionExpiration { get; set; }
 }

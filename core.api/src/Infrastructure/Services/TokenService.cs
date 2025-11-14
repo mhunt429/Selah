@@ -18,7 +18,7 @@ public class TokenService : ITokenService
         _securityConfig = securityConfig;
     }
 
-    public AccessTokenResponse GenerateAccessToken(int userId)
+    public AccessTokenResponse GenerateAccessToken(int userId, bool rememberMe = false)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         byte[] key = Encoding.UTF8.GetBytes(_securityConfig.JwtSecret);
@@ -43,12 +43,18 @@ public class TokenService : ITokenService
         string accessToken = tokenHandler.WriteToken(token);
         string refreshToken = GenerateRefreshToken();
 
+        var sessionId = Guid.NewGuid();
+        var sessionExpiration = rememberMe ?  DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30);
+
+        
         return new AccessTokenResponse
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             AccessTokenExpiration = new DateTimeOffset(accessTokenExpiration).ToUnixTimeMilliseconds(),
-            RefreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays).ToUnixTimeMilliseconds()
+            RefreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays).ToUnixTimeMilliseconds(),
+            SessionId = sessionId,
+            SessionExpiration = sessionExpiration,
         };
     }
 

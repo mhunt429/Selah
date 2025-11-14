@@ -7,6 +7,7 @@ using Application.Identity;
 using Domain.Models;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
+using Domain.Results;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers;
@@ -48,16 +49,16 @@ public class IdentityController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserLogin.Command request)
     {
-        UserLogin.Response? result = await _mediatr.Send(request);
+        LoginResult result = await _mediatr.Send(request);
 
-        if (result == null || result.AccessToken == null)
+        if (!result.Success || result.AccessTokenResponse is null)
         {
             return Unauthorized();
         }
 
         if (request.RememberMe)
         {
-            Response.Cookies.Append("x_session_id", result.SessionId.ToString(), new CookieOptions
+            Response.Cookies.Append("x_session_id", result.AccessTokenResponse.SessionId.ToString(), new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -65,13 +66,13 @@ public class IdentityController : ControllerBase
             });
         }
 
-        Response.Cookies.Append("x_api_token", result.AccessToken.AccessToken, new CookieOptions
+        Response.Cookies.Append("x_api_token", result.AccessTokenResponse.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
         });
-        return Ok(result.AccessToken.ToBaseHttpResponse(HttpStatusCode.OK));
+        return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
     [AllowAnonymous]
@@ -108,10 +109,10 @@ public class IdentityController : ControllerBase
         {
             return Forbid();
         }
-        
+
         AppRequestContext? requestContext = Request.GetAppRequestContext();
-        if(requestContext == null) return Forbid();
-        
+        if (requestContext == null) return Forbid();
+
         return Ok();
     }
 }

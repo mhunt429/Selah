@@ -7,6 +7,7 @@ using Application.ApplicationUser;
 using Application.Identity;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
+using Domain.Results;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -44,11 +45,7 @@ namespace WebApi.UnitTests
         public async Task Login_ShouldReturnOk_AndSetCookies_WhenRememberMeTrue()
         {
             // Arrange
-            var response = new UserLogin.Response
-            {
-                AccessToken = new AccessTokenResponse { AccessToken = "ABC123" },
-                SessionId = Guid.NewGuid()
-            };
+            var response = new LoginResult(true, new AccessTokenResponse { AccessToken = "ABC123," });
 
             _mediatorMock
                 .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
@@ -70,11 +67,7 @@ namespace WebApi.UnitTests
         public async Task Login_ShouldReturnOk_AndSetAccessTokenCookie_WhenRememberMeFalse()
         {
             // Arrange
-            var response = new UserLogin.Response
-            {
-                AccessToken = new AccessTokenResponse { AccessToken = "XYZ789" },
-                SessionId = Guid.NewGuid()
-            };
+            var response = new LoginResult(true, new AccessTokenResponse { AccessToken = "ABC123," });
 
             _mediatorMock
                 .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
@@ -92,11 +85,11 @@ namespace WebApi.UnitTests
         }
 
         [Fact]
-        public async Task Login_ShouldReturnUnauthorized_WhenResultIsNull()
+        public async Task Login_ShouldReturnUnauthorized_WhenResultIsFailed()
         {
             _mediatorMock
                 .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((UserLogin.Response)null);
+                .ReturnsAsync(new LoginResult(false, null));
 
             var result = await _controller.Login(new UserLogin.Command());
 
@@ -106,10 +99,10 @@ namespace WebApi.UnitTests
         [Fact]
         public async Task Login_ShouldReturnUnauthorized_WhenAccessTokenIsNull()
         {
-            var response = new UserLogin.Response { AccessToken = null };
+            var response = new AccessTokenResponse { AccessToken = null };
             _mediatorMock
                 .Setup(x => x.Send(It.IsAny<UserLogin.Command>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+                .ReturnsAsync(new LoginResult(false, response));
 
             var result = await _controller.Login(new UserLogin.Command());
 

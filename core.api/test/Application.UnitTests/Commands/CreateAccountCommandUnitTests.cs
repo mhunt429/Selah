@@ -43,7 +43,7 @@ public class CreateAccountCommandUnitTests
         _handler = new RegisterAccount.Handler(_registrationRepository.Object, _cryptoService.Object,
             _passwordHasherService.Object, _tokenService.Object, _logger.Object, _validatorMock.Object);
 
-        _tokenService.Setup(x => x.GenerateAccessToken(It.IsAny<int>()))
+        _tokenService.Setup(x => x.GenerateAccessToken(It.IsAny<int>(), It.IsAny<bool>()))
             .Returns(new AccessTokenResponse
             {
                 AccessToken = "token",

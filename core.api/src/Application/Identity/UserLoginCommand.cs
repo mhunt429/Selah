@@ -2,6 +2,7 @@ using MediatR;
 using Domain.ApiContracts.Identity;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.Identity;
+using Domain.Results;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 
@@ -9,77 +10,61 @@ namespace Application.Identity;
 
 public class UserLogin
 {
-    public class Command : LoginRequest, IRequest<Response?>
+    public class Command : LoginRequest, IRequest<LoginResult>
     {
-       
     }
-    
-     public class Response
+
+
+    public class Handler : IRequestHandler<Command, LoginResult>
+    {
+        private readonly IApplicationUserRepository _repository;
+        private readonly ICryptoService _cryptoService;
+        private readonly IPasswordHasherService _passwordHasherService;
+        private readonly ITokenService _tokenService;
+        private readonly IUserSessionRepository _userSessionRepository;
+
+
+        public Handler(
+            IApplicationUserRepository repository,
+            ICryptoService cryptoService,
+            IPasswordHasherService passwordHasherService,
+            ITokenService tokenService,
+            IUserSessionRepository userSessionRepository)
         {
-            public AccessTokenResponse? AccessToken { get; set; }
-
-            //Send these back to the controller so the sessionId cookie can be issued
-            public Guid SessionId { get; set; }
-
-            public DateTimeOffset SessionExpiration { get; set; }
+            _repository = repository;
+            _cryptoService = cryptoService;
+            _passwordHasherService = passwordHasherService;
+            _tokenService = tokenService;
+            _userSessionRepository = userSessionRepository;
         }
 
-        public class Handler : IRequestHandler<Command, Response?>
+        public async Task<LoginResult> Handle(Command command, CancellationToken cancellationToken)
         {
-            private readonly IApplicationUserRepository _repository;
-            private readonly ICryptoService _cryptoService;
-            private readonly IPasswordHasherService _passwordHasherService;
-            private readonly ITokenService _tokenService;
-            private readonly IUserSessionRepository _userSessionRepository;
+            string hashedEmail = _cryptoService.HashValue(command.Email);
+            ApplicationUserEntity? dbUser = await _repository.GetUserByEmail(hashedEmail);
 
+            if (dbUser == null) return new LoginResult(false, null);
 
-            public Handler(
-                IApplicationUserRepository repository,
-                ICryptoService cryptoService,
-                IPasswordHasherService passwordHasherService,
-                ITokenService tokenService,
-                IUserSessionRepository userSessionRepository)
+            if (_passwordHasherService.VerifyPassword(command.Password, dbUser.Password))
             {
-                _repository = repository;
-                _cryptoService = cryptoService;
-                _passwordHasherService = passwordHasherService;
-                _tokenService = tokenService;
-                _userSessionRepository = userSessionRepository;
-            }
+                var sessionId = Guid.NewGuid();
+                var sessionExpiration = command.RememberMe
+                    ? DateTimeOffset.UtcNow.AddDays(7)
+                    : DateTimeOffset.UtcNow.AddMinutes(30);
 
-            public async Task<Response?> Handle(Command command, CancellationToken cancellationToken)
-            {
-                string hashedEmail = _cryptoService.HashValue(command.Email);
-                ApplicationUserEntity? dbUser = await _repository.GetUserByEmail(hashedEmail);
-
-                if (dbUser == null) return null;
-
-                if (_passwordHasherService.VerifyPassword(command.Password, dbUser.Password))
+                await _userSessionRepository.IssueSession(new UserSessionEntity
                 {
-                    var sessionId = Guid.NewGuid();
-                    var sessionExpiration = command.RememberMe ?  DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30);
-
-                    await _userSessionRepository.IssueSession(new UserSessionEntity
-                    {
-                        Id = sessionId,
-                        AppLastChangedBy = dbUser.Id,
-                        UserId = dbUser.Id,
-                        IssuedAt = DateTimeOffset.UtcNow,
-                        ExpiresAt = sessionExpiration
-                    });
-
-
-                    var response = new Response
-                    {
-                        AccessToken = _tokenService.GenerateAccessToken(dbUser.Id),
-                        SessionId = sessionId,
-                        SessionExpiration = sessionExpiration,
-                    };
-
-                    return response;
-                }
-
-                return null!;
+                    Id = sessionId,
+                    AppLastChangedBy = dbUser.Id,
+                    UserId = dbUser.Id,
+                    IssuedAt = DateTimeOffset.UtcNow,
+                    ExpiresAt = sessionExpiration
+                });
+                AccessTokenResponse rsp = _tokenService.GenerateAccessToken(dbUser.Id, command.RememberMe);
+                return new LoginResult(true, rsp);
             }
+
+            return new LoginResult(false, null);
         }
+    }
 }
