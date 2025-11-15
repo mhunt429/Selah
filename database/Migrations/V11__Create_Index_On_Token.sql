@@ -1,0 +1,1 @@
+CREATE INDEX token_indx ON token(token);

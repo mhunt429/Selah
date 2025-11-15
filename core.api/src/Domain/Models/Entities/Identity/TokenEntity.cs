@@ -9,7 +9,7 @@ public class TokenEntity : BaseAuditFields
 
     [Column("user_id")] public required int UserId { get; set; }
     
-    [Column("token")] public required byte[] Token { get; set; }
+    [Column("token")] public required string Token { get; set; }
     
     [Column("token_type")] public required string TokenType { get; set; }
     

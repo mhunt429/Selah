@@ -60,7 +60,7 @@ public class UserLogin
                     IssuedAt = DateTimeOffset.UtcNow,
                     ExpiresAt = sessionExpiration
                 });
-                AccessTokenResponse rsp = _tokenService.GenerateAccessToken(dbUser.Id, command.RememberMe);
+                AccessTokenResponse rsp = await _tokenService.GenerateAccessToken(dbUser.Id, command.RememberMe);
                 return new LoginResult(true, rsp);
             }
 

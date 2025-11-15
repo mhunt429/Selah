@@ -1,7 +1,7 @@
 CREATE TABLE token(
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES app_user(id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED, 
-    token BYTEA,
+    token VARCHAR,
     token_type VARCHAR(20),
     created_at TIMESTAMPTZ,
     expires_at TIMESTAMPTZ

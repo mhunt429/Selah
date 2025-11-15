@@ -24,7 +24,7 @@ public class TokenService : ITokenService
         _cryptoService = cryptoService;
     }
 
-    public AccessTokenResponse GenerateAccessToken(int userId, bool rememberMe = false)
+    public async Task<AccessTokenResponse> GenerateAccessToken(int userId, bool rememberMe = false)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         byte[] key = Encoding.UTF8.GetBytes(_securityConfig.JwtSecret);
@@ -47,19 +47,28 @@ public class TokenService : ITokenService
         SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
 
         string accessToken = tokenHandler.WriteToken(token);
-        string refreshToken = GenerateRefreshToken(userId);
+        string refreshToken = Guid.NewGuid().ToString();
 
         var sessionId = Guid.NewGuid();
         var sessionExpiration = DateTimeOffset.UtcNow.AddMinutes(30);
 
+        var refreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays);
+
+        await _tokenRepository.SaveTokenAsync(new TokenEntity
+        {
+            UserId = userId,
+            Token = _cryptoService.HashValue(refreshToken),
+            TokenType = TokenType.RefreshToken,
+            ExpiresAt = refreshTokenExpiration,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
 
         return new AccessTokenResponse
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             AccessTokenExpiration = new DateTimeOffset(accessTokenExpiration).ToUnixTimeMilliseconds(),
-            RefreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays)
-                .ToUnixTimeMilliseconds(),
+            RefreshTokenExpiration = refreshTokenExpiration.ToUnixTimeMilliseconds(),
             SessionId = sessionId,
             SessionExpiration = sessionExpiration,
         };
@@ -67,34 +76,23 @@ public class TokenService : ITokenService
 
     public async Task<AccessTokenResponse?> RefreshToken(string refreshToken)
     {
-        var refreshTokenParts = refreshToken.Split('|');
-        if (refreshTokenParts.Length != 2)
+        string hashedToken = _cryptoService.HashValue(refreshToken);
+
+        TokenEntity? tokenDb = await _tokenRepository.GetByTokenHash(hashedToken, TokenType.RefreshToken);
+        if (tokenDb == null) return null;
+
+
+        if (hashedToken != tokenDb.Token)
         {
             return null;
         }
 
-        var userId = int.Parse(refreshTokenParts[1]);
-
-        TokenEntity? token = await _tokenRepository.GetTokenByUserId(userId, TokenType.RefreshToken);
-        if (token == null) return null;
-
-        string decryptedToken = _cryptoService.Decrypt(token.Token);
-
-        if (refreshToken != decryptedToken)
-        {
-            return null;
-        }
-
-        return GenerateAccessToken(userId);
+        return await GenerateAccessToken(tokenDb.UserId);
     }
 
-    public string GenerateRefreshToken(int userId)
+
+    private async Task SaveToken(TokenEntity tokenEntity)
     {
-        var randomNumber = new byte[32];
-        using (var rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(randomNumber);
-            return $"{Convert.ToBase64String(randomNumber)}|{userId}";
-        }
+        await _tokenRepository.SaveTokenAsync(tokenEntity);
     }
 }

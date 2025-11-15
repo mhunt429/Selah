@@ -44,7 +44,7 @@ public class CreateAccountCommandUnitTests
             _passwordHasherService.Object, _tokenService.Object, _logger.Object, _validatorMock.Object);
 
         _tokenService.Setup(x => x.GenerateAccessToken(It.IsAny<int>(), It.IsAny<bool>()))
-            .Returns(new AccessTokenResponse
+            .ReturnsAsync(new AccessTokenResponse
             {
                 AccessToken = "token",
                 RefreshToken = "refreshToken",

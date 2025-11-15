@@ -28,18 +28,21 @@ public class TokenRepositoryTests : IAsyncLifetime
         var entityToSave = new TokenEntity
         {
             UserId = _userId,
-            Token = "abc123"u8.ToArray(),
+            Token = "abc123",
             TokenType = TokenType.AccessToken,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
             CreatedAt = DateTimeOffset.UtcNow
         };
 
-        int tokenId = await _tokenRepo.CreateTokenAsync(entityToSave);
-        tokenId.Should().BeGreaterThan(0);
+        await _tokenRepo.SaveTokenAsync(entityToSave);
+
+        var token = await _tokenRepo.GetTokenByUserId(_userId, TokenType.AccessToken);
+        token.Should().NotBeNull();
+        token.Id.Should().BeGreaterThan(0);
 
 
         entityToSave.TokenType = TokenType.RefreshToken;
-        await _tokenRepo.CreateTokenAsync(entityToSave);
+        await _tokenRepo.SaveTokenAsync(entityToSave);
     }
 
     [Fact]
@@ -48,13 +51,13 @@ public class TokenRepositoryTests : IAsyncLifetime
         var entityToSave = new TokenEntity
         {
             UserId = _userId,
-            Token = "abc123"u8.ToArray(),
+            Token = "abc123",
             TokenType = TokenType.RefreshToken,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
             CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)
         };
 
-        await _tokenRepo.CreateTokenAsync(entityToSave);
+        await _tokenRepo.SaveTokenAsync(entityToSave);
 
         var token = await _tokenRepo.GetTokenByUserId(_userId, TokenType.RefreshToken);
         token.Should().NotBeNull();
@@ -64,7 +67,6 @@ public class TokenRepositoryTests : IAsyncLifetime
         token.UserId.Should().Be(_userId);
         token.TokenType.Should().Be(TokenType.RefreshToken);
         token.Id.Should().BeGreaterThan(0);
-        
     }
 
     [Fact]

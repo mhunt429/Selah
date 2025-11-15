@@ -54,7 +54,7 @@ public class RegisterAccount
             (int, int) registrationResult =
                 await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
 
-            AccessTokenResponse accessTokenResponse = _tokenService.GenerateAccessToken(registrationResult.Item2);
+            AccessTokenResponse accessTokenResponse = await _tokenService.GenerateAccessToken(registrationResult.Item2);
 
             _logger.LogInformation("User with id {id} was successfully created", registrationResult.Item2);
             return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, data: accessTokenResponse,
