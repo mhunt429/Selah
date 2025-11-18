@@ -4,7 +4,6 @@ using System.Text.Json;
 
 namespace WebApi.Middleware;
 
-
 [ExcludeFromCodeCoverage]
 public class ExceptionHandler
 {

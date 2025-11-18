@@ -212,10 +212,13 @@ public class PlaidHttpServiceTests
         ApiResponseResult<PlaidBalanceApiResponse> result = await _plaidHttpService.GeAccountBalance(accessToken);
 
         // Assert
-        Assert.Equal(ResultStatus.Success, result.status); // Note: The service returns Failed even on success - this might be a bug
+        Assert.Equal(ResultStatus.Success,
+            result.status); // Note: The service returns Failed even on success - this might be a bug
         Assert.NotNull(result.data);
         Assert.Single(result.data.Accounts);
-        Assert.Equal(expectedResponse.Accounts.FirstOrDefault().AccountId, result.data.Accounts.FirstOrDefault().AccountId); ;
+        Assert.Equal(expectedResponse.Accounts.FirstOrDefault().AccountId,
+            result.data.Accounts.FirstOrDefault().AccountId);
+        ;
     }
 
     [Fact]

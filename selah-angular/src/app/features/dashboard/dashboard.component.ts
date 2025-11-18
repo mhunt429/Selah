@@ -10,7 +10,7 @@ import { ConnectorService } from '../../shared/services/connector.service';
 import { BaseApiResponse } from '../../core/models/baseApiResponse';
 import { ConnectorLinkTokenResponse } from '../../core/models/connector/connectorLinkTokenResponse';
 import { ConnectorComponent } from '../connector/connector.component';
-import { ToastService } from '../../shared/services/toast.service';
+import { ToastService, ToastType } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -58,14 +58,16 @@ export class DashboardComponent implements OnInit {
   ];
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    //this.toastService.show('This is a test', ToastType.Success, true);
+  }
 
   linkAccount(e: Event) {
     e.preventDefault;
     this.connectorService.getLinkToken$().subscribe({
       next: (result: BaseApiResponse<ConnectorLinkTokenResponse>) => {
         if (result.errors) {
-          this.toastService.show('Unable to link institution.', 'error');
+          this.toastService.show('Unable to link institution.', ToastType.Error);
         } else {
           this.linkToken = result.data.link_token;
           this.showConnectorOverlay = true;

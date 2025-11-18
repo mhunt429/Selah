@@ -39,12 +39,13 @@ public static class ConfigurationExtensions
         {
             throw new ArgumentNullException(nameof(twilioConfig));
         }
-        
+
         QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
         if (quartzConfig == null)
         {
             throw new ArgumentNullException(nameof(quartzConfig));
         }
+
         services.AddSingleton(quartzConfig);
     }
 }

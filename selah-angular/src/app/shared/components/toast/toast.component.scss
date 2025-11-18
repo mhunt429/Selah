@@ -1,14 +1,48 @@
+
 @keyframes slide-up {
   from {
+    transform: translateX(-50%) translateY(100%);
     opacity: 0;
-    transform: translate(-50%, 50%);
   }
   to {
+    transform: translateX(-50%) translateY(0);
     opacity: 1;
-    transform: translate(-50%, 0);
   }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-basis: 0px;
+  border-radius: 12px;
+  width: calc(100% - 32px);
+  max-width: min(731px, calc(100% - 32px));
+  border: 1px solid transparent;
+  animation-name: slide-up;
+  animation-duration: 0.2s;
+  animation-fill-mode: forwards;
+  z-index: 1000;
+  box-sizing: border-box;
+  background:oklch(87.1% 0.15 154.449);
+  overflow-y: hidden;
+}
+
+.toast-body {
+text-align: center;
+  padding: 18px 16px;
+  background: transparent !important;
+  
+  svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 20px;
+  }
+
+
+
+  .dismiss {
+    cursor: pointer;
+  }
 }

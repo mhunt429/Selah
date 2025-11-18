@@ -6,5 +6,4 @@ public record Success();
 
 public record Failed(string Message);
 
-
-public record LoginResult(bool Success, AccessTokenResponse? AccessTokenResponse );
+public record LoginResult(bool Success, AccessTokenResponse? AccessTokenResponse);

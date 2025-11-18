@@ -1,4 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { PlaidLinkMetadata } from '../../core/models/connector/plaidLinkMetadata';
+import { Observable, of, tap } from 'rxjs';
+import { ConnectorService } from '../../shared/services/connector.service';
+import { PlaidLinkTokenRequest } from '../../core/models/connector/plaidLinkTokenRequest';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-connector',
@@ -8,6 +13,9 @@ import { Component, Input, OnInit } from '@angular/core';
 export class ConnectorComponent implements OnInit {
   constructor() {}
   @Input() linkToken = '';
+
+  connectorService = inject(ConnectorService);
+  router = inject(Router);
 
   ngOnInit() {
     this.loadPlaidScript()
@@ -35,8 +43,8 @@ export class ConnectorComponent implements OnInit {
   private initializePlaid() {
     const handler = (window as any).Plaid?.create({
       token: this.linkToken,
-      onSuccess: (public_token: string, metadata: any) => {
-        console.log('Plaid success:', public_token, metadata);
+      onSuccess: (public_token: string, metadata: PlaidLinkMetadata) => {
+        this.linkInstitution$(public_token, metadata).subscribe();
       },
       onExit: (err: any, metadata: any) => {
         console.log('Plaid exit:', err, metadata);
@@ -44,5 +52,22 @@ export class ConnectorComponent implements OnInit {
     });
 
     if (handler) handler.open();
+  }
+
+  private linkInstitution$(publicToken: string, metadata: PlaidLinkMetadata): Observable<void> {
+    console.log('test1234');
+    const request: PlaidLinkTokenRequest = {
+      publicToken,
+      institutionId: metadata.institution.institution_id,
+      institutionName: metadata.institution.name,
+    };
+
+    return this.connectorService.exchangeToken$(request).pipe(
+      tap({
+        next: () => {
+          this.router.navigateByUrl('/dashboard');
+        },
+      })
+    );
   }
 }

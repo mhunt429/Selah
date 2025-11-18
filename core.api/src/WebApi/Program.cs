@@ -17,6 +17,7 @@ using Infrastructure.Services.Workers;
 using Npgsql;
 using OpenTelemetry.Metrics;
 using Amazon.SQS;
+
 //using Infrastructure.BackgroundWorkers;
 
 namespace WebApi;
@@ -110,12 +111,12 @@ public class Program
             logging.ParseStateValues = true;
             logging.AddOtlpExporter();
         });
-     
+
         builder.Services.AddAWSService<IAmazonSQS>();
-        
+
         var bootstrap = BootstrapSetup.Create();
         var di = DependencyResolverSetup.Create(builder.Services.BuildServiceProvider());
-       
+
 
         //builder.Services.AddHostedService<AmazonSqsListener>();
         builder.Services.AddHostedService<ActiveSessionsWorkerService>();

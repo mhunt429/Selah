@@ -8,6 +8,7 @@ import { UserRegistration } from '../../../core/models/identity/userRegistration
 import { AlertComponent, AlertType } from '../../../shared/components/alert/alert.component';
 import { BaseApiResponse } from '../../../core/models/baseApiResponse';
 import { AccessToken } from '../../../core/models/identity/accessToken';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -23,6 +24,7 @@ import { AccessToken } from '../../../core/models/identity/accessToken';
 export class RegisterComponent implements OnInit {
   AlertType = AlertType;
   private accountService = inject(AccountService);
+  private router = inject(Router);
 
   errors: string[] = [];
 
@@ -64,7 +66,8 @@ export class RegisterComponent implements OnInit {
 
     this.accountService.registerAccount$(request).subscribe({
       next: (accessTokenRsp: BaseApiResponse<AccessToken>) => {
-        sessionStorage.setItem('access_token', accessTokenRsp.data.accessToken);
+        sessionStorage.setItem('sessionExpiration', accessTokenRsp.data.accessTokenExpiration);
+        this.router.navigateByUrl('/dashboard');
       },
       error: (e) => {
         this.errors = e.error.errors;

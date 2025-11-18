@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type ToastType = 'success' | 'warning' | 'error';
+export enum ToastType {
+  Success,
+  Error,
+  Warning,
+  Info,
+}
 
 export interface ToastMessage {
   message: string;
@@ -15,9 +20,11 @@ export class ToastService {
   private toastSubject = new BehaviorSubject<ToastMessage | null>(null);
   toast$ = this.toastSubject.asObservable();
 
-  show(message: string, type: ToastType = 'success') {
+  show(message: string, type: ToastType = ToastType.Success, persisted: boolean = false) {
     this.toastSubject.next({ message, type });
-    setTimeout(() => this.dismiss(), 5000);
+    if (!persisted) {
+      setTimeout(() => this.dismiss(), 5000);
+    }
   }
 
   dismiss() {

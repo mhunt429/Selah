@@ -89,10 +89,4 @@ public class TokenService : ITokenService
 
         return await GenerateAccessToken(tokenDb.UserId);
     }
-
-
-    private async Task SaveToken(TokenEntity tokenEntity)
-    {
-        await _tokenRepository.SaveTokenAsync(tokenEntity);
-    }
 }

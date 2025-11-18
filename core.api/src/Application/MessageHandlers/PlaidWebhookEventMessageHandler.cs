@@ -4,16 +4,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.MessageHandlers;
 
-public class PlaidWebhookEventMessageHandler: IMessageHandler<PlaidWebhookEvent>
+public class PlaidWebhookEventMessageHandler : IMessageHandler<PlaidWebhookEvent>
 {
     private readonly ILogger<PlaidWebhookEventMessageHandler> _logger;
-    
+
     public PlaidWebhookEventMessageHandler(ILogger<PlaidWebhookEventMessageHandler> logger)
     {
         _logger = logger;
     }
 
-    public async Task<MessageProcessStatus> HandleAsync(MessageEnvelope<PlaidWebhookEvent> messageEnvelope,  CancellationToken token = default)
+    public async Task<MessageProcessStatus> HandleAsync(MessageEnvelope<PlaidWebhookEvent> messageEnvelope,
+        CancellationToken token = default)
     {
         var plaidWebhookEvent = messageEnvelope.Message;
         try

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using System.Text;
+
 namespace Infrastructure.IntegrationTests.Repository;
 
 [Collection("Database")]
@@ -45,7 +46,7 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
             InstitutionId = "123",
             InstitutionName = "Morgan Stanley",
             DateConnected = DateTimeOffset.UtcNow,
-            EncryptedAccessToken ="abc123"u8.ToArray(),
+            EncryptedAccessToken = "abc123"u8.ToArray(),
             TransactionSyncCursor = "",
         };
         int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
@@ -62,7 +63,8 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
         queryResult.InstitutionId.Should().Be(data.InstitutionId);
         queryResult.InstitutionName.Should().Be(data.InstitutionName);
 
-        var connectionSync = await _accountConnectorRepository.GetConnectorSyncRecordByConnectorId(_userId, connectorId);
+        var connectionSync =
+            await _accountConnectorRepository.GetConnectorSyncRecordByConnectorId(_userId, connectorId);
         connectionSync.Should().NotBeNull();
         connectionSync.UserId.Should().Be(_userId);
         connectionSync.Id.Should().BeGreaterThan(0);

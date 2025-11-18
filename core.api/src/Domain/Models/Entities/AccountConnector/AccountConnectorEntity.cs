@@ -6,8 +6,7 @@ namespace Domain.Models.Entities.AccountConnector;
 [Table("account_connector")]
 public class AccountConnectorEntity : BaseAuditFields
 {
-    [Key, Column(name: "id", Order = 0)]
-    public int Id { get; set; }
+    [Key, Column(name: "id", Order = 0)] public int Id { get; set; }
 
     [Column("user_id")] public int UserId { get; set; }
 

@@ -4,6 +4,7 @@ using FluentAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using System.Text;
+
 namespace Infrastructure.IntegrationTests.Repository;
 
 [Collection("Database")]
@@ -46,7 +47,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "abc123"u8.ToArray(),
             TransactionSyncCursor = "",
-            
         };
         _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
     }
@@ -149,7 +149,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            
         };
 
         var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
@@ -185,7 +184,6 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             IsExternalApiImport = true,
             LastApiSyncTime = DateTimeOffset.UtcNow,
             ConnectorId = _connectorId,
-            
         };
 
         var newAccountId = await _financialAccountRepository.AddAccountAsync(account);

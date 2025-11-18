@@ -18,7 +18,7 @@ public class JwtMiddleware : JwtBearerHandler
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         string token = null;
-        
+
         if (Request.Headers.TryGetValue("Authorization", out var authHeader))
         {
             var bearerToken = authHeader.ToString();
@@ -27,7 +27,7 @@ public class JwtMiddleware : JwtBearerHandler
                 token = bearerToken.Substring("Bearer ".Length).Trim();
             }
         }
-        
+
         if (string.IsNullOrEmpty(token))
         {
             token = Request.Cookies["x_api_token"];

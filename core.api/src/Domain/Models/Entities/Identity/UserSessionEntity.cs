@@ -9,7 +9,7 @@ public class UserSessionEntity : BaseAuditFields
 
     [Column("user_id")] public required int UserId { get; set; }
 
-    [Column("issued_at")] public required  DateTimeOffset IssuedAt { get; set; }
+    [Column("issued_at")] public required DateTimeOffset IssuedAt { get; set; }
 
     [Column("expires_at")] public required DateTimeOffset ExpiresAt { get; set; }
 }

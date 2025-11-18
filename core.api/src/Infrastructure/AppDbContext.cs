@@ -25,6 +25,6 @@ public class AppDbContext : DbContext
     public DbSet<UserSessionEntity> UserSessions { get; set; }
 
     public DbSet<AccountBalanceHistoryEntity> AccountBalanceHistory { get; set; }
-    
+
     public DbSet<TokenEntity> Tokens { get; set; }
 }

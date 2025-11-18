@@ -7,11 +7,7 @@ public class AccountBalanceSyncActor : ReceiveActor
 {
     public AccountBalanceSyncActor()
     {
-        ReceiveAsync<ImportAccountBalanceActorCommand>(command =>
-        {
-
-            return Task.CompletedTask;
-        });
+        ReceiveAsync<ImportAccountBalanceActorCommand>(command => { return Task.CompletedTask; });
     }
 
     private async Task<string> ImportBalances(IEnumerable<string> accountIds)

@@ -40,8 +40,8 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
             encrypted_access_token = account.EncryptedAccessToken,
             external_event_id = account.ExternalEventId
         };
-        
-        int accountConnectorId = await AddAsync<int>(connectorSql,connectorDataToSave);
+
+        int accountConnectorId = await AddAsync<int>(connectorSql, connectorDataToSave);
 
         var connectionSyncSql =
             @"INSERT INTO connection_sync_data(user_id, last_sync_date, next_sync_date, connector_id, app_last_changed_by)
@@ -54,9 +54,9 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
             connectorId = accountConnectorId,
             appLastChangedBy = account.UserId
         };
-        
-        await AddAsync<int>(connectionSyncSql,connectorSyncDataToSave);
-        
+
+        await AddAsync<int>(connectionSyncSql, connectorSyncDataToSave);
+
         return accountConnectorId;
     }
 
@@ -93,7 +93,7 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
 
         return await GetAllAsync<ConnectionSyncDataEntity>(sql, null);
     }
-    
+
     public async Task<ConnectionSyncDataEntity> GetConnectorSyncRecordByConnectorId(int userId, int connectorId)
     {
         var sql = "SELECT * FROM connection_sync_data WHERE connector_id = @connectorId AND user_id = @userId";

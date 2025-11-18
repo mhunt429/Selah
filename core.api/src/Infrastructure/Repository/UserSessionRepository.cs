@@ -61,7 +61,7 @@ public class UserSessionRepository : BaseRepository, IUserSessionRepository
             INNER JOIN user_session us on u.id = us.user_id
             where us.id = @id
             AND expires_at > now()";
-        
+
         return await GetFirstOrDefaultAsync<ApplicationUserEntity>(sql, new { id = sessionId });
     }
 }

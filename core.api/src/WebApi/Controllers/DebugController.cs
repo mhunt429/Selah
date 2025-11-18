@@ -6,16 +6,13 @@ using WebApi.Filters;
 
 namespace WebApi.Controllers;
 
-
 //Utility endpoint for doing this in debug mode
 
 [ApiController]
 [TypeFilter(typeof(DebugOnlyAsyncActionFilter))]
 [Route("api/[controller]")]
-
 public class DebugController : ControllerBase
 {
-
     private readonly ICryptoService _cryptoService;
 
     public DebugController(ICryptoService cryptoService)
@@ -31,6 +28,7 @@ public class DebugController : ControllerBase
         {
             return BadRequest("Missing encrypted string");
         }
+
         string decrypted = _cryptoService.Decrypt(Convert.FromHexString(request.EncryptedString));
 
         return Ok(new DecryptStringResponse { DecryptedString = decrypted });

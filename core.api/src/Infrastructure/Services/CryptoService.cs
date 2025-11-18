@@ -8,7 +8,6 @@ namespace Infrastructure.Services;
 
 public class CryptoService : ICryptoService
 {
-
     private readonly SecurityConfig _securityConfig;
     private readonly IHashids _hashIds;
     private readonly IPasswordHasherService _passwordHasherService;
@@ -46,9 +45,8 @@ public class CryptoService : ICryptoService
         }
     }
 
-    public string Decrypt(byte [] encryptedBytes)
+    public string Decrypt(byte[] encryptedBytes)
     {
-
         if (encryptedBytes.Length <= 16)
         {
             throw new ArgumentException("Encrypted data is too short to contain an IV and ciphertext.");
@@ -108,5 +106,4 @@ public class CryptoService : ICryptoService
     {
         return _hashIds.EncodeLong(id);
     }
-    
 }

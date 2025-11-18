@@ -14,9 +14,9 @@ public static class MessageQueueingExtensions
             Profile = "default",
             Region = RegionEndpoint.USEast1
         });
-        
+
         string plaidWebHookQueue = configuration.GetValue<string>("AwsConfig:PlaidWebhookMessageQueue");
-        
+
         services.AddAWSMessageBus(bus =>
         {
             bus.AddSQSPoller(plaidWebHookQueue);

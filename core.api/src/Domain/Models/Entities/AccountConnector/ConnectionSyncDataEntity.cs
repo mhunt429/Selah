@@ -7,7 +7,7 @@ namespace Domain.Models.Entities.AccountConnector;
 public class ConnectionSyncDataEntity : BaseAuditFields
 {
     [Key] [Column("id")] public int Id { get; set; }
-    
+
     [Column("user_id")] public int UserId { get; set; }
 
     [Column("last_sync_date")] public DateTimeOffset LastSyncDate { get; set; }

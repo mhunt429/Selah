@@ -30,13 +30,15 @@ public class ConnectorController : ControllerBase
         var userId = requestContext.UserId;
 
         var result = await _mediator.Send(new CreateLinkToken.Command
-        { UserId = userId, AppRequestContext = requestContext });
+            { UserId = userId, AppRequestContext = requestContext });
 
         if (result.status != ResultStatus.Success) return BadRequest();
 
         return Ok(result.data.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
+
+    [HttpPost("exchange")]
     public async Task<IActionResult> ExchangeToken([FromBody] ExchangeLinkToken.Command request)
     {
         var requestContext = Request.GetAppRequestContext();

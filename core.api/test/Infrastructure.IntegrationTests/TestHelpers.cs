@@ -3,6 +3,7 @@ using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
 using Infrastructure.Repository;
 using System.Text;
+
 namespace Infrastructure.IntegrationTests;
 
 public static class TestHelpers

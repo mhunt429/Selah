@@ -6,9 +6,7 @@ namespace Domain.Models.Entities.FinancialAccount;
 [Table("financial_account")]
 public class FinancialAccountEntity : BaseAuditFields
 {
-
-    [Key, Column(name: "id", Order = 0)]
-    public int Id { get; set; }
+    [Key, Column(name: "id", Order = 0)] public int Id { get; set; }
 
     [Column("connector_id")] public int ConnectorId { get; set; }
 

@@ -15,5 +15,4 @@ public class ApplicationUser
     public string PhoneNumber { get; set; } = String.Empty;
 
     public DateTimeOffset CreatedDate { get; set; }
-
 }

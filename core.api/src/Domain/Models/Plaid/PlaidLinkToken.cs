@@ -57,7 +57,6 @@ public class TokenExchangeHttpRequest
     public required string InstitutionId { get; set; }
 }
 
-
 public class PlaidLinkUpdate
 {
     [JsonPropertyName("account_selection_enabled")]

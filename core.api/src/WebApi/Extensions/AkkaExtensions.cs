@@ -29,7 +29,7 @@ public static class AkkaExtensions
 
         var accountBalanceSyncActorRef = actorSystem.ActorOf(resolver.Props<AccountBalanceSyncActor>());
         services.AddSingleton(accountBalanceSyncActorRef);
-        
+
         return services;
     }
 }

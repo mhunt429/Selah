@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-
 [ApiController]
 [Route("api/[controller]")]
 public class WebhooksController : ControllerBase
@@ -17,6 +16,7 @@ public class WebhooksController : ControllerBase
     {
         _plaidWebhookActor = plaidWebhookActor;
     }
+
     /// <summary>
     /// Plaid has a 10-second timeout for webhooks so they prefer a
     /// quick response so we can return a 204 to them and then process the webhook
@@ -29,10 +29,10 @@ public class WebhooksController : ControllerBase
     public async Task<IActionResult> ProcessPlaidWebhook()
     {
         _plaidWebhookActor.Tell(new PlaidWebhookEvent
-         {
-             EventId = Guid.NewGuid(),
-             ItemId = "ABC-123" // Just for testing
-         });
+        {
+            EventId = Guid.NewGuid(),
+            ItemId = "ABC-123" // Just for testing
+        });
         return NoContent();
     }
 }
