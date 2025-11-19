@@ -21,7 +21,7 @@ public class WebhooksController : ControllerBase
     [HttpPost("plaid")]
     public async Task<IActionResult> ProcessPlaidWebhook()
     {
-        _publisher.WriteAsync(new PlaidWebhookEvent
+        await _publisher.WriteAsync(new PlaidWebhookEvent
         {
             EventId = Guid.NewGuid(),
             ItemId = "ABC-123"
