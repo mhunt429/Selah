@@ -1,6 +1,8 @@
+using Domain.Events;
+
 namespace Domain.MessageContracts;
 
-public class PlaidWebhookEvent
+public class PlaidWebhookEvent: IntegrationEvent
 {
     public required Guid EventId { get; set; }
 

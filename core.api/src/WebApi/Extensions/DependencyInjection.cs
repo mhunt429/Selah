@@ -22,6 +22,7 @@ public static class DependencyInjection
             .AddHttpClients(configuration)
             .RegisterQuartz(configuration)
             .RegisterActorSystem()
+            .AddChannelServices()
             ;
     }
 
