@@ -1,8 +1,10 @@
 using AwesomeAssertions;
+using Infrastructure;
+using Infrastructure.IntegrationTests;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 
-namespace Infrastructure.IntegrationTests.Repository;
+namespace WebApi.IntegrationTests.Repository;
 
 [Collection("Database")]
 public class AppUserRepositoryTests : IAsyncLifetime

@@ -1,8 +1,10 @@
 using Domain.Models.Entities.Identity;
 using AwesomeAssertions;
+using Infrastructure;
+using Infrastructure.IntegrationTests;
 using Infrastructure.Repository;
 
-namespace Infrastructure.IntegrationTests.Repository;
+namespace WebApi.IntegrationTests.Repository;
 
 [Collection("Database")]
 public class TokenRepositoryTests : IAsyncLifetime

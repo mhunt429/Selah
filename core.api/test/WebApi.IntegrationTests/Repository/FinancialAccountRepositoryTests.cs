@@ -4,8 +4,10 @@ using AwesomeAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using System.Text;
+using Infrastructure;
+using Infrastructure.IntegrationTests;
 
-namespace Infrastructure.IntegrationTests.Repository;
+namespace WebApi.IntegrationTests.Repository;
 
 [Collection("Database")]
 public class FinancialAccountRepositoryTests : IAsyncLifetime
