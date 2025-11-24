@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Extensions;
 
-[ExcludeFromCodeCoverage]
 public static class DatabaseExtensions
 {
     public static IServiceCollection RegisterRepositories(this IServiceCollection services,

@@ -5,7 +5,7 @@ using Domain.Models;
 
 namespace WebApi.Extensions;
 
-[ExcludeFromCodeCoverage]
+
 public static class HttpRequestExtensions
 {
     public static AppRequestContext? GetAppRequestContext(this HttpRequest request)

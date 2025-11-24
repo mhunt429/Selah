@@ -15,8 +15,7 @@ public class TestFactory : WebApplicationFactory<Program>
         {
             services.AddSingleton<IDbConnectionFactory>(provider =>
             {
-                return new SelahDbConnectionFactory(
-                    "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres");
+                return new SelahDbConnectionFactory("User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres");
             });
 
             services.AddSingleton(new AwsConfig

@@ -10,7 +10,7 @@ namespace Infrastructure;
 /// if certain configs are missing (For obvious reasons). EF Core cannot access container env vars
 /// so we have to do this "abstraction" for local migrations
 /// </summary>
-[ExcludeFromCodeCoverage]
+
 public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)

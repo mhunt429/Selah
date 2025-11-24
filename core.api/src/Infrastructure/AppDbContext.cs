@@ -9,7 +9,7 @@ using Domain.Models.Entities.UserAccount;
 
 namespace Infrastructure;
 
-[ExcludeFromCodeCoverage]
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)

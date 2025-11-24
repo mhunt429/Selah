@@ -8,7 +8,7 @@ using Infrastructure.Services.Interfaces;
 
 namespace WebApi.Extensions;
 
-[ExcludeFromCodeCoverage]
+
 public static class DependencyInjection
 {
     public static void AddDependencies(this IServiceCollection services, IConfiguration configuration)
