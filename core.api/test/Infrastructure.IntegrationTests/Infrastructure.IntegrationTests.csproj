@@ -38,4 +38,8 @@
         <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Repository\" />
+    </ItemGroup>
+
 </Project>

@@ -105,6 +105,8 @@ public class Program
 
         builder.Services.AddHostedService<ActiveSessionsWorkerService>();
 
+        builder.Services.AddHealthChecks();
+
         return builder.Services;
     }
 
@@ -159,5 +161,6 @@ public class Program
         app.UseAuthorization();
         app.UseMiddleware<ExceptionHandler>();
         app.MapControllers();
+        app.MapHealthChecks("/hc");
     }
 }
