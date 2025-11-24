@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 

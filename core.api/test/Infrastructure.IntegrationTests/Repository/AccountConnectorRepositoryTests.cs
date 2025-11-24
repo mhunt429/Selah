@@ -1,5 +1,5 @@
 using Domain.Models.Entities.AccountConnector;
-using FluentAssertions;
+using AwesomeAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using System.Text;

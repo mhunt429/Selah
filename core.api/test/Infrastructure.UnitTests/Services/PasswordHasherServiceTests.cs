@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using Infrastructure.Services;
 
 namespace Infrastructure.UnitTests.Services;

@@ -4,7 +4,7 @@ using Domain.ApiContracts.Identity;
 using Domain.Models;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure.Repository;

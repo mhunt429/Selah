@@ -1,4 +1,4 @@
-using FluentAssertions;
+using AwesomeAssertions;
 using HashidsNet;
 using Moq;
 using Domain.Configuration;

@@ -1,6 +1,5 @@
-using System.Text;
 using Domain.Models.Entities.Identity;
-using FluentAssertions;
+using AwesomeAssertions;
 using Infrastructure.Repository;
 
 namespace Infrastructure.IntegrationTests.Repository;
