@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
+using Infrastructure;
 using Infrastructure.Repository;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.IntegrationTests;
+namespace WebApi.IntegrationTests.Helpers;
 
 public static class TestHelpers
 {

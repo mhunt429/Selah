@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Infrastructure;
-using Infrastructure.IntegrationTests;
 using Infrastructure.Repository;
 using WebApi.IntegrationTests.Helpers;
 

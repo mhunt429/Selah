@@ -1,5 +1,3 @@
-using Infrastructure.IntegrationTests;
-
 namespace WebApi.IntegrationTests.Helpers;
 
 [CollectionDefinition("Database")]

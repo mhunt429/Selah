@@ -3,7 +3,6 @@ using AwesomeAssertions;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure;
-using Infrastructure.IntegrationTests;
 using WebApi.IntegrationTests.Helpers;
 
 namespace WebApi.IntegrationTests.Repository;

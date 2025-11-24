@@ -1,5 +1,4 @@
 using System.Data.Common;
-using Infrastructure.IntegrationTests;
 using Npgsql;
 using Respawn;
 using Respawn.Graph;

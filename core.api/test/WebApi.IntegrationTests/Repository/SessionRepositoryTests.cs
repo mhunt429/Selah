@@ -1,7 +1,6 @@
 using Domain.Models.Entities.Identity;
 using AwesomeAssertions;
 using Infrastructure;
-using Infrastructure.IntegrationTests;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using WebApi.IntegrationTests.Helpers;
