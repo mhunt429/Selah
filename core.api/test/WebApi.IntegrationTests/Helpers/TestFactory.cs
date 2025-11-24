@@ -1,6 +1,9 @@
+using Domain.Configuration;
+using Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApi.IntegrationTests.Helpers;
 
@@ -8,35 +11,48 @@ public class TestFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration((context, config) =>
+        builder.ConfigureServices(services =>
         {
-            var testConfig = new Dictionary<string, string?>
+            services.AddSingleton<IDbConnectionFactory>(provider =>
             {
-                ["SelahDbConnectionString"] =
-                    "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres",
-                
-                ["AwsConfig:AccessKey"] = "abc123",
-                ["AwsConfig:SecretKey"] = "abc123",
-                ["AwsConfig:Region"] = "us-east-1",
-                
-                ["PlaidConfig:ClientId"] = "abced",
-                ["PlaidConfig:ClientSecret"] = "abced",
-                ["PlaidConfig:BaseUrl"] = "https://sandbox.plaid.com",
-                
-                ["SecurityConfig:JwtSecret"] = "Don'tUseThisInProduction",
-                ["SecurityConfig:HashIdSalt"] = "Don'tUseThisInProduction",
-                ["SecurityConfig:CryptoSecret"] = "Don'tUseThisInProduction",
-                ["SecurityConfig:AccessTokenExpiryMinutes"] = "30",
-                ["SecurityConfig:RefreshTokenExpiryDays"] = "3",
-                
-                ["TwilioConfig:ApiToken"] = "123456789",
-            
-                ["QuartzConfig:AccountBalanceRefreshJobCronExpression"] = "0 */5 * * * ?",
-            };
-            
+                return new SelahDbConnectionFactory(
+                    "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres");
+            });
 
-            config.AddInMemoryCollection(testConfig);
+            services.AddSingleton(new AwsConfig
+            {
+                AccessKey = "abc123",
+                SecretAccessKey = "abc123",
+                Region = "us-east-1"
+            });
+
+            services.AddSingleton(new PlaidConfig
+            {
+                ClientId = "abced",
+                ClientSecret = "abced",
+                BaseUrl = "https://sandbox.plaid.com"
+            });
+
+            services.AddSingleton(new SecurityConfig
+            {
+                JwtSecret = "DontUseThisInProduction",
+                HashIdSalt = "DontUseThisInProduction",
+                CryptoSecret = "DontUseThisInProduction",
+                AccessTokenExpiryMinutes = 30,
+                RefreshTokenExpiryDays = 3
+            });
+
+            services.AddSingleton(new TwilioConfig
+            {
+                ApiToken = "123456789",
+                AccountSid = "123456789",
+                AppNumber = "123456789"
+            });
+
+            services.AddSingleton(new QuartzConfig
+            {
+                AccountBalanceRefreshJobCronExpression = "0 */5 * * * ?"
+            });
         });
-        builder.ConfigureServices(services => { });
     }
 }
