@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using Quartz;
-using MassTransit;
 using Domain.Configuration;
 using Infrastructure.RecurringJobs;
 using Infrastructure.Services;
@@ -21,7 +18,6 @@ public static class DependencyInjection
             .AddApplicationServices()
             .AddHttpClients(configuration)
             .RegisterQuartz(configuration)
-            .RegisterActorSystem()
             .AddChannelServices()
             ;
     }

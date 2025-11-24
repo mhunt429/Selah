@@ -1,9 +1,7 @@
 using System.Net;
-using MediatR;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Application.ApplicationUser;
-using Application.Identity;
 using Domain.Models;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
@@ -16,11 +14,13 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class IdentityController : ControllerBase
 {
-    private readonly IMediator _mediatr;
-
-    public IdentityController(IMediator mediatr)
+    private readonly IdentityService _identityService;
+private readonly AppUserService _userService;
+    
+    public IdentityController(IdentityService identityService, AppUserService userService)
     {
-        _mediatr = mediatr;
+        _identityService = identityService;
+        _userService = userService;
     }
 
     /// <summary>
@@ -35,8 +35,7 @@ public class IdentityController : ControllerBase
 
         int userId = requestContext.UserId;
 
-        var query = new GetUserById.Query { UserId = userId };
-        ApplicationUser? result = await _mediatr.Send(query);
+        ApplicationUser? result = await _userService.GetUserById(userId);
         if (result == null)
         {
             return Unauthorized();
@@ -47,9 +46,9 @@ public class IdentityController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] UserLogin.Command request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        LoginResult result = await _mediatr.Send(request);
+        LoginResult result = await _identityService.Login(request);
 
         if (!result.Success || result.AccessTokenResponse is null)
         {
@@ -74,37 +73,13 @@ public class IdentityController : ControllerBase
         });
         return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));
     }
-
-    [AllowAnonymous]
-    [HttpGet("current-session")]
-    public async Task<IActionResult> GetCurrentSession()
-    {
-        var sessionIdHeader = Request.Cookies.FirstOrDefault(x => x.Key == "x_session_id");
-        if (sessionIdHeader.Value == null)
-        {
-            return Unauthorized();
-        }
-
-        var sessionId = Guid.Empty;
-        if (Guid.TryParse(sessionIdHeader.Value, out sessionId))
-        {
-            var query = new UserBySessionIdQuery.Query { SessionId = sessionId };
-
-            var result = await _mediatr.Send(query);
-            if (result != null)
-            {
-                return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
-            }
-        }
-
-        return Unauthorized();
-    }
+    
 
     [AllowAnonymous]
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshAccessToken.Command request)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
-        LoginResult result = await _mediatr.Send(request);
+        LoginResult result = await _identityService.RefreshAccessToken(request);
         if (!result.Success) return Unauthorized();
 
         return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));

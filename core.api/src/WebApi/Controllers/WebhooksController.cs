@@ -1,8 +1,5 @@
 using System.Threading.Channels;
-using Akka.Actor;
-using Akka.DependencyInjection;
 using Domain.MessageContracts;
-using Infrastructure.Actors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;

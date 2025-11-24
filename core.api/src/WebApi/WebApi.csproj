@@ -8,17 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Akka.DependencyInjection" Version="1.5.50" />
-        <PackageReference Include="Akka.Quartz.Actor" Version="1.5.13" />
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3" />
-        <PackageReference Include="AWSSDK.SQS" Version="4.0.1.4" />
         <PackageReference Include="DotNetEnv" Version="3.1.1"/>
         <PackageReference Include="FluentValidation" Version="12.0.0"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
         <PackageReference Include="Hashids.net" Version="1.7.0"/>
         <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1"/>
-        <PackageReference Include="MediatR" Version="12.5.0"/>
-        <PackageReference Include="MediatR.Contracts" Version="2.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">

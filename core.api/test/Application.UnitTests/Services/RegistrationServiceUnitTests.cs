@@ -1,34 +1,31 @@
-using FluentAssertions;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Application.Registration;
-using Application.Validators;
+using Application.Services;
 using Domain.ApiContracts.AccountRegistration;
 using Domain.ApiContracts.Identity;
 using Domain.Models;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
+using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Infrastructure.Repository;
 using Infrastructure.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using Moq;
 
-namespace Application.UnitTests.Commands;
+namespace Application.UnitTests.Services;
 
-public class CreateAccountCommandUnitTests
+public class RegistrationServiceUnitTests
 {
     private readonly Mock<IRegistrationRepository> _registrationRepository = new();
     private readonly Mock<ICryptoService> _cryptoService = new();
     private readonly Mock<IPasswordHasherService> _passwordHasherService = new();
     private readonly Mock<ITokenService> _tokenService = new();
-    private readonly Mock<ILogger<RegisterAccount.Handler>> _logger = new();
+    private readonly Mock<ILogger<RegistrationService>> _logger = new();
     private readonly Mock<IValidator<AccountRegistrationRequest>> _validatorMock = new();
 
+    private RegistrationService _service;
 
-    private RegisterAccount.Handler _handler;
-
-
-    public CreateAccountCommandUnitTests()
+    public RegistrationServiceUnitTests()
     {
         _registrationRepository
             .Setup(x => x.RegisterAccount(It.IsAny<UserAccountEntity>(), It.IsAny<ApplicationUserEntity>()))
@@ -40,7 +37,7 @@ public class CreateAccountCommandUnitTests
             .Setup(v => v.ValidateAsync(It.IsAny<AccountRegistrationRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        _handler = new RegisterAccount.Handler(_registrationRepository.Object, _cryptoService.Object,
+        _service = new RegistrationService(_registrationRepository.Object, _cryptoService.Object,
             _passwordHasherService.Object, _tokenService.Object, _logger.Object, _validatorMock.Object);
 
         _tokenService.Setup(x => x.GenerateAccessToken(It.IsAny<int>(), It.IsAny<bool>()))
@@ -52,12 +49,11 @@ public class CreateAccountCommandUnitTests
                 RefreshTokenExpiration = DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeMilliseconds(),
             });
     }
-
-
+    
     [Fact]
     public async Task Register_ShouldReturnAccessToken()
     {
-        var command = new RegisterAccount.Command
+        var request = new AccountRegistrationRequest()
         {
             FirstName = "Hingle",
             LastName = "McCringleberry",
@@ -66,7 +62,7 @@ public class CreateAccountCommandUnitTests
             PasswordConfirmation = "AStrongPassword!42",
         };
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _service.RegisterAccount(request);
         result.Should().NotBeNull();
         result.data.Should().NotBeNull();
         result.status.Should().Be(ResultStatus.Success);

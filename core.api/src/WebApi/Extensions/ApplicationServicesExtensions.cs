@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Application.Services;
 using Infrastructure;
 using Infrastructure.Services;
 using Infrastructure.Services.Connector;
@@ -15,7 +16,12 @@ public static class ApplicationServicesExtensions
             .AddScoped<ITokenService, TokenService>()
             .AddScoped<IPasswordHasherService, PasswordHasherService>()
             .AddScoped<ICryptoService, CryptoService>()
-            .AddScoped<IPlaidAccountBalanceImportService, PlaidAccountBalanceImportService>()
+            .AddScoped<PlaidAccountBalanceImportService>()
+            .AddScoped<AppUserService>()
+            .AddScoped<ConnectorService>()
+            .AddScoped<IdentityService>()
+            .AddScoped<RegistrationService>()
+            .AddScoped<BankingService>()
             ;
 
         return services;

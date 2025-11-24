@@ -1,6 +1,5 @@
 using System.Net;
-using Application.Banking;
-using MediatR;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
@@ -14,11 +13,11 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class BankingController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly BankingService _bankingService;
 
-    public BankingController(IMediator mediator)
+    public BankingController(BankingService bankingService)
     {
-        _mediator = mediator;
+        _bankingService = bankingService;
     }
 
     [HttpGet("accounts")]
@@ -26,8 +25,7 @@ public class BankingController : ControllerBase
     {
         var appRequestContext = Request.GetAppRequestContext();
 
-        var query = new GetAccountsByUserId.Query { UserId = appRequestContext.UserId };
-        var result = await _mediator.Send(query);
+        var result = await _bankingService.GetAccountsByUserId(appRequestContext.UserId);
 
         return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
     }

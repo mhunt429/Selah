@@ -1,7 +1,7 @@
 using System.Net;
-using Application.AccountConnector;
+using Application.Services;
 using Domain.Models;
-using MediatR;
+using Domain.Models.Plaid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
@@ -15,11 +15,11 @@ namespace WebApi.Controllers;
 [Route("api/[controller]")]
 public class ConnectorController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly ConnectorService _connectorService;
 
-    public ConnectorController(IMediator mediator)
+    public ConnectorController(ConnectorService connectorService)
     {
-        _mediator = mediator;
+        _connectorService = connectorService;
     }
 
     [HttpGet("link")]
@@ -29,8 +29,7 @@ public class ConnectorController : ControllerBase
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
 
-        var result = await _mediator.Send(new CreateLinkToken.Command
-            { UserId = userId, AppRequestContext = requestContext });
+        var result = await _connectorService.GetLinkToken(userId);
 
         if (result.status != ResultStatus.Success) return BadRequest();
 
@@ -39,16 +38,15 @@ public class ConnectorController : ControllerBase
 
 
     [HttpPost("exchange")]
-    public async Task<IActionResult> ExchangeToken([FromBody] ExchangeLinkToken.Command request)
+    public async Task<IActionResult> ExchangeToken([FromBody] TokenExchangeHttpRequest request)
     {
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
 
         request.UserId = userId;
 
-        var result = await _mediator.Send(request);
-
-        if (result.status != ResultStatus.Success) return BadRequest();
+        //TODO add error handling with useful API responses
+        await _connectorService.ExchangeToken(request);
 
         return NoContent();
     }

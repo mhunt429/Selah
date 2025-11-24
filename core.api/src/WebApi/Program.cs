@@ -1,24 +1,19 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Akka.Actor;
-using Akka.DependencyInjection;
+using Domain.Constants;
+using Infrastructure;
+using Infrastructure.Services.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Infrastructure;
-using WebApi.Extensions;
-using WebApi.Middleware;
+using Npgsql;
 using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
-using Application.ApplicationUser;
-using Domain.Constants;
-using Infrastructure.Services.Workers;
-using Npgsql;
-using OpenTelemetry.Metrics;
-using Amazon.SQS;
+using WebApi.Extensions;
+using WebApi.Middleware;
 
-//using Infrastructure.BackgroundWorkers;
 
 namespace WebApi;
 
@@ -40,10 +35,6 @@ public class Program
     private static IServiceCollection ConfigureServices(WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
-
-        //Because of the automatic dependency injection with mediatr and we have all of that in the Application Project, we just need to pass in a single IRequest instance
-        builder.Services.AddMediatR(configuration =>
-            configuration.RegisterServicesFromAssemblyContaining(typeof(GetUserById.Query)));
 
         builder.Services.AddSingleton<IDbConnectionFactory>(provider =>
         {
@@ -112,13 +103,6 @@ public class Program
             logging.AddOtlpExporter();
         });
 
-        builder.Services.AddAWSService<IAmazonSQS>();
-
-        var bootstrap = BootstrapSetup.Create();
-        var di = DependencyResolverSetup.Create(builder.Services.BuildServiceProvider());
-
-
-        //builder.Services.AddHostedService<AmazonSqsListener>();
         builder.Services.AddHostedService<ActiveSessionsWorkerService>();
 
         return builder.Services;

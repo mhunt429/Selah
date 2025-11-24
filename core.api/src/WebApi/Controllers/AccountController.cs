@@ -1,9 +1,6 @@
-using FluentValidation;
-using FluentValidation.Results;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Application.Registration;
+using Application.Services;
 using Domain.ApiContracts;
 using Domain.ApiContracts.AccountRegistration;
 using Domain.ApiContracts.Identity;
@@ -16,17 +13,17 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly IMediator _mediator;
+        private readonly RegistrationService _registrationService;
 
-        public AccountController(IMediator mediator)
+        public AccountController(RegistrationService  registrationService)
         {
-            _mediator = mediator;
+         _registrationService = registrationService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterAccount.Command command)
+        public async Task<IActionResult> Register([FromBody] AccountRegistrationRequest request)
         {
-            ApiResponseResult<AccessTokenResponse> result = await _mediator.Send(command);
+            ApiResponseResult<AccessTokenResponse> result = await _registrationService.RegisterAccount(request);
 
             if (result.status == ResultStatus.Failed)
             {
@@ -38,7 +35,7 @@ namespace WebApi.Controllers
                 });
             }
 
-            Response.Cookies.Append("x_api_token", result.data.AccessToken.ToString(), new CookieOptions
+            Response.Cookies.Append("x_api_token", result.data.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
