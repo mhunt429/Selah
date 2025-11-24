@@ -1,9 +1,10 @@
 using System.Data.Common;
+using Infrastructure.IntegrationTests;
 using Npgsql;
 using Respawn;
 using Respawn.Graph;
 
-namespace Infrastructure.IntegrationTests;
+namespace WebApi.IntegrationTests.Helpers;
 
 public class DatabaseFixture : IAsyncLifetime
 {

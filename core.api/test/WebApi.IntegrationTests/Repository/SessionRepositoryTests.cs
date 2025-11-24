@@ -4,6 +4,7 @@ using Infrastructure;
 using Infrastructure.IntegrationTests;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
+using WebApi.IntegrationTests.Helpers;
 
 namespace WebApi.IntegrationTests.Repository;
 

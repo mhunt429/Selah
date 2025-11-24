@@ -6,6 +6,7 @@ using Infrastructure.Repository.Interfaces;
 using System.Text;
 using Infrastructure;
 using Infrastructure.IntegrationTests;
+using WebApi.IntegrationTests.Helpers;
 
 namespace WebApi.IntegrationTests.Repository;
 
