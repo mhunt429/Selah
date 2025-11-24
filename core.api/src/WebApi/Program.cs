@@ -17,7 +17,6 @@ using WebApi.Middleware;
 
 namespace WebApi;
 
-
 public class Program
 {
     public static void Main(string[] args)
@@ -48,8 +47,9 @@ public class Program
             return new SelahDbConnectionFactory(connectionString);
         });
 
-        builder.Services.AddConfiguration(configuration);
-        builder.Services.AddDependencies(configuration);
+
+        builder.Services.AddConfiguration(configuration, builder.Environment);
+        builder.Services.AddDependencies(configuration, builder.Environment);
 
         builder.Services.AddOpenApi();
 
@@ -62,7 +62,7 @@ public class Program
                     .AllowCredentials());
         });
 
-        ConfigureAuthentication(builder.Services, configuration);
+        ConfigureAuthentication(builder.Services, configuration, builder.Environment);
 
         builder.Services.AddAuthorization();
         builder.Services.AddControllers();
@@ -110,8 +110,10 @@ public class Program
         return builder.Services;
     }
 
-    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
     {
+        if (env.EnvironmentName == "IntegrationTests") return;
+        
         string jwtSecret = configuration["SecurityConfig:JwtSecret"];
 
         services.AddAuthentication(options =>

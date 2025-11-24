@@ -8,16 +8,16 @@ using Infrastructure.Services.Interfaces;
 
 namespace WebApi.Extensions;
 
-
 public static class DependencyInjection
 {
-    public static void AddDependencies(this IServiceCollection services, IConfiguration configuration)
+    public static void AddDependencies(this IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment env)
     {
-        services.RegisterRepositories(configuration)
+        services.RegisterRepositories(configuration, env)
             .AddValidators()
             .AddApplicationServices()
             .AddHttpClients(configuration)
-            .RegisterQuartz(configuration)
+            .RegisterQuartz(configuration, env)
             .AddChannelServices()
             ;
     }
@@ -35,14 +35,12 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection RegisterQuartz(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterQuartz(this IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment env)
     {
-        QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
-        if (quartzConfig == null)
-        {
-            throw new ArgumentNullException(nameof(quartzConfig));
-        }
+        if (env.EnvironmentName == "IntegrationTests") return services;
 
+        QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
         services.AddQuartz(q =>
         {
             var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");

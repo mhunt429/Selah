@@ -9,9 +9,10 @@ namespace WebApi.Extensions;
 public static class DatabaseExtensions
 {
     public static IServiceCollection RegisterRepositories(this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,  IWebHostEnvironment environment)
     {
-        var connectionString = configuration.GetValue<string>("SelahDbConnectionString");
+        var connectionString = environment.EnvironmentName != "IntegrationTests" ? configuration.GetValue<string>("SelahDbConnectionString")
+                : "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres";
 
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("SelahDbConnectionString is missing");

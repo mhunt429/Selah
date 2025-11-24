@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using HashidsNet;
 using Domain.Configuration;
 
@@ -7,8 +6,10 @@ namespace WebApi.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static void AddConfiguration(this IServiceCollection services, IConfiguration configuration)
+    public static void AddConfiguration(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
+        if (environment.EnvironmentName == "IntegrationTests") return;
+       
         AwsConfig awsConfig = configuration.GetSection("AwsConfig").Get<AwsConfig>();
        
         services.AddSingleton(awsConfig);
