@@ -22,6 +22,7 @@ public static class ApplicationServicesExtensions
             .AddScoped<IdentityService>()
             .AddScoped<RegistrationService>()
             .AddScoped<BankingService>()
+            .AddScoped<SupportService>()
             ;
 
         return services;
