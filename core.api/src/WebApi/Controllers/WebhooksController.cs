@@ -1,24 +1,19 @@
 using System.Threading.Channels;
 using Domain.MessageContracts;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class WebhooksController : ControllerBase
+[EnableRateLimiting("PublicEndpointPolicy")]
+public class WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher) : ControllerBase
 {
-    private ChannelWriter<PlaidWebhookEvent> _publisher;
-
-    public WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher)
-    {
-        _publisher = publisher;
-    }
-
     [HttpPost("plaid")]
     public async Task<IActionResult> ProcessPlaidWebhook()
     {
-        await _publisher.WriteAsync(new PlaidWebhookEvent
+        await publisher.WriteAsync(new PlaidWebhookEvent
         {
             EventId = Guid.NewGuid(),
             ItemId = "ABC-123"

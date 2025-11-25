@@ -1,11 +1,11 @@
-using Domain.Models.Entities.AccountConnector;
 using AwesomeAssertions;
+using Domain.Models.Entities.AccountConnector;
+using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-using Infrastructure;
-using WebApi.IntegrationTests.Helpers;
+using IntegrationTests.Helpers;
 
-namespace WebApi.IntegrationTests.Repository;
+namespace IntegrationTests.Repository;
 
 [Collection("Database")]
 public class AccountConnectorRepositoryTests : IAsyncLifetime

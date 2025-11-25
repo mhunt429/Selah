@@ -4,6 +4,7 @@ using Domain.Models;
 using Domain.Models.Plaid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Extensions;
 using WebApi.Filters;
 
@@ -12,6 +13,7 @@ namespace WebApi.Controllers;
 [ApiController]
 [Authorize]
 [ValidAppRequestContextFilter]
+[EnableRateLimiting("UserTokenPolicy")]
 [Route("api/[controller]")]
 public class ConnectorController : ControllerBase
 {

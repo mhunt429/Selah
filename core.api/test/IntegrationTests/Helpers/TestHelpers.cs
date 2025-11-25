@@ -4,7 +4,7 @@ using Infrastructure;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApi.IntegrationTests.Helpers;
+namespace IntegrationTests.Helpers;
 
 public static class TestHelpers
 {

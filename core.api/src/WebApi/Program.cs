@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Domain.Constants;
 using Infrastructure;
@@ -31,7 +30,7 @@ public class Program
         app.Run();
     }
 
-    private static IServiceCollection ConfigureServices(WebApplicationBuilder builder)
+    private static void ConfigureServices(WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
 
@@ -107,13 +106,14 @@ public class Program
 
         builder.Services.AddHealthChecks();
 
-        return builder.Services;
+        builder.Services.RegisterRateLimiter(builder.Environment);
     }
 
-    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
+    private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment env)
     {
         if (env.EnvironmentName == "IntegrationTests") return;
-        
+
         string jwtSecret = configuration["SecurityConfig:JwtSecret"];
 
         services.AddAuthentication(options =>
@@ -158,6 +158,8 @@ public class Program
         app.UseMiddleware<RequestLoggingMiddleware>();
 
         app.UseCors();
+        app.UseForwardedHeaders();
+        app.UseRateLimiter();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();

@@ -3,26 +3,19 @@ using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class FinancialAccountRepository : BaseRepository, IFinancialAccountRepository
+public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFactory dbConnectionFactory)
+    : BaseRepository(dbConnectionFactory), IFinancialAccountRepository
 {
-    private readonly AppDbContext _dbContext;
-
-    public FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFactory dbConnectionFactory) : base(
-        dbConnectionFactory)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task ImportFinancialAccountsAsync(IEnumerable<FinancialAccountEntity> accounts)
     {
-        await _dbContext.FinancialAccounts.AddRangeAsync(accounts);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.FinancialAccounts.AddRangeAsync(accounts);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task<int> AddAccountAsync(FinancialAccountEntity account)
     {
-        await _dbContext.FinancialAccounts.AddAsync(account);
-        await _dbContext.SaveChangesAsync();
+        await dbContext.FinancialAccounts.AddAsync(account);
+        await dbContext.SaveChangesAsync();
         return account.Id;
     }
 

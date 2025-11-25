@@ -1,13 +1,12 @@
+using AwesomeAssertions;
 using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Entities.FinancialAccount;
-using AwesomeAssertions;
+using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
-using System.Text;
-using Infrastructure;
-using WebApi.IntegrationTests.Helpers;
+using IntegrationTests.Helpers;
 
-namespace WebApi.IntegrationTests.Repository;
+namespace IntegrationTests.Repository;
 
 [Collection("Database")]
 public class FinancialAccountRepositoryTests : IAsyncLifetime

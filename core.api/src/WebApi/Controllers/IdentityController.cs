@@ -6,23 +6,16 @@ using Domain.Models;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
 using Domain.Results;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class IdentityController : ControllerBase
+public class IdentityController(IdentityService identityService, AppUserService userService)
+    : ControllerBase
 {
-    private readonly IdentityService _identityService;
-private readonly AppUserService _userService;
-    
-    public IdentityController(IdentityService identityService, AppUserService userService)
-    {
-        _identityService = identityService;
-        _userService = userService;
-    }
-
     /// <summary>
     /// Endpoint to get the authenticated user by subject JWT claim
     /// </summary>
@@ -35,7 +28,7 @@ private readonly AppUserService _userService;
 
         int userId = requestContext.UserId;
 
-        ApplicationUser? result = await _userService.GetUserById(userId);
+        ApplicationUser? result = await userService.GetUserById(userId);
         if (result == null)
         {
             return Unauthorized();
@@ -46,9 +39,10 @@ private readonly AppUserService _userService;
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting("PublicEndpointPolicy")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        LoginResult result = await _identityService.Login(request);
+        LoginResult result = await identityService.Login(request);
 
         if (!result.Success || result.AccessTokenResponse is null)
         {
@@ -73,13 +67,14 @@ private readonly AppUserService _userService;
         });
         return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));
     }
-    
+
 
     [AllowAnonymous]
     [HttpPost("refresh-token")]
+    [EnableRateLimiting("PublicEndpointPolicy")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
-        LoginResult result = await _identityService.RefreshAccessToken(request);
+        LoginResult result = await identityService.RefreshAccessToken(request);
         if (!result.Success) return Unauthorized();
 
         return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));

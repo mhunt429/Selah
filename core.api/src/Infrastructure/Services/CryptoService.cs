@@ -1,4 +1,3 @@
-using HashidsNet;
 using System.Security.Cryptography;
 using System.Text;
 using Domain.Configuration;
@@ -6,24 +5,16 @@ using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
 
-public class CryptoService : ICryptoService
+public class CryptoService(
+    SecurityConfig securityConfig,
+    IPasswordHasherService passwordHasherService)
+    : ICryptoService
 {
-    private readonly SecurityConfig _securityConfig;
-    private readonly IHashids _hashIds;
-    private readonly IPasswordHasherService _passwordHasherService;
-
-    public CryptoService(SecurityConfig securityConfig, IHashids hashIds, IPasswordHasherService passwordHasherService)
-    {
-        _securityConfig = securityConfig;
-        _hashIds = hashIds;
-        _passwordHasherService = passwordHasherService;
-    }
-
     public byte[] Encrypt(string plainText)
     {
         using (Aes aesAlg = Aes.Create())
         {
-            aesAlg.Key = Convert.FromBase64String(_securityConfig.CryptoSecret);
+            aesAlg.Key = Convert.FromBase64String(securityConfig.CryptoSecret);
             aesAlg.GenerateIV();
             aesAlg.Padding = PaddingMode.PKCS7;
 
@@ -57,7 +48,7 @@ public class CryptoService : ICryptoService
 
         using (var aesAlg = Aes.Create())
         {
-            aesAlg.Key = Convert.FromBase64String(_securityConfig.CryptoSecret);
+            aesAlg.Key = Convert.FromBase64String(securityConfig.CryptoSecret);
             aesAlg.IV = iv;
 
             using (var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
@@ -71,12 +62,12 @@ public class CryptoService : ICryptoService
 
     public string HashPassword(string password)
     {
-        return _passwordHasherService.HashPassword(password);
+        return passwordHasherService.HashPassword(password);
     }
 
     public bool VerifyPassword(string password, string passwordHash)
     {
-        return _passwordHasherService.VerifyPassword(password, passwordHash);
+        return passwordHasherService.VerifyPassword(password, passwordHash);
     }
 
     public string HashValue(string plainText)
@@ -95,15 +86,5 @@ public class CryptoService : ICryptoService
 
             return hashString.ToString();
         }
-    }
-
-    public long DecodeHashId(string hashId)
-    {
-        return _hashIds.DecodeSingle((hashId));
-    }
-
-    public string EncodeHashId(long id)
-    {
-        return _hashIds.EncodeLong(id);
     }
 }

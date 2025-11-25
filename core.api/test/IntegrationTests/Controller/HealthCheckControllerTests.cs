@@ -1,12 +1,12 @@
-using WebApi.IntegrationTests.Helpers;
+using IntegrationTests.Helpers;
 
-namespace WebApi.IntegrationTests.Controller;
+namespace IntegrationTests.Controller;
 
-public class HealthCheckControllerUnitTests : IClassFixture<TestFactory>
+public class HealthCheckControllerTests : IClassFixture<TestFactory>
 {
     private readonly HttpClient _client;
 
-    public HealthCheckControllerUnitTests(TestFactory factory)
+    public HealthCheckControllerTests(TestFactory factory)
     {
         _client = factory.CreateClient();
     }

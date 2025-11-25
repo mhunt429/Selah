@@ -5,25 +5,20 @@ using Domain.ApiContracts;
 using Domain.ApiContracts.AccountRegistration;
 using Domain.ApiContracts.Identity;
 using Domain.Models;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [AllowAnonymous]
+    [EnableRateLimiting("PublicEndpointPolicy")]
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    public class AccountController(RegistrationService registrationService) : ControllerBase
     {
-        private readonly RegistrationService _registrationService;
-
-        public AccountController(RegistrationService  registrationService)
-        {
-         _registrationService = registrationService;
-        }
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AccountRegistrationRequest request)
         {
-            ApiResponseResult<AccessTokenResponse> result = await _registrationService.RegisterAccount(request);
+            ApiResponseResult<AccessTokenResponse> result = await registrationService.RegisterAccount(request);
 
             if (result.status == ResultStatus.Failed)
             {

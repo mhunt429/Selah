@@ -11,42 +11,32 @@ using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
 
-public class PlaidHttpService : IPlaidHttpService
+public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, ILogger<PlaidHttpService> logger)
+    : IPlaidHttpService
 {
-    private readonly HttpClient _httpClient;
-    private readonly PlaidConfig _plaidConfig;
-    private readonly ILogger<PlaidHttpService> _logger;
-
     private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase // optional, Plaid API expects camelCase
     };
 
-    public PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, ILogger<PlaidHttpService> logger)
-    {
-        _httpClient = httpClient;
-        _plaidConfig = plaidConfig;
-        _logger = logger;
-    }
-
     public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
-            ClientId = _plaidConfig.ClientId,
-            Secret = _plaidConfig.ClientSecret,
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
             User = new PlaidUser { UserId = userId.ToString() }
         };
 
-        Uri linkTokenEndpoint = new Uri($"{_httpClient.BaseAddress}link/token/create");
+        Uri linkTokenEndpoint = new Uri($"{httpClient.BaseAddress}link/token/create");
 
-        HttpResponseMessage response = await _httpClient.PostAsync(linkTokenEndpoint, linkTokenRequest);
+        HttpResponseMessage response = await httpClient.PostAsync(linkTokenEndpoint, linkTokenRequest);
         var messageBody = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError(
+            logger.LogError(
                 "Link Token Create Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
@@ -60,21 +50,21 @@ public class PlaidHttpService : IPlaidHttpService
 
     public async Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken)
     {
-        Uri tokenExchangeEndpoint = new Uri($"{_httpClient.BaseAddress}/item/public_token/exchange");
+        Uri tokenExchangeEndpoint = new Uri($"{httpClient.BaseAddress}/item/public_token/exchange");
 
         var tokenExchange = new PlaidTokenExchangeRequest
         {
-            ClientId = _plaidConfig.ClientId,
-            Secret = _plaidConfig.ClientSecret,
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
             PublicToken = publicToken
         };
 
-        HttpResponseMessage response = await _httpClient.PostAsync(tokenExchangeEndpoint, tokenExchange);
+        HttpResponseMessage response = await httpClient.PostAsync(tokenExchangeEndpoint, tokenExchange);
 
         var messageBody = await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError(
+            logger.LogError(
                 "Link Token Exchange Request failed for user {userId} with status {statusCode} and error with {error}",
                 userId, response.StatusCode, messageBody);
 
@@ -87,16 +77,16 @@ public class PlaidHttpService : IPlaidHttpService
 
     public async Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken)
     {
-        Uri balanceEndpoint = new Uri($"{_httpClient.BaseAddress}/accounts/balance/get");
+        Uri balanceEndpoint = new Uri($"{httpClient.BaseAddress}/accounts/balance/get");
 
         var request = new PlaidAccountBalanceRequest()
         {
-            ClientId = _plaidConfig.ClientId,
-            Secret = _plaidConfig.ClientSecret,
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
             AccessToken = accessToken
         };
 
-        HttpResponseMessage response = await _httpClient.PostAsync(balanceEndpoint, request);
+        HttpResponseMessage response = await httpClient.PostAsync(balanceEndpoint, request);
 
         var messageBody = await response.Content.ReadAsStringAsync();
 

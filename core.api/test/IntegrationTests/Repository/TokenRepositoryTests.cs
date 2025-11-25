@@ -1,10 +1,10 @@
-using Domain.Models.Entities.Identity;
 using AwesomeAssertions;
+using Domain.Models.Entities.Identity;
 using Infrastructure;
 using Infrastructure.Repository;
-using WebApi.IntegrationTests.Helpers;
+using IntegrationTests.Helpers;
 
-namespace WebApi.IntegrationTests.Repository;
+namespace IntegrationTests.Repository;
 
 [Collection("Database")]
 public class TokenRepositoryTests : IAsyncLifetime

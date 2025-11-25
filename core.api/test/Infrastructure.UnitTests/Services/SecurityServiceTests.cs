@@ -1,5 +1,4 @@
 using AwesomeAssertions;
-using HashidsNet;
 using Moq;
 using Domain.Configuration;
 using Infrastructure.Services;
@@ -24,9 +23,8 @@ public class SecurityServiceTests
             RefreshTokenExpiryDays = 30,
         };
 
-        IHashids hashids = new Hashids("secretSalt", minHashLength: 24);
 
-        _cryptoService = new CryptoService(securityConfig, hashids, passwordHasherServiceMock.Object);
+        _cryptoService = new CryptoService(securityConfig, passwordHasherServiceMock.Object);
     }
 
     [Fact]
@@ -52,15 +50,5 @@ public class SecurityServiceTests
         string decryptedString = _cryptoService.Decrypt(encryptedString);
         decryptedString.Should().Be("test");
     }
-
-    [Fact]
-    public void DecodeHashId_ShouldReturnPlainTextId()
-    {
-        long plainId = 1;
-
-        string hashId = _cryptoService.EncodeHashId(plainId);
-
-        long expectedHashId = _cryptoService.DecodeHashId(hashId);
-        expectedHashId.Should().Be(1);
-    }
+    
 }

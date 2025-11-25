@@ -12,7 +12,4 @@ public interface ICryptoService
 
     string HashValue(string plainText);
 
-    long DecodeHashId(string hashId);
-
-    string EncodeHashId(long id);
 }

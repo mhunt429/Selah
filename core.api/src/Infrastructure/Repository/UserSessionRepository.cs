@@ -6,12 +6,9 @@ using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class UserSessionRepository : BaseRepository, IUserSessionRepository
+public class UserSessionRepository(IDbConnectionFactory dbConnectionFactory)
+    : BaseRepository(dbConnectionFactory), IUserSessionRepository
 {
-    public UserSessionRepository(IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory)
-    {
-    }
-
     public async Task<UserSessionEntity?> GetUserSessionAsync(int userId)
     {
         return await GetFirstOrDefaultAsync<UserSessionEntity>("select * from user_session where user_id = @user_id",

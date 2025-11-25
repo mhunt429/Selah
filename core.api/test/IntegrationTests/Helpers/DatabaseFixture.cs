@@ -3,7 +3,7 @@ using Npgsql;
 using Respawn;
 using Respawn.Graph;
 
-namespace WebApi.IntegrationTests.Helpers;
+namespace IntegrationTests.Helpers;
 
 public class DatabaseFixture : IAsyncLifetime
 {

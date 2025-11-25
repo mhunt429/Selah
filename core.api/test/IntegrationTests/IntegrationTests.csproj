@@ -5,6 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <AssemblyName>IntegrationTests</AssemblyName>
+        <RootNamespace>IntegrationTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

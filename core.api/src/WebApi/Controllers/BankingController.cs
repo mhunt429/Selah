@@ -2,6 +2,7 @@ using System.Net;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Extensions;
 using WebApi.Filters;
 
@@ -10,22 +11,16 @@ namespace WebApi.Controllers;
 [ApiController]
 [Authorize]
 [ValidAppRequestContextFilter]
+[EnableRateLimiting("UserTokenPolicy")]
 [Route("api/[controller]")]
-public class BankingController : ControllerBase
+public class BankingController(BankingService bankingService) : ControllerBase
 {
-    private readonly BankingService _bankingService;
-
-    public BankingController(BankingService bankingService)
-    {
-        _bankingService = bankingService;
-    }
-
     [HttpGet("accounts")]
     public async Task<IActionResult> GetAccounts()
     {
         var appRequestContext = Request.GetAppRequestContext();
 
-        var result = await _bankingService.GetAccountsByUserId(appRequestContext.UserId);
+        var result = await bankingService.GetAccountsByUserId(appRequestContext.UserId);
 
         return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
     }

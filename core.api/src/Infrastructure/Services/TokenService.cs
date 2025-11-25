@@ -11,25 +11,15 @@ using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
 
-public class TokenService : ITokenService
+public class TokenService(SecurityConfig securityConfig, TokenRepository tokenRepository, ICryptoService cryptoService)
+    : ITokenService
 {
-    private readonly SecurityConfig _securityConfig;
-    private readonly TokenRepository _tokenRepository;
-    private readonly ICryptoService _cryptoService;
-
-    public TokenService(SecurityConfig securityConfig, TokenRepository tokenRepository, ICryptoService cryptoService)
-    {
-        _securityConfig = securityConfig;
-        _tokenRepository = tokenRepository;
-        _cryptoService = cryptoService;
-    }
-
     public async Task<AccessTokenResponse> GenerateAccessToken(int userId, bool rememberMe = false)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        byte[] key = Encoding.UTF8.GetBytes(_securityConfig.JwtSecret);
+        byte[] key = Encoding.UTF8.GetBytes(securityConfig.JwtSecret);
 
-        DateTime accessTokenExpiration = DateTime.UtcNow.AddMinutes(_securityConfig.AccessTokenExpiryMinutes);
+        DateTime accessTokenExpiration = DateTime.UtcNow.AddMinutes(securityConfig.AccessTokenExpiryMinutes);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -52,12 +42,12 @@ public class TokenService : ITokenService
         var sessionId = Guid.NewGuid();
         var sessionExpiration = DateTimeOffset.UtcNow.AddMinutes(30);
 
-        var refreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(_securityConfig.RefreshTokenExpiryDays);
+        var refreshTokenExpiration = DateTimeOffset.UtcNow.AddDays(securityConfig.RefreshTokenExpiryDays);
 
-        await _tokenRepository.SaveTokenAsync(new TokenEntity
+        await tokenRepository.SaveTokenAsync(new TokenEntity
         {
             UserId = userId,
-            Token = _cryptoService.HashValue(refreshToken),
+            Token = cryptoService.HashValue(refreshToken),
             TokenType = TokenType.RefreshToken,
             ExpiresAt = refreshTokenExpiration,
             CreatedAt = DateTimeOffset.UtcNow
@@ -76,9 +66,9 @@ public class TokenService : ITokenService
 
     public async Task<AccessTokenResponse?> RefreshToken(string refreshToken)
     {
-        string hashedToken = _cryptoService.HashValue(refreshToken);
+        string hashedToken = cryptoService.HashValue(refreshToken);
 
-        TokenEntity? tokenDb = await _tokenRepository.GetByTokenHash(hashedToken, TokenType.RefreshToken);
+        TokenEntity? tokenDb = await tokenRepository.GetByTokenHash(hashedToken, TokenType.RefreshToken);
         if (tokenDb == null) return null;
 
 

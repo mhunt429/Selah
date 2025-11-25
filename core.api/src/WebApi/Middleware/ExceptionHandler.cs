@@ -5,28 +5,19 @@ using System.Text.Json;
 namespace WebApi.Middleware;
 
 
-public class ExceptionHandler
+public class ExceptionHandler(RequestDelegate next, ILogger<ExceptionHandler> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandler> _logger;
-
-    public ExceptionHandler(RequestDelegate next, ILogger<ExceptionHandler> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
             // Proceed to the next middleware in the pipeline
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
             // Log the exception
-            _logger.LogError(ex, "An unhandled exception occurred.");
+            logger.LogError(ex, "An unhandled exception occurred.");
 
             // Handle the exception and return a generic BadRequest
             await HandleExceptionAsync(context);

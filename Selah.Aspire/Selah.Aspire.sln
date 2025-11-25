@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.UnitTests", "..\core.api\test\Infrastructure.UnitTests\Infrastructure.UnitTests.csproj", "{84AEEE78-40F5-41FA-8F23-CFEA536E5827}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.IntegrationTests", "..\core.api\test\WebApi.IntegrationTests\WebApi.IntegrationTests.csproj", "{425EBE97-89ED-40BF-87F0-E74268B8DFE4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "..\core.api\test\IntegrationTests\IntegrationTests.csproj", "{425EBE97-89ED-40BF-87F0-E74268B8DFE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

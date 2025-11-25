@@ -4,26 +4,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services.Connector;
 
-public class PlaidAccountBalanceImportService
+public class PlaidAccountBalanceImportService(
+    IAccountConnectorRepository accountConnectorRepository,
+    IPlaidHttpService plaidHttpService,
+    IFinancialAccountRepository financialAccountRepository,
+    ILogger<PlaidAccountBalanceImportService> logger,
+    ICryptoService cryptoService)
 {
-    private readonly IAccountConnectorRepository _accountConnectorRepository;
-    private readonly IFinancialAccountRepository _financialAccountRepository;
-    private readonly ILogger<PlaidAccountBalanceImportService> _logger;
-    private readonly IPlaidHttpService _plaidHttpService;
-    private readonly ICryptoService _cryptoService;
-    
+    private readonly IAccountConnectorRepository _accountConnectorRepository = accountConnectorRepository;
+    private readonly IFinancialAccountRepository _financialAccountRepository = financialAccountRepository;
+    private readonly ILogger<PlaidAccountBalanceImportService> _logger = logger;
+    private readonly IPlaidHttpService _plaidHttpService = plaidHttpService;
+    private readonly ICryptoService _cryptoService = cryptoService;
 
-    public PlaidAccountBalanceImportService(IAccountConnectorRepository accountConnectorRepository,
-        IPlaidHttpService plaidHttpService,
-        IFinancialAccountRepository financialAccountRepository, ILogger<PlaidAccountBalanceImportService> logger,
-        ICryptoService cryptoService)
-    {
-        _accountConnectorRepository = accountConnectorRepository;
-        _plaidHttpService = plaidHttpService;
-        _financialAccountRepository = financialAccountRepository;
-        _logger = logger;
-        _cryptoService = cryptoService;
-    }
 
     public async Task ImportAccountBalancesAsync()
     {

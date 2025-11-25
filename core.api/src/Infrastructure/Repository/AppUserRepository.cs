@@ -4,23 +4,16 @@ using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class AppUserRepository : IApplicationUserRepository
+public class AppUserRepository(AppDbContext appDbContext) : IApplicationUserRepository
 {
-    private readonly AppDbContext _appDbContext;
-
-    public AppUserRepository(AppDbContext appDbContext)
-    {
-        _appDbContext = appDbContext;
-    }
-
     public async Task<ApplicationUserEntity?> GetUserByIdAsync(int id)
     {
-        return await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
+        return await appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<ApplicationUserEntity?> GetUserByEmail(string emailHash)
     {
-        return await _appDbContext.ApplicationUsers
+        return await appDbContext.ApplicationUsers
             .FirstOrDefaultAsync(x => x.EmailHash == emailHash);
     }
 }

@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class TokenRepository : BaseRepository
+public class TokenRepository(IDbConnectionFactory dbConnectionFactory) : BaseRepository(dbConnectionFactory)
 {
-    public TokenRepository(IDbConnectionFactory dbConnectionFactory) : base(dbConnectionFactory)
-    {
-    }
-
     public async Task SaveTokenAsync(TokenEntity token)
     {
         List<(string, object)> transactions = new List<(string, object)>()
