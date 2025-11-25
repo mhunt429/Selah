@@ -29,21 +29,55 @@ public class PlaidAccountBalanceImportService(
         }
 
         PlaidBalanceApiResponse? balanceData = balancesResponse.data;
+
+        var existingAccounts = (await financialAccountRepository.GetAccountsAsync(syncEvent.UserId))
+            .ToDictionary(a => a.ExternalId);
+
+
         if (balanceData != null)
         {
-            var dbObjectsToSave = balanceData.Accounts.Select(a => new FinancialAccountEntity
+            if (!existingAccounts.Any())
             {
-                DisplayName = a.Name,
-                OfficialName = a.OfficialName,
-                Subtype = a.Subtype,
-                ExternalId = a.AccountId,
-                ConnectorId = syncEvent.ConnectorId,
-                UserId = syncEvent.UserId,
-                CurrentBalance = a.Balance!.Current,
-                AccountMask = a.Mask
-            });
+                var dbObjectsToSave = balanceData.Accounts.Select(a => new FinancialAccountEntity
+                {
+                    DisplayName = a.Name,
+                    OfficialName = a.OfficialName,
+                    Subtype = a.Subtype,
+                    ExternalId = a.AccountId,
+                    ConnectorId = syncEvent.ConnectorId,
+                    UserId = syncEvent.UserId,
+                    CurrentBalance = a.Balance!.Current,
+                    AccountMask = a.Mask,
+                    LastApiSyncTime = DateTimeOffset.UtcNow,
+                    IsExternalApiImport = true
+                });
 
-            await financialAccountRepository.ImportFinancialAccountsAsync(dbObjectsToSave);
+                await financialAccountRepository.ImportFinancialAccountsAsync(dbObjectsToSave);
+            }
+            // Just update existing balances
+            else
+            {
+                foreach (var account in balanceData.Accounts)
+                {
+                    if (existingAccounts.TryGetValue(account.AccountId, out var existing))
+                    {
+                        existing.CurrentBalance = account.Balance!.Current;
+                        existing.LastApiSyncTime = DateTimeOffset.UtcNow;
+                        
+                        await financialAccountRepository.UpdateAccount(existing);
+                        
+                        var balanceHistory = new AccountBalanceHistoryEntity
+                        {
+                            UserId = syncEvent.UserId,
+                            FinancialAccountId = existing.Id,
+                            CurrentBalance = account.Balance!.Current,
+                            CreatedAt = DateTimeOffset.UtcNow
+                        };
+                        await financialAccountRepository.InsertBalanceHistory(balanceHistory);
+                    }
+                }
+            }
+
 
             await accountConnectorRepository.UpdateConnectionSync(syncEvent.DataSyncId,
                 syncEvent.UserId,

@@ -12,10 +12,14 @@ public interface IFinancialAccountRepository
 
     Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
 
-    Task<bool> UpdateAccount(FinancialAccountUpdate account, int id, int userId);
+    Task<bool> UpdateAccount(FinancialAccountEntity account);
 
     Task<bool> DeleteAccountAsync(FinancialAccountEntity account);
 
-    Task InsertBalanceHistory(AccountBalanceHistoryEntity history, int userId);
+
+    Task InsertBalanceHistory(AccountBalanceHistoryEntity history);
+
     Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId);
+
+    Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId);
 }

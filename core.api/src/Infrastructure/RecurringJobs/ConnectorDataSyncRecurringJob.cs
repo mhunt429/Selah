@@ -41,7 +41,6 @@ public class ConnectorDataSyncRecurringJob(
             
             await Task.WhenAll(publisherTasks);
         }
-        channelWriter.TryComplete();
         
         logger.LogInformation("ConnectorDataSyncRecurringJob Comp finished at {CurrentTimeUtc}",
             DateTimeOffset.UtcNow);

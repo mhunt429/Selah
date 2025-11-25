@@ -24,6 +24,12 @@ public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFac
         string sql = "SELECT * FROM financial_account WHERE user_id = @userId";
         return await GetAllAsync<FinancialAccountEntity>(sql, new { userId });
     }
+    
+    public async Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId)
+    {
+        string sql = "SELECT * FROM financial_account WHERE user_id = @userId AND connector_id = @connectorId";
+        return await GetAllAsync<FinancialAccountEntity>(sql, new { userId });
+    }
 
     public async Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id)
     {
@@ -31,7 +37,7 @@ public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFac
         return await GetFirstOrDefaultAsync<FinancialAccountEntity>(sql, new { id, userId });
     }
 
-    public async Task<bool> UpdateAccount(FinancialAccountUpdate account, int id, int userId)
+    public async Task<bool> UpdateAccount(FinancialAccountEntity account)
     {
         string sql = @"UPDATE financial_account SET current_balance = @currentBalance, 
             display_name = @displayName, 
@@ -43,13 +49,13 @@ public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFac
 
         var modelToSave = new
         {
-            id,
-            userId,
+            id = account.Id,
+            userId  = account.UserId,
             displayName = account.DisplayName,
             officialName = account.OfficialName,
             subtype = account.Subtype,
             lastApiSyncTime = account.LastApiSyncTime,
-            appLastChangedBy = userId,
+            appLastChangedBy = account.UserId,
             currentBalance = account.CurrentBalance,
         };
 
@@ -62,7 +68,7 @@ public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFac
             new { account.Id, account.UserId });
     }
 
-    public async Task InsertBalanceHistory(AccountBalanceHistoryEntity history, int userId)
+    public async Task InsertBalanceHistory(AccountBalanceHistoryEntity history)
     {
         var sql =
             @"INSERT INTO account_balance_history(app_last_changed_by, user_id, financial_account_id, current_balance, created_at)
@@ -70,8 +76,8 @@ public class FinancialAccountRepository(AppDbContext dbContext, IDbConnectionFac
 
         var objectToSave = new
         {
-            appLastChangedBy = userId,
-            userId,
+            appLastChangedBy = history.UserId,
+            history.UserId,
             financialAccountId = history.FinancialAccountId,
             currentBalance = history.CurrentBalance,
             createdAt = history.CreatedAt,

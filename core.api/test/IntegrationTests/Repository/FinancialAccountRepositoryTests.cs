@@ -154,16 +154,15 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
 
-        FinancialAccountUpdate accountUpdate = new()
-        {
-            CurrentBalance = 1000,
-            DisplayName = "Vanguard Trust 401k",
-            OfficialName = "Vanguard Total Trust 401k",
-            Subtype = "Retirement",
-            LastApiSyncTime = DateTimeOffset.UtcNow
-        };
+        account.Id = newAccountId;
+        account.CurrentBalance = 1000;
+        account.DisplayName = "Vanguard Trust 401k";
+        account.OfficialName = "Vanguard Total Trust 401k";
+        account.Subtype = "Retirement";
+        account.LastApiSyncTime = DateTimeOffset.UtcNow;
 
-        await _financialAccountRepository.UpdateAccount(accountUpdate, newAccountId, _userId);
+
+        await _financialAccountRepository.UpdateAccount(account);
         var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
         result.Should().NotBeNull();
         result.CurrentBalance.Should().Be(1000);
@@ -224,7 +223,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             CreatedAt = DateTimeOffset.UtcNow
         };
 
-        await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory, _userId);
+        await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory);
 
         var result =
             await _financialAccountRepository.GetBalanceHistory(_userId, newAccountId);
