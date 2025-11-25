@@ -1,6 +1,5 @@
 using System.Net;
 using AwesomeAssertions;
-using Infrastructure.Extensions;
 using IntegrationTests.Helpers;
 
 namespace IntegrationTests.Controller;

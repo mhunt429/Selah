@@ -89,15 +89,31 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
 
     public async Task<IEnumerable<ConnectionSyncDataEntity>> GetConnectorRecordsToImport()
     {
-        var sql = "SELECT * FROM connection_sync_data WHERE CURRENT_TIMESTAMP > next_sync_date";
-
+        var sql = @"SELECT 
+            csd.id, 
+            csd.user_id,
+            csd.last_sync_date, 
+            csd.next_sync_date, 
+            csd.connector_id,
+            c.encrypted_access_token
+            FROM connection_sync_data csd
+            INNER JOIN account_connector c ON csd.connector_id = c.id
+             WHERE CURRENT_TIMESTAMP > csd.next_sync_date";
         return await GetAllAsync<ConnectionSyncDataEntity>(sql, null);
     }
 
     public async Task<ConnectionSyncDataEntity> GetConnectorSyncRecordByConnectorId(int userId, int connectorId)
     {
-        var sql = "SELECT * FROM connection_sync_data WHERE connector_id = @connectorId AND user_id = @userId";
-
+        var sql = @"SELECT 
+            csd.id, 
+            csd.user_id,
+            csd.last_sync_date, 
+            csd.next_sync_date, 
+            csd.connector_id,
+            c.encrypted_access_token
+            FROM connection_sync_data csd
+            INNER JOIN account_connector c ON csd.connector_id = c.id
+            WHERE c.id = @connectorId AND c.user_id = @userId";
         return await GetFirstOrDefaultAsync<ConnectionSyncDataEntity>(sql, new { connectorId, userId });
     }
 }

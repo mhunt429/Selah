@@ -1,41 +1,48 @@
+using System.Threading.Channels;
+using Domain.Events;
+using Domain.Extensions;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Domain.Models.Entities.AccountConnector;
 using Infrastructure.Repository.Interfaces;
-using Infrastructure.Services.Connector;
 
 namespace Infrastructure.RecurringJobs;
 
-public class ConnectorDataSyncRecurringJob : IJob
+public class ConnectorDataSyncRecurringJob(
+    ILogger<ConnectorDataSyncRecurringJob> logger,
+    IAccountConnectorRepository connectorRepository,
+    ChannelWriter<ConnectorDataSyncEvent> channelWriter)
+    : IJob
 {
-    private readonly ILogger<ConnectorDataSyncRecurringJob> _logger;
-    private readonly IAccountConnectorRepository _connectorRepository;
-    private readonly PlaidAccountBalanceImportService _plaidAccountBalanceImportService;
-
-    public ConnectorDataSyncRecurringJob(
-        ILogger<ConnectorDataSyncRecurringJob> logger,
-        IAccountConnectorRepository connectorRepository,
-        PlaidAccountBalanceImportService plaidAccountBalanceImportService)
-    {
-        _logger = logger;
-        _connectorRepository = connectorRepository;
-        _plaidAccountBalanceImportService = plaidAccountBalanceImportService;
-    }
 
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation("ConnectorDataSyncRecurringJob started at {CurrentTimeUtc}", DateTimeOffset.UtcNow);
+        logger.LogInformation("ConnectorDataSyncRecurringJob started at {CurrentTimeUtc}", DateTimeOffset.UtcNow);
 
-        IEnumerable<ConnectionSyncDataEntity> dbRecords = await _connectorRepository.GetConnectorRecordsToImport();
+        IEnumerable<ConnectionSyncDataEntity> dbRecords = await connectorRepository.GetConnectorRecordsToImport();
 
-        _logger.LogInformation("ConnectorDataSyncRecurringJob found {numRecords} connection records to import",
+        logger.LogInformation("ConnectorDataSyncRecurringJob found {numRecords} connection records to import",
             dbRecords.Count());
 
+        var groups = dbRecords.GroupByCount(10);
+        foreach (var group in groups)
+        {
+            var publisherTasks = new List<Task>();
+            foreach (ConnectionSyncDataEntity connectorRecord in group)
+            {
+                publisherTasks.Add(PublishSyncEvent(new ConnectorDataSyncEvent{AccessToken = connectorRecord.EncryptedAccessToken, UserId =  connectorRecord.UserId}));
+            }
+            
+            await Task.WhenAll(publisherTasks);
+        }
         
-       // await _plaidAccountBalanceImportService.ImportAccountBalancesAsync(batchingSource);
-
-
-        _logger.LogInformation("ConnectorDataSyncRecurringJob Comp finished at {CurrentTimeUtc}",
+        channelWriter.TryComplete();
+        logger.LogInformation("ConnectorDataSyncRecurringJob Comp finished at {CurrentTimeUtc}",
             DateTimeOffset.UtcNow);
+    }
+
+    private async Task PublishSyncEvent(ConnectorDataSyncEvent syncEvent)
+    {
+        await channelWriter.WriteAsync(new ConnectorDataSyncEvent { });
     }
 }

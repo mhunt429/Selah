@@ -8,24 +8,17 @@ using IntegrationTests.Helpers;
 namespace IntegrationTests.Repository;
 
 [Collection("Database")]
-public class AccountConnectorRepositoryTests : IAsyncLifetime
+public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLifetime
 {
-    private readonly IAccountConnectorRepository _accountConnectorRepository;
+    private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
     private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
-    private readonly DatabaseFixture _fixture;
 
     private int _userId;
 
-    public AccountConnectorRepositoryTests(DatabaseFixture fixture)
-    {
-        _fixture = fixture;
-        _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
-    }
-
     public async Task InitializeAsync()
     {
-        await _fixture.ResetDatabaseAsync();
+        await fixture.ResetDatabaseAsync();
 
         RegistrationRepository registrationRepository = new(_dbContext);
         var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
@@ -72,5 +65,6 @@ public class AccountConnectorRepositoryTests : IAsyncLifetime
         connectionSync.ConnectorId.Should().Be(connectorId);
         connectionSync.LastSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
         connectionSync.NextSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
+        connectionSync.EncryptedAccessToken.Should().BeEquivalentTo(data.EncryptedAccessToken);
     }
 }

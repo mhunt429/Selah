@@ -15,4 +15,6 @@ public class ConnectionSyncDataEntity : BaseAuditFields
     [Column("next_sync_date")] public DateTimeOffset NextSyncDate { get; set; }
 
     [Column("connector_id")] public int ConnectorId { get; set; }
+    
+    [Column("encrypted_access_token")] public required byte[] EncryptedAccessToken { get; set; }
 }
