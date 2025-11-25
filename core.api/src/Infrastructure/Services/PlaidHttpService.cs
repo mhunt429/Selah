@@ -50,7 +50,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
 
     public async Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken)
     {
-        Uri tokenExchangeEndpoint = new Uri($"{httpClient.BaseAddress}/item/public_token/exchange");
+        Uri tokenExchangeEndpoint = new Uri($"{httpClient.BaseAddress}item/public_token/exchange");
 
         var tokenExchange = new PlaidTokenExchangeRequest
         {
@@ -77,7 +77,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
 
     public async Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken)
     {
-        Uri balanceEndpoint = new Uri($"{httpClient.BaseAddress}/accounts/balance/get");
+        Uri balanceEndpoint = new Uri($"{httpClient.BaseAddress}accounts/balance/get");
 
         var request = new PlaidAccountBalanceRequest()
         {

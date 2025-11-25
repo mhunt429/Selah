@@ -8,19 +8,19 @@ public class FinancialAccountEntity : BaseAuditFields
 {
     [Key, Column(name: "id", Order = 0)] public int Id { get; set; }
 
-    [Column("connector_id")] public int ConnectorId { get; set; }
+    [Column("connector_id")] public required int ConnectorId { get; set; }
 
-    [Column("user_id")] public int UserId { get; set; }
+    [Column("user_id")] public required int UserId { get; set; }
 
-    [Column("external_id")] public string ExternalId { get; set; } = "";
+    [Column("external_id")] public required string ExternalId { get; set; } = "";
 
-    [Column("current_balance")] public decimal CurrentBalance { get; set; }
+    [Column("current_balance")] public  required decimal CurrentBalance { get; set; }
 
-    [Column("account_mask")] public string AccountMask { get; set; } = "";
+    [Column("account_mask")] public  required string AccountMask { get; set; } = "";
 
     [Column("display_name")] public required string DisplayName { get; set; }
 
-    [Column("official_name")] public string OfficialName { get; set; } = "";
+    [Column("official_name")] public  string OfficialName { get; set; } = "";
 
     [Column("subtype")] public required string Subtype { get; set; }
 

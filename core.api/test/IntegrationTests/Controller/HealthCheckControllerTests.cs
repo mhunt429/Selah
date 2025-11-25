@@ -2,14 +2,9 @@ using IntegrationTests.Helpers;
 
 namespace IntegrationTests.Controller;
 
-public class HealthCheckControllerTests : IClassFixture<TestFactory>
+public class HealthCheckControllerTests(TestFactory factory) : IClassFixture<TestFactory>
 {
-    private readonly HttpClient _client;
-
-    public HealthCheckControllerTests(TestFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task HeathCheckEndpointShouldReturnOk()

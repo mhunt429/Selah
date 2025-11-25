@@ -30,19 +30,25 @@ public class ConnectorDataSyncRecurringJob(
             var publisherTasks = new List<Task>();
             foreach (ConnectionSyncDataEntity connectorRecord in group)
             {
-                publisherTasks.Add(PublishSyncEvent(new ConnectorDataSyncEvent{AccessToken = connectorRecord.EncryptedAccessToken, UserId =  connectorRecord.UserId}));
+                publisherTasks.Add(PublishSyncEvent(new ConnectorDataSyncEvent
+                {
+                    DataSyncId =  connectorRecord.Id,
+                    AccessToken = connectorRecord.EncryptedAccessToken, 
+                    UserId =  connectorRecord.UserId,
+                    ConnectorId = connectorRecord.ConnectorId
+                }));
             }
             
             await Task.WhenAll(publisherTasks);
         }
-        
         channelWriter.TryComplete();
+        
         logger.LogInformation("ConnectorDataSyncRecurringJob Comp finished at {CurrentTimeUtc}",
             DateTimeOffset.UtcNow);
     }
 
     private async Task PublishSyncEvent(ConnectorDataSyncEvent syncEvent)
     {
-        await channelWriter.WriteAsync(new ConnectorDataSyncEvent { });
+        await channelWriter.WriteAsync(syncEvent);
     }
 }

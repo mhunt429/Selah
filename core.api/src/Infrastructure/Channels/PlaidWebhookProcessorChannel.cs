@@ -19,6 +19,5 @@ public class PlaidWebhookProcessorChannel(
                 logger.LogInformation("Message is `{Message}`", item.EventId);
             }
         }
-       
     }
 }
