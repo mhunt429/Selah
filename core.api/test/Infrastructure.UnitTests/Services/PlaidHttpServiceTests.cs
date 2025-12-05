@@ -376,7 +376,7 @@ public class PlaidHttpServiceTests
         Assert.Contains("accounts/balance/get", capturedRequest.RequestUri.ToString());
 
         var requestContent = await capturedRequest.Content.ReadAsStringAsync();
-        var requestPayload = JsonSerializer.Deserialize<PlaidAccountBalanceRequest>(requestContent);
+        var requestPayload = JsonSerializer.Deserialize<BasePlaidRequest>(requestContent);
 
         Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);

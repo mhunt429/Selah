@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Domain.Models.Plaid;
 
-public class PlaidAccountBalanceRequest
+public class BasePlaidRequest
 {
     [JsonPropertyName("client_id")] public required string ClientId { get; set; }
 
@@ -10,3 +10,4 @@ public class PlaidAccountBalanceRequest
 
     [JsonPropertyName("access_token")] public required string AccessToken { get; set; }
 }
+

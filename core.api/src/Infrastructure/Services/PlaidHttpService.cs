@@ -79,7 +79,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
     {
         Uri balanceEndpoint = new Uri($"{httpClient.BaseAddress}accounts/balance/get");
 
-        var request = new PlaidAccountBalanceRequest()
+        var request = new BasePlaidRequest()
         {
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
@@ -97,5 +97,63 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
 
         return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody));
+    }
+
+    public async Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int? count = null)
+    {
+        Uri transactionsSyncEndpoint = new Uri($"{httpClient.BaseAddress}transactions/sync");
+
+        var request = new PlaidTransactionsSyncRequest
+        {
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
+            AccessToken = accessToken,
+            Cursor = cursor,
+            Count = count
+        };
+
+        HttpResponseMessage response = await httpClient.PostAsync(transactionsSyncEndpoint, request);
+
+        var messageBody = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError(
+                "Transactions Sync Request failed with status {statusCode} and error {error}",
+                response.StatusCode, messageBody);
+
+            return new ApiResponseResult<PlaidTransactionsSyncResponse>(ResultStatus.Failed, messageBody, null);
+        }
+
+        return new ApiResponseResult<PlaidTransactionsSyncResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidTransactionsSyncResponse>(messageBody));
+    }
+
+    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken)
+    {
+        Uri recurringTransactionsEndpoint = new Uri($"{httpClient.BaseAddress}transactions/recurring/get");
+
+        var request = new BasePlaidRequest
+        {
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
+            AccessToken = accessToken
+        };
+
+        HttpResponseMessage response = await httpClient.PostAsync(recurringTransactionsEndpoint, request);
+
+        var messageBody = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError(
+                "Recurring Transactions Request failed with status {statusCode} and error {error}",
+                response.StatusCode, messageBody);
+
+            return new ApiResponseResult<PlaidRecurringTransactionsResponse>(ResultStatus.Failed, messageBody, null);
+        }
+
+        return new ApiResponseResult<PlaidRecurringTransactionsResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidRecurringTransactionsResponse>(messageBody));
     }
 }
