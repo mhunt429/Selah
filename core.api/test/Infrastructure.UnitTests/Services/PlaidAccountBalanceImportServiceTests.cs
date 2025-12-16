@@ -45,7 +45,8 @@ public class PlaidAccountBalanceImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.BalanceImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -123,7 +124,8 @@ public class PlaidAccountBalanceImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.BalanceImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -210,7 +212,8 @@ public class PlaidAccountBalanceImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.BalanceImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -252,7 +255,8 @@ public class PlaidAccountBalanceImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.BalanceImport
         };
 
         var decryptedToken = "decrypted-access-token";

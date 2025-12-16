@@ -41,7 +41,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -88,7 +89,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -125,8 +127,10 @@ public class PlaidTransactionImportServiceTests
 
         // Assert
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, firstCursor, It.IsAny<int?>()), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, secondCursor, It.IsAny<int?>()), Times.Never);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, firstCursor, It.IsAny<int?>()),
+            Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, secondCursor, It.IsAny<int?>()),
+            Times.Never);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 syncEvent.DataSyncId,
@@ -144,7 +148,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -183,7 +188,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -228,7 +234,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -270,7 +277,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";
@@ -335,7 +343,8 @@ public class PlaidTransactionImportServiceTests
             UserId = 123,
             DataSyncId = 1,
             ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 }
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
         };
 
         var decryptedToken = "decrypted-access-token";

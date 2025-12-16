@@ -35,7 +35,8 @@ public class ConnectorDataSyncRecurringJob(
                     DataSyncId =  connectorRecord.Id,
                     AccessToken = connectorRecord.EncryptedAccessToken, 
                     UserId =  connectorRecord.UserId,
-                    ConnectorId = connectorRecord.ConnectorId
+                    ConnectorId = connectorRecord.ConnectorId,
+                    EventType = EventType.BalanceImport,
                 }));
             }
             

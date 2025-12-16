@@ -9,4 +9,15 @@ public class ConnectorDataSyncEvent : IntegrationEvent
     public required int ConnectorId { get; set; }
     
     public int UserId { get; set; }
+    
+    public required EventType EventType { get; set; }
+    
+    
+}
+
+
+public enum EventType
+{
+    BalanceImport,
+    TransactionImport,
 }
