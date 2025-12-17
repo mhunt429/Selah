@@ -1,6 +1,8 @@
 using AwesomeAssertions;
 using Domain.Models.Entities.AccountConnector;
+using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.FinancialAccount;
+using Domain.Models.Entities.UserAccount;
 using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
@@ -12,7 +14,6 @@ namespace IntegrationTests.Repository;
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
     private readonly IAccountConnectorRepository _accountConnectorRepository;
-    private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
     private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
@@ -27,7 +28,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     public FinancialAccountRepositoryTests(DatabaseFixture fixture)
     {
         _fixture = fixture;
-        _financialAccountRepository = new FinancialAccountRepository(_dbContext, _dbConnectionFactory);
+        _financialAccountRepository = new FinancialAccountRepository(_dbContext);
         _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
     }
 
@@ -36,7 +37,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
         await _fixture.ResetDatabaseAsync();
 
         RegistrationRepository registrationRepository = new(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
         _userId = result.Item2.Id;
 
         AccountConnectorEntity data = new()
@@ -94,7 +95,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         await _financialAccountRepository.ImportFinancialAccountsAsync(data);
 
-        var result = await _financialAccountRepository.GetAccountsAsync(_userId);
+        IEnumerable<FinancialAccountEntity> result = await _financialAccountRepository.GetAccountsAsync(_userId);
 
         result.Should().NotBeNullOrEmpty();
         result.Should().HaveCount(2);
@@ -118,11 +119,11 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             ConnectorId = _connectorId
         };
 
-        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
-        var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
+        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
         result.Should().NotBeNull();
-        result.Id.Should().Be(newAccountId);
+        result.Id.Should().Be(newAccount.Id);
         result.UserId.Should().Be(_userId);
         result.ExternalId.Should().Be("4321");
         //result.AccountMask.Should().Be("***4321");
@@ -152,9 +153,9 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             ConnectorId = _connectorId,
         };
 
-        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
-        account.Id = newAccountId;
+        account.Id = newAccount.Id;
         account.CurrentBalance = 1000;
         account.DisplayName = "Vanguard Trust 401k";
         account.OfficialName = "Vanguard Total Trust 401k";
@@ -163,7 +164,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
 
         await _financialAccountRepository.UpdateAccount(account);
-        var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
+        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
         result.Should().NotBeNull();
         result.CurrentBalance.Should().Be(1000);
     }
@@ -186,12 +187,12 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             ConnectorId = _connectorId,
         };
 
-        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
-        var deleteResult = await _financialAccountRepository.DeleteAccountAsync(account);
+        bool deleteResult = await _financialAccountRepository.DeleteAccountAsync(account);
         deleteResult.Should().BeTrue();
 
-        var result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccountId);
+        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
         result.Should().BeNull();
     }
 
@@ -213,25 +214,26 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             ConnectorId = _connectorId
         };
 
-        var newAccountId = await _financialAccountRepository.AddAccountAsync(account);
+        FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
         AccountBalanceHistoryEntity accountBalanceHistory = new()
         {
             UserId = _userId,
-            FinancialAccountId = newAccountId,
+            FinancialAccountId = newAccount.Id,
             CurrentBalance = 250.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            AppLastChangedBy = _userId,
         };
 
         await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory);
 
-        var result =
-            await _financialAccountRepository.GetBalanceHistory(_userId, newAccountId);
+        IEnumerable<AccountBalanceHistoryEntity> result =
+            await _financialAccountRepository.GetBalanceHistory(_userId, newAccount.Id);
 
         result.Should().NotBeNull();
         result.Should().NotBeEmpty();
         result.Should().HaveCount(1);
-        result.First().FinancialAccountId.Should().Be(newAccountId);
+        result.First().FinancialAccountId.Should().Be(newAccount.Id);
         result.First().UserId.Should().Be(_userId);
         result.First().CurrentBalance.Should().Be(250.00m);
         result.First().CreatedAt.Should().BeAfter(DateTimeOffset.MinValue);

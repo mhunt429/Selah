@@ -8,7 +8,7 @@ public class FinancialAccountEntity : BaseAuditFields
 {
     [Key, Column(name: "id", Order = 0)] public int Id { get; set; }
 
-    [Column("connector_id")] public required int ConnectorId { get; set; }
+    [Column("connector_id")] public int? ConnectorId { get; set; }
 
     [Column("user_id")] public required int UserId { get; set; }
 

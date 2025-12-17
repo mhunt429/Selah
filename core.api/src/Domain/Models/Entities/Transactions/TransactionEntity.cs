@@ -36,4 +36,6 @@ public class TransactionEntity: BaseAuditFields
 
     [Column("merchant_logo_url")]
     public string? MerchantLogoUrl { get; set; }
+    
+    public virtual ICollection<TransactionLineItemEntity> LineItems { get; set; } = new List<TransactionLineItemEntity>();
 }

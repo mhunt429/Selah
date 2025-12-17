@@ -6,7 +6,7 @@ public interface IFinancialAccountRepository
 {
     Task ImportFinancialAccountsAsync(IEnumerable<FinancialAccountEntity> accounts);
 
-    Task<int> AddAccountAsync(FinancialAccountEntity account);
+    Task<FinancialAccountEntity> AddAccountAsync(FinancialAccountEntity account);
 
     Task<IEnumerable<FinancialAccountEntity>> GetAccountsAsync(int userId);
 
