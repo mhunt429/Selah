@@ -72,6 +72,7 @@ public class Program
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddNpgsql()
+                    .AddEntityFrameworkCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
             }).WithMetrics(x =>
