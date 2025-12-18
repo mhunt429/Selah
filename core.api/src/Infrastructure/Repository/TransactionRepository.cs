@@ -74,13 +74,13 @@ public class TransactionRepository(AppDbContext dbContext)
     }
 
     public async Task<DbOperationResult<IEnumerable<TransactionEntity>>> GetTransactionsByUser(
-        SortParameters sortParameters, int userId, int limit = 25, int cursor = 0)
+        int userId, int limit = 25, int cursor = 0,  SortParameters? sortParameters = null)
     {
         IQueryable<TransactionEntity> query = dbContext.Transactions
             .AsNoTracking()
             .Where(x => x.UserId == userId && x.Id > cursor);
 
-        query = sortParameters.SortColumn switch
+        query = sortParameters?.SortColumn switch
         {
             "id" => sortParameters.SortDirection == "DESC"
                 ? query.OrderByDescending(t => t.Id)

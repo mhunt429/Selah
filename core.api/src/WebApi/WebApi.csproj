@@ -14,7 +14,7 @@
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -29,7 +29,7 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.2" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
         <PackageReference Include="Quartz" Version="3.15.1" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.11.6" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.11.7" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="10.0.1" />

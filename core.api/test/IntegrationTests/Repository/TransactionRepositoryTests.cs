@@ -19,6 +19,8 @@ public class TransactionRepositoryTests : IAsyncLifetime
     private List<TransactionCategoryEntity> _categories;
     private FinancialAccountEntity _financialAccount;
 
+    private List<TransactionEntity> _testTransactions;
+
     public TransactionRepositoryTests(DatabaseFixture fixture)
     {
         _fixture = fixture;
@@ -44,14 +46,14 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 new()
                 {
                     Category = _categories[0],
-                    CategoryId =  _categories[0].Id,
+                    CategoryId = _categories[0].Id,
                     Description = "Groceries",
                     Amount = 90
                 },
                 new()
                 {
                     Category = _categories[1],
-                    CategoryId =  _categories[1].Id,
+                    CategoryId = _categories[1].Id,
                     Description = "Dog Food",
                     Amount = 10
                 }
@@ -74,6 +76,51 @@ public class TransactionRepositoryTests : IAsyncLifetime
         savedTx.Data.LineItems.Count.Should().Be(transaction.LineItems.Count);
     }
 
+    [Theory]
+    [InlineData("id", "DESC", "Nobu")]
+    [InlineData("id", "ASC", "Rolex")]
+    [InlineData("date", "DESC", "Rolex")]
+    [InlineData("date", "ASC", "Nobu")]
+    [InlineData("amount", "DESC", "Mercedes")]
+    [InlineData("amount", "ASC", "Nobu")]
+    [InlineData("inavlidColumn", "ASC", "Rolex")]
+    public async Task Transaction_Can_Be_QueriedAndSorted(string sortParameter, string sortDirection, string merchant)
+    {
+        var sortParams = new SortParameters(sortParameter, sortDirection);
+        var transactions = await _repo.GetTransactionsByUser(_userId, sortParameters: sortParams);
+        transactions.Should().NotBeNull();
+        transactions.Status.Should().Be(ResultStatus.Success);
+        transactions.Data.Should().NotBeNullOrEmpty();
+        transactions.Data.Count().Should().Be(3);
+
+        transactions.Data.First().MerchantName.Should().Be(merchant);
+    }
+
+    [Fact]
+    public async Task Transaction_Can_Be_Queried_With_Limit()
+    {
+        var transactions = await _repo.GetTransactionsByUser(
+            _userId, limit: 1);
+        transactions.Should().NotBeNull();
+        transactions.Status.Should().Be(ResultStatus.Success);
+        transactions.Data.Should().NotBeNullOrEmpty();
+        transactions.Data.Count().Should().Be(1);
+
+        var transaction = transactions.Data.First();
+
+        transaction.MerchantName.Should().Be("Rolex");
+        transaction.TransactionName.Should().Be("Annual Watch Haul");
+        transaction.TransactionDate.Should().BeAfter(DateTimeOffset.MinValue);
+        transaction.Amount.Should().Be(10000);
+
+        var lineItems = await _repo.GetTransactionLineItems(transaction.Id);
+        lineItems.Should().NotBeNull();
+        lineItems.Data.Count().Should().Be(1);
+        var lineItem = lineItems.Data.First();
+        lineItem.Description.Should().Be("Watches");
+        
+    }
+
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
@@ -82,9 +129,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
         var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
         _userId = result.Item2.Id;
 
-        
+
         FinancialAccountRepository financialAccountRepository = new(_dbContext);
-        _financialAccount =  await financialAccountRepository.AddAccountAsync(new FinancialAccountEntity
+        _financialAccount = await financialAccountRepository.AddAccountAsync(new FinancialAccountEntity
         {
             ConnectorId = null,
             UserId = _userId,
@@ -94,7 +141,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             DisplayName = "Chase Sapphire Credit Card",
             Subtype = "CreditCard"
         });
-        
+
         _categories = new List<TransactionCategoryEntity>()
         {
             new()
@@ -106,10 +153,95 @@ public class TransactionRepositoryTests : IAsyncLifetime
             {
                 UserId = _userId,
                 CategoryName = "Pets"
+            },
+            new()
+            {
+                UserId = _userId,
+                CategoryName = "Watches"
+            },
+            new()
+            {
+                UserId = _userId,
+                CategoryName = "Vehicle"
+            },
+            new()
+            {
+                UserId = _userId,
+                CategoryName = "Restaurants"
             }
         };
 
         await _dbContext.TransactionCategories.AddRangeAsync(_categories);
+
+        _testTransactions = new List<TransactionEntity>()
+        {
+            new TransactionEntity()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount = 10000m,
+                TransactionDate = DateTimeOffset.UtcNow.AddDays(-1),
+                ImportedDate = DateTimeOffset.UtcNow,
+                Pending = false,
+                MerchantName = "Rolex",
+                TransactionName = "Annual Watch Haul",
+                LineItems = new List<TransactionLineItemEntity>()
+                {
+                    new()
+                    {
+                        Category = _categories[3],
+                        CategoryId = _categories[3].Id,
+                        Description = "Watches",
+                        Amount = 10000
+                    },
+                }
+            },
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount = 150000,
+                TransactionDate = DateTimeOffset.UtcNow.AddDays(-2),
+                ImportedDate = DateTimeOffset.UtcNow,
+                Pending = false,
+                MerchantName = "Mercedes",
+                TransactionName = "G Wagon",
+                LineItems = new List<TransactionLineItemEntity>()
+                {
+                    new()
+                    {
+                        Category = _categories[4],
+                        CategoryId = _categories[4].Id,
+                        Description = "Vehicles",
+                        Amount = 150000
+                    },
+                }
+            },
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount = 200,
+                TransactionDate = DateTimeOffset.UtcNow.AddDays(-3),
+                ImportedDate = DateTimeOffset.UtcNow,
+                Pending = false,
+                MerchantName = "Nobu",
+                TransactionName = "Monthly Date Night",
+                LineItems = new List<TransactionLineItemEntity>()
+                {
+                    new()
+                    {
+                        Category = _categories[4],
+                        CategoryId = _categories[4].Id,
+                        Description = "Monthly Date Night",
+                        Amount = 200
+                    },
+                }
+            },
+        };
+
+        await _dbContext.Transactions.AddRangeAsync(_testTransactions);
+        await _dbContext.SaveChangesAsync();
     }
 
     public Task DisposeAsync()
