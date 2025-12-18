@@ -118,7 +118,39 @@ public class TransactionRepositoryTests : IAsyncLifetime
         lineItems.Data.Count().Should().Be(1);
         var lineItem = lineItems.Data.First();
         lineItem.Description.Should().Be("Watches");
+    }
+
+    [Fact]
+    public async Task Transaction_and_LineItemsCanBeDeleted()
+    {
+        var transactionToBeDeleted = new TransactionEntity()
+        {
+            AccountId = _financialAccount.Id,
+            UserId = _userId,
+            LineItems =  new List<TransactionLineItemEntity>()
+            {
+                new TransactionLineItemEntity()
+                {
+                    CategoryId = _categories.First().Id, 
+                },
+                new TransactionLineItemEntity()
+                {
+                    CategoryId = _categories.Last().Id, 
+                }
+            }
+        };
         
+        await _repo.CreateTransaction(transactionToBeDeleted);
+        
+        await _repo.DeleteTransaction(transactionToBeDeleted.Id, _userId);
+        
+       var tx =  await _repo.GetTransaction(_userId, transactionToBeDeleted.Id);
+       var lineItems = await _repo.GetTransactionLineItems(transactionToBeDeleted.Id);
+       tx.Status.Should().Be(ResultStatus.Success);
+       tx.Data.Should().BeNull();
+       
+       lineItems.Should().NotBeNull();
+       lineItems.Data.Count().Should().Be(0);
     }
 
     public async Task InitializeAsync()

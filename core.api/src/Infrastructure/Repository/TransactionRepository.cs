@@ -27,9 +27,6 @@ public class TransactionRepository(AppDbContext dbContext)
         try
         {
             dbContext.Transactions.Add(transaction);
-
-            dbContext.TransactionLineItems.AddRange(transaction.LineItems);
-
             await dbContext.SaveChangesAsync();
 
             return new DbOperationResult<TransactionEntity>
@@ -104,5 +101,31 @@ public class TransactionRepository(AppDbContext dbContext)
             Status = ResultStatus.Success,
             Data = data
         };
+        
+    }
+    
+    public async Task DeleteTransaction(int transactionId, int userId)
+    {
+        using (var dbTransaction = await dbContext.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                var transactionToDelete  = await dbContext.Transactions
+                    .Include(t => t.LineItems)
+                    .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
+                if (transactionToDelete != null )
+                {
+                    dbContext.Transactions.Remove(transactionToDelete);
+                    
+                    await dbContext.SaveChangesAsync();
+                    await dbTransaction.CommitAsync();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                await dbTransaction.RollbackAsync();
+            }
+        }
     }
 }
