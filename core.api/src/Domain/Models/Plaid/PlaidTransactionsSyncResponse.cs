@@ -4,17 +4,17 @@ namespace Domain.Models.Plaid;
 
 public class PlaidTransactionsSyncResponse
 {
-    [JsonPropertyName("accounts")] public required List<PlaidTransactionAccount> Accounts { get; set; }
+    [JsonPropertyName("accounts")] public required IReadOnlyCollection<PlaidTransactionAccount> Accounts { get; set; }
 
-    [JsonPropertyName("added")] public required List<PlaidTransaction> Added { get; set; }
+    [JsonPropertyName("added")] public required IReadOnlyCollection<PlaidTransaction> Added { get; set; }
 
     [JsonPropertyName("has_more")] public bool HasMore { get; set; }
 
-    [JsonPropertyName("modified")] public required List<PlaidTransaction> Modified { get; set; }
+    [JsonPropertyName("modified")] public required IReadOnlyCollection<PlaidTransaction> Modified { get; set; }
 
     [JsonPropertyName("next_cursor")] public string? NextCursor { get; set; }
 
-    [JsonPropertyName("removed")] public required List<PlaidTransaction> Removed { get; set; }
+    [JsonPropertyName("removed")] public required IReadOnlyCollection<PlaidTransaction> Removed { get; set; }
 
     [JsonPropertyName("request_id")] public string RequestId { get; set; }
 
@@ -66,13 +66,13 @@ public class PlaidTransaction
 
     [JsonPropertyName("authorized_datetime")] public DateTime? AuthorizedDatetime { get; set; }
 
-    [JsonPropertyName("category")] public List<string>? Category { get; set; }
+    [JsonPropertyName("category")] public IReadOnlyCollection<string>? Category { get; set; }
 
     [JsonPropertyName("category_id")] public string? CategoryId { get; set; }
 
     [JsonPropertyName("check_number")] public string? CheckNumber { get; set; }
 
-    [JsonPropertyName("counterparties")] public required List<PlaidTransactionCounterparty> Counterparties { get; set; }
+    [JsonPropertyName("counterparties")] public required IReadOnlyCollection<PlaidTransactionCounterparty> Counterparties { get; set; }
 
     [JsonPropertyName("date")] public required string Date { get; set; }
 

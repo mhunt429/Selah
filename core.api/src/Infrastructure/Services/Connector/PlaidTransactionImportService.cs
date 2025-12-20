@@ -1,6 +1,9 @@
 using Domain.Events;
 using Domain.Models;
+using Domain.Models.Entities.Transactions;
 using Domain.Models.Plaid;
+using Domain.Shared;
+using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -11,15 +14,16 @@ public class PlaidTransactionImportService(
     ICryptoService cryptoService,
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidTransactionImportService> logger,
-    IAccountConnectorRepository accountConnectorRepository)
+    IAccountConnectorRepository accountConnectorRepository,
+    TransactionRepository transactionRepository)
 {
     public async Task ImportTransactionsAsync(ConnectorDataSyncEvent syncEvent)
     {
         var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
-        
+
         // Start with no cursor for initial sync
         await ImportTransactionsRecursiveAsync(syncEvent, accessToken, cursor: null);
-        
+
         await accountConnectorRepository.UpdateConnectionSync(
             syncEvent.DataSyncId,
             syncEvent.UserId,
@@ -53,22 +57,23 @@ public class PlaidTransactionImportService(
             return;
         }
 
-        // Process added transactions
         if (transactionsData.Added.Any())
         {
-            await ProcessTransactionsAsync(syncEvent, transactionsData.Added, "added");
+            await AddNewTransactionsAsync(transactionsData.Added, syncEvent.UserId);
         }
 
-        // Process modified transactions
         if (transactionsData.Modified.Any())
         {
-            await ProcessTransactionsAsync(syncEvent, transactionsData.Modified, "modified");
+            await transactionRepository.UpdateTransactionsInBulk(transactionsData.Modified, syncEvent.UserId);
         }
 
         // Process removed transactions
         if (transactionsData.Removed.Any())
         {
-            await ProcessTransactionsAsync(syncEvent, transactionsData.Removed, "removed");
+            await transactionRepository.DeleteTransactionsInBulk(transactionsData.Modified
+                    .Select(t => t.TransactionId)
+                    .ToList(), syncEvent.UserId
+            );
         }
 
         // Continue pagination if there are more transactions
@@ -89,31 +94,44 @@ public class PlaidTransactionImportService(
         }
     }
 
-    private async Task ProcessTransactionsAsync(
-        ConnectorDataSyncEvent syncEvent,
-        List<PlaidTransaction> transactions,
-        string action)
+    private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId)
     {
+        var mappedTransactions = transactions.Select(t => MapPlaidTransaction(t, userId)).ToList();
+        await transactionRepository.AddTransactionsInBulk(mappedTransactions);
         logger.LogInformation(
-            "Processing {Count} {Action} transactions for user {UserId}",
-            transactions.Count,
-            action,
-            syncEvent.UserId);
+            "Adding new transactions for user {UserId} with {Count} transactions", userId, mappedTransactions.Count());
+    }
 
-        // TODO: Add repository logic here to save transactions to database
-        // For now, just log the transactions
-        foreach (var transaction in transactions)
+    private async Task UpdateTransactionsAsync(List<PlaidTransaction> transactions, int userId)
+    {
+        var mappedTransactions = transactions.Select(t =>
+            MapPlaidTransaction(t, userId)).ToList();
+    }
+
+
+    private TransactionEntity MapPlaidTransaction(PlaidTransaction plaidTransaction, int userId)
+    {
+        return new TransactionEntity
         {
-            logger.LogDebug(
-                "Transaction {TransactionId}: {Name} - {Amount} {Currency} on {Date}",
-                transaction.TransactionId,
-                transaction.Name,
-                transaction.Amount,
-                transaction.IsoCurrencyCode ?? "USD",
-                transaction.Date);
-        }
-
-        await Task.CompletedTask;
+            Amount = plaidTransaction.Amount,
+            TransactionDate = DateUtilities.ParseStringAsDate(plaidTransaction.Date),
+            MerchantName = plaidTransaction.MerchantName,
+            MerchantLogoUrl = plaidTransaction.LogoUrl,
+            ExternalTransactionId = plaidTransaction.TransactionId,
+            UserId = userId,
+            TransactionName = plaidTransaction.Name,
+            Pending = plaidTransaction.Pending,
+            ImportedDate = DateTimeOffset.UtcNow,
+            LineItems = new List<TransactionLineItemEntity>()
+            {
+                new()
+                {
+                    Description = plaidTransaction.PersonalFinanceCategory != null
+                        ? plaidTransaction.PersonalFinanceCategory.Primary
+                        : "",
+                    Amount = plaidTransaction.Amount,
+                }
+            }
+        };
     }
 }
-

@@ -55,13 +55,5 @@ public static class TestHelpers
 
         return (account, user);
     }
-
-    public static async Task TearDownBaseRecords(int userId, int accountId, BaseRepository repository)
-    {
-        string deleteUserSql = "DELETE FROM app_user WHERE id = @id";
-        string deleteAccountUser = "DELETE FROM user_account WHERE id = @id";
-
-        await repository.DeleteAsync(deleteUserSql, new { id = userId });
-        await repository.DeleteAsync(deleteAccountUser, new { id = accountId });
-    }
+    
 }

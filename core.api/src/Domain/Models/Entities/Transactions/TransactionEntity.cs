@@ -26,7 +26,7 @@ public class TransactionEntity: BaseAuditFields
     public int AccountId { get; set; }
 
     [Column("merchant_name")]
-    public string MerchantName { get; set; } = string.Empty;
+    public string? MerchantName { get; set; } = string.Empty;
 
     [Column("transaction_name")]
     public string? TransactionName { get; set; }

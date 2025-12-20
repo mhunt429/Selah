@@ -1,12 +1,12 @@
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Plaid;
+using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Connector;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 
 namespace Infrastructure.UnitTests.Services;
 
@@ -16,6 +16,7 @@ public class PlaidTransactionImportServiceTests
     private readonly Mock<IPlaidHttpService> _mockPlaidHttpService;
     private readonly Mock<ILogger<PlaidTransactionImportService>> _mockLogger;
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
+    private readonly Mock<TransactionRepository> _mockTransactionRepository;
     private readonly PlaidTransactionImportService _service;
 
     public PlaidTransactionImportServiceTests()
@@ -24,12 +25,14 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService = new Mock<IPlaidHttpService>();
         _mockLogger = new Mock<ILogger<PlaidTransactionImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
+        _mockTransactionRepository = new Mock<TransactionRepository>();
 
         _service = new PlaidTransactionImportService(
             _mockCryptoService.Object,
             _mockPlaidHttpService.Object,
             _mockLogger.Object,
-            _mockAccountConnectorRepository.Object);
+            _mockAccountConnectorRepository.Object,
+            _mockTransactionRepository.Object);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using Domain.Models.DbUtils;
 using Domain.Models.Entities.Transactions;
+using Domain.Models.Plaid;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
@@ -45,16 +46,16 @@ public class TransactionRepository(AppDbContext dbContext)
         }
     }
 
-    public async Task<DbOperationResult<TransactionEntity?>> UpdateTransaction(TransactionEntity transaction)
+    public async Task UpdateTransaction(TransactionEntity transaction)
     {
-        dbContext.Transactions.Update(transaction);
-        await dbContext.SaveChangesAsync();
+        var existing = await dbContext.Transactions
+            .FirstOrDefaultAsync(t => t.Id == transaction.Id);
 
-        return new DbOperationResult<TransactionEntity?>
+        if (existing != null)
         {
-            Status = ResultStatus.Success,
-            Data = transaction
-        };
+            dbContext.Entry(existing).CurrentValues.SetValues(transaction);
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task<DbOperationResult<TransactionEntity?>> GetTransaction(int id, int userId)
@@ -71,7 +72,7 @@ public class TransactionRepository(AppDbContext dbContext)
     }
 
     public async Task<DbOperationResult<IEnumerable<TransactionEntity>>> GetTransactionsByUser(
-        int userId, int limit = 25, int cursor = 0,  SortParameters? sortParameters = null)
+        int userId, int limit = 25, int cursor = 0, SortParameters? sortParameters = null)
     {
         IQueryable<TransactionEntity> query = dbContext.Transactions
             .AsNoTracking()
@@ -101,31 +102,117 @@ public class TransactionRepository(AppDbContext dbContext)
             Status = ResultStatus.Success,
             Data = data
         };
-        
     }
-    
+
     public async Task DeleteTransaction(int transactionId, int userId)
     {
-        using (var dbTransaction = await dbContext.Database.BeginTransactionAsync())
+        var transactionToDelete = await dbContext.Transactions
+            .Include(t => t.LineItems)
+            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
+        if (transactionToDelete != null)
         {
-            try
+            dbContext.Transactions.Remove(transactionToDelete);
+
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+
+    public async Task<DbOperationResult<int>> AddTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions)
+    {
+        await dbContext.Transactions.AddRangeAsync(transactions);
+        await dbContext.SaveChangesAsync();
+
+        return new DbOperationResult<int>()
+        {
+            Status = ResultStatus.Success,
+            Data = transactions.Count()
+        };
+    }
+
+    public async Task<DbOperationResult<int>> DeleteTransactionsInBulk(IReadOnlyCollection<string>? externalIds,
+        int userId)
+    {
+        if (externalIds == null || !externalIds.Any())
+        {
+            return new DbOperationResult<int>()
             {
-                var transactionToDelete  = await dbContext.Transactions
-                    .Include(t => t.LineItems)
-                    .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
-                if (transactionToDelete != null )
+                Status = ResultStatus.Success,
+                Data = 0
+            };
+            ;
+        }
+
+        var transactionsToDelete = dbContext.Transactions
+            .Where(x =>
+                x.UserId == userId &&
+                !string.IsNullOrEmpty(x.ExternalTransactionId) &&
+                externalIds.Contains(x.ExternalTransactionId));
+
+        int deletedTransactions = transactionsToDelete.Count();
+        dbContext.Transactions.RemoveRange(transactionsToDelete);
+        await dbContext.SaveChangesAsync();
+
+        return new DbOperationResult<int>()
+        {
+            Status = ResultStatus.Success,
+            Data = deletedTransactions
+        };
+        ;
+    }
+
+    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(
+        IReadOnlyCollection<PlaidTransaction> plaidTransactions,
+        int userId)
+    {
+        var updatedTransactions = 0;
+
+        var externalIds = plaidTransactions
+            .Select(t => t.TransactionId)
+            .ToArray();
+
+        var existingTransactions = await dbContext.Transactions
+            .Include(t => t.LineItems)
+            .Where(t => t.UserId == userId &&
+                        externalIds.Contains(t.ExternalTransactionId))
+            .ToListAsync();
+
+        var existingByExternalId = existingTransactions
+            .Where(t => t.ExternalTransactionId != null)
+            .ToDictionary(t => t.ExternalTransactionId!);
+
+        foreach (var plaidTx in plaidTransactions)
+        {
+            if (!existingByExternalId.TryGetValue(plaidTx.TransactionId, out var dbTx))
+                continue;
+
+            dbTx.Amount = plaidTx.Amount;
+            dbTx.Pending = plaidTx.Pending;
+            var lineItem = dbTx.LineItems.FirstOrDefault();
+            if (lineItem == null)
+            {
+                dbTx.LineItems.Add(new TransactionLineItemEntity
                 {
-                    dbContext.Transactions.Remove(transactionToDelete);
-                    
-                    await dbContext.SaveChangesAsync();
-                    await dbTransaction.CommitAsync();
-                }
+                    Amount = plaidTx.Amount,
+                    Description = plaidTx.PersonalFinanceCategory?.Primary ?? ""
+                });
+            }
+            else
+            {
+                lineItem.Amount = plaidTx.Amount;
+                lineItem.Description = plaidTx.PersonalFinanceCategory?.Primary ?? "";
             }
 
-            catch (Exception ex)
-            {
-                await dbTransaction.RollbackAsync();
-            }
+            updatedTransactions++;
         }
+
+        await dbContext.SaveChangesAsync();
+
+
+        return new DbOperationResult<int>
+        {
+            Status = ResultStatus.Success,
+            Data = updatedTransactions
+        };
     }
 }

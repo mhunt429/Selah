@@ -2,6 +2,7 @@ using AwesomeAssertions;
 using Domain.Models.DbUtils;
 using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Entities.Transactions;
+using Domain.Models.Plaid;
 using Infrastructure;
 using Infrastructure.Repository;
 using IntegrationTests.Helpers;
@@ -84,7 +85,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
     [InlineData("amount", "DESC", "Mercedes")]
     [InlineData("amount", "ASC", "Nobu")]
     [InlineData("inavlidColumn", "ASC", "Rolex")]
-    public async Task Transaction_Can_Be_QueriedAndSorted(string sortParameter, string sortDirection, string merchant)
+    public async Task Transactions_Can_Be_QueriedAndSorted(string sortParameter, string sortDirection, string merchant)
     {
         var sortParams = new SortParameters(sortParameter, sortDirection);
         var transactions = await _repo.GetTransactionsByUser(_userId, sortParameters: sortParams);
@@ -97,7 +98,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Transaction_Can_Be_Queried_With_Limit()
+    public async Task Transactions_Can_Be_Queried_With_Limit()
     {
         var transactions = await _repo.GetTransactionsByUser(
             _userId, limit: 1);
@@ -151,6 +152,165 @@ public class TransactionRepositoryTests : IAsyncLifetime
        
        lineItems.Should().NotBeNull();
        lineItems.Data.Count().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Transactions_Can_Be_Updated()
+    {
+        var transactionToBeUpdated = _testTransactions[1];
+        transactionToBeUpdated.Pending = false;
+        
+        await _repo.UpdateTransaction(transactionToBeUpdated);
+        
+        var updated = await _dbContext.Transactions.FindAsync(transactionToBeUpdated.Id);
+        
+        updated.Should().NotBeNull();
+    
+        updated.Pending.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Transactions_Can_Be_Added_In_Bulk()
+    {
+        var transactions = new List<TransactionEntity>()
+        {
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  1000,
+            },
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+            },
+            new (){
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+            }
+        };
+        
+        var result = await _repo.AddTransactionsInBulk(transactions);
+        result.Status.Should().Be(ResultStatus.Success);
+        result.Data.Should().Be(3);
+    }
+    
+    [Fact]
+    public async Task Transactions_Can_Be_Deleted_In_Bulk()
+    {
+        var transactions = new List<TransactionEntity>()
+        {
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  1000,
+                ExternalTransactionId = "123",
+                TransactionName = "Import 1"
+            },
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+                ExternalTransactionId = "321",
+                TransactionName = "Import 2"
+            },
+            new (){
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+                TransactionName = "Import 3"
+            }
+        };
+        
+        await _repo.AddTransactionsInBulk(transactions);
+        
+        var result = await _repo.DeleteTransactionsInBulk(transactions
+            .Select(t => t.ExternalTransactionId)
+            .ToList(), _userId);
+        result.Status.Should().Be(ResultStatus.Success);
+        result.Data.Should().Be(2);
+    }
+    
+    [Fact]
+    public async Task Transactions_Can_Be_Updated_In_Bulk()
+    {
+        var transactions = new List<TransactionEntity>()
+        {
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  1000,
+                ExternalTransactionId = "123",
+                TransactionName = "Import 1",
+                LineItems =  new List<TransactionLineItemEntity>()
+                {
+                    new TransactionLineItemEntity()
+                    {
+                        CategoryId = _categories[3].Id,
+                    }
+                }
+            },
+            new()
+            {
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+                ExternalTransactionId = "321",
+                TransactionName = "Import 2",
+                LineItems =  new List<TransactionLineItemEntity>()
+                {
+                    new TransactionLineItemEntity()
+                    {
+                        CategoryId = _categories[3].Id,
+                    }
+                }
+            },
+            new (){
+                AccountId = _financialAccount.Id,
+                UserId = _userId,
+                Amount =  300,
+                TransactionName = "Import 3",
+                LineItems =  new List<TransactionLineItemEntity>()
+                {
+                    new TransactionLineItemEntity()
+                    {
+                        CategoryId = _categories[3].Id,
+                    }
+                }
+            }
+        };
+        
+        await _repo.AddTransactionsInBulk(transactions);
+
+        var plaidTxs = new List<PlaidTransaction>()
+        {
+            new PlaidTransaction
+            {
+                AccountId = "1234",
+                Counterparties = new List<PlaidTransactionCounterparty>(),
+                Date = "01-01-2025",
+                Name = "Tx 1",
+                TransactionId = "123"
+            },
+            new PlaidTransaction
+            {
+                AccountId = "1234",
+                Counterparties = new List<PlaidTransactionCounterparty>(),
+                Date = "01-01-2025",
+                Name = "Tx 2",
+                TransactionId = "321"
+            }
+        };
+        
+        var result = await _repo.UpdateTransactionsInBulk(plaidTxs, _userId);
+        result.Status.Should().Be(ResultStatus.Success);
+        result.Data.Should().Be(2);
     }
 
     public async Task InitializeAsync()
@@ -235,7 +395,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 Amount = 150000,
                 TransactionDate = DateTimeOffset.UtcNow.AddDays(-2),
                 ImportedDate = DateTimeOffset.UtcNow,
-                Pending = false,
+                Pending = true,
                 MerchantName = "Mercedes",
                 TransactionName = "G Wagon",
                 LineItems = new List<TransactionLineItemEntity>()
