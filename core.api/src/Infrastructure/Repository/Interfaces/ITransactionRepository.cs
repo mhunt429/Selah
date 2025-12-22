@@ -1,6 +1,5 @@
 using Domain.Models.DbUtils;
 using Domain.Models.Entities.Transactions;
-using Domain.Models.Plaid;
 
 namespace Infrastructure.Repository.Interfaces;
 
@@ -22,6 +21,6 @@ public interface ITransactionRepository
     Task<DbOperationResult<int>> DeleteTransactionsInBulk(IReadOnlyCollection<string>? externalIds,
         int userId);
 
-    Task<DbOperationResult<int>> UpdateTransactionsInBulk(IReadOnlyCollection<PlaidTransaction> plaidTransactions,
+    Task<DbOperationResult<int>> UpdateTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions,
         int userId);
 }

@@ -162,58 +162,21 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
         ;
     }
 
-    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(
-        IReadOnlyCollection<PlaidTransaction> plaidTransactions,
-        int userId)
+    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions, int userId)
     {
-        var updatedTransactions = 0;
-
-        var externalIds = plaidTransactions
-            .Select(t => t.TransactionId)
-            .ToArray();
-
-        var existingTransactions = await dbContext.Transactions
-            .Include(t => t.LineItems)
-            .Where(t => t.UserId == userId &&
-                        externalIds.Contains(t.ExternalTransactionId))
-            .ToListAsync();
-
-        var existingByExternalId = existingTransactions
-            .Where(t => t.ExternalTransactionId != null)
-            .ToDictionary(t => t.ExternalTransactionId!);
-
-        foreach (var plaidTx in plaidTransactions)
-        {
-            if (!existingByExternalId.TryGetValue(plaidTx.TransactionId, out var dbTx))
-                continue;
-
-            dbTx.Amount = plaidTx.Amount;
-            dbTx.Pending = plaidTx.Pending;
-            var lineItem = dbTx.LineItems.FirstOrDefault();
-            if (lineItem == null)
-            {
-                dbTx.LineItems.Add(new TransactionLineItemEntity
-                {
-                    Amount = plaidTx.Amount,
-                    Description = plaidTx.PersonalFinanceCategory?.Primary ?? ""
-                });
-            }
-            else
-            {
-                lineItem.Amount = plaidTx.Amount;
-                lineItem.Description = plaidTx.PersonalFinanceCategory?.Primary ?? "";
-            }
-
-            updatedTransactions++;
-        }
-
+        var txnsToDelete = dbContext.Transactions.Where(x =>
+            x.UserId == userId && transactions.Select(t => t.ExternalTransactionId).Contains(x.ExternalTransactionId));
+        
+        dbContext.Transactions.RemoveRange(txnsToDelete);
+        await dbContext.SaveChangesAsync();
+        
+        await dbContext.Transactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
 
 
         return new DbOperationResult<int>
         {
             Status = ResultStatus.Success,
-            Data = updatedTransactions
         };
     }
 }

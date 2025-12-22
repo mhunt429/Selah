@@ -64,7 +64,7 @@ public class PlaidTransactionImportService(
 
         if (transactionsData.Modified.Any())
         {
-            await transactionRepository.UpdateTransactionsInBulk(transactionsData.Modified, syncEvent.UserId);
+            await UpdateTransactionsAsync(transactionsData.Modified, syncEvent.UserId);
         }
 
         // Process removed transactions
@@ -102,10 +102,11 @@ public class PlaidTransactionImportService(
             "Adding new transactions for user {UserId} with {Count} transactions", userId, mappedTransactions.Count());
     }
 
-    private async Task UpdateTransactionsAsync(List<PlaidTransaction> transactions, int userId)
+    private async Task UpdateTransactionsAsync(IEnumerable<PlaidTransaction> transactions, int userId)
     {
         var mappedTransactions = transactions.Select(t =>
             MapPlaidTransaction(t, userId)).ToList();
+        await transactionRepository.UpdateTransactionsInBulk(mappedTransactions, userId);
     }
 
 

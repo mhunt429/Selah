@@ -288,29 +288,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
         
         await _repo.AddTransactionsInBulk(transactions);
 
-        var plaidTxs = new List<PlaidTransaction>()
-        {
-            new PlaidTransaction
-            {
-                AccountId = "1234",
-                Counterparties = new List<PlaidTransactionCounterparty>(),
-                Date = "01-01-2025",
-                Name = "Tx 1",
-                TransactionId = "123"
-            },
-            new PlaidTransaction
-            {
-                AccountId = "1234",
-                Counterparties = new List<PlaidTransactionCounterparty>(),
-                Date = "01-01-2025",
-                Name = "Tx 2",
-                TransactionId = "321"
-            }
-        };
-        
-        var result = await _repo.UpdateTransactionsInBulk(plaidTxs, _userId);
+  
+        var result = await _repo.UpdateTransactionsInBulk(transactions, _userId);
         result.Status.Should().Be(ResultStatus.Success);
-        result.Data.Should().Be(2);
     }
 
     public async Task InitializeAsync()
