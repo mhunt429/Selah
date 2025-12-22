@@ -8,6 +8,6 @@ public class BasePlaidRequest
 
     [JsonPropertyName("secret")] public required string Secret { get; set; }
 
-    [JsonPropertyName("access_token")] public required string AccessToken { get; set; }
+    [JsonPropertyName("access_token")] public string? AccessToken { get; set; }
 }
 

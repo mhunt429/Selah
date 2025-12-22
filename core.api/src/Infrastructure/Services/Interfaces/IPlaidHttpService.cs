@@ -14,4 +14,6 @@ public interface IPlaidHttpService
     Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int? count = null);
 
     Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken);
+
+    Task<ApiResponseResult<PlaidWebhookVerificationResponse>> ValidateWebhook(string keyId);
 }

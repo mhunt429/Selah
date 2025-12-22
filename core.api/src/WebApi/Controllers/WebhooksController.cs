@@ -2,6 +2,7 @@ using System.Threading.Channels;
 using Domain.MessageContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Filters;
 
 namespace WebApi.Controllers;
 
@@ -11,6 +12,7 @@ namespace WebApi.Controllers;
 public class WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher) : ControllerBase
 {
     [HttpPost("plaid")]
+    [TypeFilter(typeof(PlaidWebhookVerificationActionFilter))]
     public async Task<IActionResult> ProcessPlaidWebhook()
     {
         await publisher.WriteAsync(new PlaidWebhookEvent

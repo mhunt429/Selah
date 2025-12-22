@@ -98,7 +98,7 @@ public class AccountConnectorRepository(IDbConnectionFactory dbConnectionFactory
             c.encrypted_access_token
             FROM connection_sync_data csd
             INNER JOIN account_connector c ON csd.connector_id = c.id
-             WHERE CURRENT_TIMESTAMP > csd.next_sync_date";
+             WHERE CURRENT_TIMESTAMP > csd.next_sync_date AND c.disconnected_ts IS NULL";
         return await GetAllAsync<ConnectionSyncDataEntity>(sql, null);
     }
 

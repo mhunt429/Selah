@@ -5,6 +5,7 @@ using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Entities.Identity;
+using Domain.Models.Entities.Mailbox;
 using Domain.Models.Entities.Transactions;
 using Domain.Models.Entities.UserAccount;
 
@@ -36,4 +37,6 @@ public class AppDbContext : DbContext
     public DbSet<TransactionEntity> Transactions { get; set; }
 
     public DbSet<TransactionLineItemEntity> TransactionLineItems { get; set; }
+    
+    public DbSet<UserMailboxEntity>  UserMailboxes { get; set; }
 }

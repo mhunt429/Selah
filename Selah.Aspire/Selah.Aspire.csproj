@@ -20,4 +20,8 @@
       <ProjectReference Include="..\core.api\src\WebApi\WebApi.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Shared\" />
+    </ItemGroup>
+
 </Project>

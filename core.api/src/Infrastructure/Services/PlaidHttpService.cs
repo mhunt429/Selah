@@ -156,4 +156,30 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         return new ApiResponseResult<PlaidRecurringTransactionsResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidRecurringTransactionsResponse>(messageBody));
     }
+
+    public async Task<ApiResponseResult<PlaidWebhookVerificationResponse>> ValidateWebhook(string keyId)
+    {
+        Uri verificationEndpoint = new Uri($"{httpClient.BaseAddress}webhook_verification_key/get");
+
+        var request = new WebhookVerificationRequest
+        {
+            KeyId = keyId,
+            ClientId =plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
+        };
+        
+        HttpResponseMessage response = await httpClient.PostAsync(verificationEndpoint, request);
+        var messageBody = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError(
+                "Webhook Verification Request failed with status {statusCode} and error {error}",
+                response.StatusCode, messageBody);
+            return new ApiResponseResult<PlaidWebhookVerificationResponse>(ResultStatus.Failed, messageBody, null);
+        }
+        
+        return new ApiResponseResult<PlaidWebhookVerificationResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<PlaidWebhookVerificationResponse>(messageBody));
+    }
 }

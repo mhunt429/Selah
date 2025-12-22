@@ -28,7 +28,8 @@ public static class DatabaseExtensions
             .AddScoped<IFinancialAccountRepository, FinancialAccountRepository>()
             .AddScoped<IUserSessionRepository, UserSessionRepository>()
             .AddScoped<TokenRepository>()
-            .AddScoped<ITransactionRepository, TransactionRepository>();
+            .AddScoped<ITransactionRepository, TransactionRepository>()
+            .AddScoped<IUserMailboxRepository, UserMailboxRepository>();
 
         return services;
     }
