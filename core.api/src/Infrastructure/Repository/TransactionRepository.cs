@@ -1,11 +1,12 @@
 using Domain.Models.DbUtils;
 using Domain.Models.Entities.Transactions;
 using Domain.Models.Plaid;
+using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class TransactionRepository(AppDbContext dbContext)
+public class TransactionRepository(AppDbContext dbContext): ITransactionRepository
 {
     public async Task<DbOperationResult<IEnumerable<TransactionLineItemEntity>>> GetTransactionLineItems(
         int transactionId)

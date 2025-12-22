@@ -16,7 +16,7 @@ public class PlaidTransactionImportServiceTests
     private readonly Mock<IPlaidHttpService> _mockPlaidHttpService;
     private readonly Mock<ILogger<PlaidTransactionImportService>> _mockLogger;
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
-    private readonly Mock<TransactionRepository> _mockTransactionRepository;
+    private readonly Mock<ITransactionRepository> _mockTransactionRepository;
     private readonly PlaidTransactionImportService _service;
 
     public PlaidTransactionImportServiceTests()
@@ -25,7 +25,7 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService = new Mock<IPlaidHttpService>();
         _mockLogger = new Mock<ILogger<PlaidTransactionImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
-        _mockTransactionRepository = new Mock<TransactionRepository>();
+        _mockTransactionRepository = new Mock<ITransactionRepository>();
 
         _service = new PlaidTransactionImportService(
             _mockCryptoService.Object,
