@@ -28,10 +28,9 @@ public static class TestHelpers
     /// <param name="userId"></param>
     /// <param name="accountId"></param>
     /// <param name="repository"></param>
-    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords()
-    {
         
-        var dbContext = BuildTestDbContext();
+    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords(AppDbContext dbContext)
+    {
         
         UserAccountEntity account = new UserAccountEntity
         {

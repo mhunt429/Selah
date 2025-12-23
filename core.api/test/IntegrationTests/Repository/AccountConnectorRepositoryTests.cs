@@ -18,7 +18,7 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
     public async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords();
+        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
 
         _userId = result.Item2.Id;
     }

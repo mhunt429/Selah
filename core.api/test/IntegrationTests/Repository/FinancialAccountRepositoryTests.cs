@@ -35,7 +35,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     {
         await _fixture.ResetDatabaseAsync();
 
-        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords();
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
         _userId = result.Item2.Id;
 
         AccountConnectorEntity data = new()

@@ -32,7 +32,7 @@ public class RegistrationRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task Register_ShouldSaveAccountAndUserRecord()
     {
-        var result = await TestHelpers.SetUpBaseRecords();
+        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
         _userId = result.Item2.Id;
         result.Should().NotBeNull();
         result.Item2.Id.Should().Be(_userId);

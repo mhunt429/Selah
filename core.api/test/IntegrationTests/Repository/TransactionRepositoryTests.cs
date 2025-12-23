@@ -295,7 +295,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords();
+        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
         _userId = result.Item2.Id;
 
 

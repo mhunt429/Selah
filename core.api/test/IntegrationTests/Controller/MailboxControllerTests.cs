@@ -23,7 +23,7 @@ public class MailboxControllerTests(TestFactory factory, DatabaseFixture fixture
     public async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords();
+        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
     }
 
     public Task DisposeAsync()
