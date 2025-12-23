@@ -11,6 +11,8 @@ public class WebhookControllerTests(TestFactory factory) : IClassFixture<TestFac
     [Fact]
     public async Task Rate_Limit_Should_Block_After_ExceededLimit()
     {
+        _client.DefaultRequestHeaders.Add("Plaid-Verification", "Secure-Header");
+        
         var defaultHttpContent = new StringContent("");
         for (int i = 0; i < 3; i++)
         {

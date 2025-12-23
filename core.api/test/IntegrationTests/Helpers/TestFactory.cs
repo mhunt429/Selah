@@ -1,7 +1,10 @@
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.RateLimiting;
 using Domain.Configuration;
 using Infrastructure;
+using Infrastructure.Services;
+using Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -84,6 +87,12 @@ public class TestFactory : WebApplicationFactory<Program>
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                 };
+            });
+
+            services.AddHttpClient<IPlaidHttpService, PlaidHttpService>(config =>
+            {
+                config.BaseAddress = new Uri("https://sandbox.plaid.com/");
+                config.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
             });
         });
     }

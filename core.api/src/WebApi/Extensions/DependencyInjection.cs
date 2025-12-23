@@ -16,21 +16,27 @@ public static class DependencyInjection
         services.RegisterRepositories(configuration, env)
             .AddValidators()
             .AddApplicationServices()
-            .AddHttpClients(configuration)
+            .AddHttpClients(configuration, env)
             .RegisterQuartz(configuration, env)
             .AddChannelServices()
             ;
     }
 
-    private static IServiceCollection AddHttpClients(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddHttpClients(this IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment env)
     {
+        if (env.EnvironmentName == "IntegrationTests") return services;
+
         PlaidConfig plaidConfig = configuration.GetSection("PlaidConfig").Get<PlaidConfig>();
 
-        services.AddHttpClient<IPlaidHttpService, PlaidHttpService>(config =>
+        if (plaidConfig != null)
         {
-            config.BaseAddress = new Uri(plaidConfig.BaseUrl);
-            config.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
-        });
+            services.AddHttpClient<IPlaidHttpService, PlaidHttpService>(config =>
+            {
+                config.BaseAddress = new Uri(plaidConfig.BaseUrl);
+                config.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
+            });
+        }
 
         return services;
     }
