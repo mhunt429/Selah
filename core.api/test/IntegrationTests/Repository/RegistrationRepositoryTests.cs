@@ -8,7 +8,6 @@ namespace IntegrationTests.Repository;
 [Collection("Database")]
 public class RegistrationRepositoryTests : IAsyncLifetime
 {
-    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
     private readonly DatabaseFixture _fixture;
     private readonly RegistrationRepository _repository;
     private int _userId;
@@ -33,7 +32,7 @@ public class RegistrationRepositoryTests : IAsyncLifetime
     [Fact]
     public async Task Register_ShouldSaveAccountAndUserRecord()
     {
-        var result = await TestHelpers.SetUpBaseRecords(_repository);
+        var result = await TestHelpers.SetUpBaseRecords();
         _userId = result.Item2.Id;
         result.Should().NotBeNull();
         result.Item2.Id.Should().Be(_userId);

@@ -12,16 +12,13 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
 {
     private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
     private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
-    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
     private int _userId;
 
     public async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
-
-        RegistrationRepository registrationRepository = new(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        var result = await TestHelpers.SetUpBaseRecords();
 
         _userId = result.Item2.Id;
     }

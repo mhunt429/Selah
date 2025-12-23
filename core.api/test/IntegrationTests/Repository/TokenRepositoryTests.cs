@@ -10,8 +10,6 @@ namespace IntegrationTests.Repository;
 public class TokenRepositoryTests : IAsyncLifetime
 {
     private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
-    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
-
     private TokenRepository _tokenRepo;
 
     private readonly DatabaseFixture _fixture;
@@ -81,9 +79,7 @@ public class TokenRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-
-        RegistrationRepository registrationRepository = new(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        var result = await TestHelpers.SetUpBaseRecords();
         _userId = result.Item2.Id;
     }
 

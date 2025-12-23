@@ -26,9 +26,7 @@ public class AppUserRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-
-        var registrationRepository = new RegistrationRepository(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        var result = await TestHelpers.SetUpBaseRecords();
         _accountId = result.Item1.Id;
         _userId = result.Item2.Id;
     }

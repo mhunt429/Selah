@@ -14,7 +14,6 @@ namespace IntegrationTests.Repository;
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
     private readonly IAccountConnectorRepository _accountConnectorRepository;
-    private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
     private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
 
     private readonly IFinancialAccountRepository _financialAccountRepository;
@@ -36,8 +35,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     {
         await _fixture.ResetDatabaseAsync();
 
-        RegistrationRepository registrationRepository = new(_dbContext);
-        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords();
         _userId = result.Item2.Id;
 
         AccountConnectorEntity data = new()

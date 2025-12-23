@@ -2,7 +2,6 @@ using AwesomeAssertions;
 using Domain.Models.DbUtils;
 using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Entities.Transactions;
-using Domain.Models.Plaid;
 using Infrastructure;
 using Infrastructure.Repository;
 using IntegrationTests.Helpers;
@@ -296,9 +295,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-
-        RegistrationRepository registrationRepository = new(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        var result = await TestHelpers.SetUpBaseRecords();
         _userId = result.Item2.Id;
 
 

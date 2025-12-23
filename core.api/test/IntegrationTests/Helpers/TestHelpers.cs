@@ -28,9 +28,11 @@ public static class TestHelpers
     /// <param name="userId"></param>
     /// <param name="accountId"></param>
     /// <param name="repository"></param>
-    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords(
-        IRegistrationRepository repository)
+    public static async Task<(UserAccountEntity, ApplicationUserEntity)> SetUpBaseRecords()
     {
+        
+        var dbContext = BuildTestDbContext();
+        
         UserAccountEntity account = new UserAccountEntity
         {
             AccountName = "AccountName",
@@ -47,8 +49,9 @@ public static class TestHelpers
             EmailHash = "email"
         };
 
+        var registrationRepository = new RegistrationRepository(dbContext);
 
-        (int, int) registrationResult = await repository.RegisterAccount(account, user);
+        (int, int) registrationResult = await registrationRepository.RegisterAccount(account, user);
 
         account.Id = registrationResult.Item1;
         user.Id = registrationResult.Item2;

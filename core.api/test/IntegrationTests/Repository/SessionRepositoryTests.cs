@@ -26,8 +26,7 @@ public class SessionRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-        var registrationRepository = new RegistrationRepository(_dbContext);
-        var result = await TestHelpers.SetUpBaseRecords(registrationRepository);
+        var result = await TestHelpers.SetUpBaseRecords();
         _userId = result.Item2.Id;
     }
 

@@ -1,3 +1,4 @@
+using Domain.ApiContracts.Mailbox;
 using Domain.Models.Entities.Mailbox;
 using Infrastructure.Repository.Interfaces;
 
@@ -5,35 +6,49 @@ namespace Application.Services;
 
 public class UserMailboxService(IUserMailboxRepository userMailboxRepository)
 {
-    private readonly IUserMailboxRepository _userMailboxRepository = userMailboxRepository;
-
-    public async Task<IEnumerable<UserMailboxEntity>> GetMessagesByUserId(int id)
+    public async Task<IEnumerable<MailboxResponse>> GetMessagesByUserId(int id)
     {
-        return await _userMailboxRepository.GetMessagesByUserId(id);
+        var dbMessages = await userMailboxRepository.GetMessagesByUserId(id);
+
+        return dbMessages.Select(x => new MailboxResponse
+        {
+            Id = x.Id,
+            CreatedAt = x.OriginalInsert,
+            Unread = !x.HasSeen,
+            MessageBody = x.MessageBody,
+            MessageKey = x.MessageKey,
+        });
     }
 
-    public async Task<UserMailboxEntity?> GetMessagesByIdAndUserId(int id, int userId)
+    public async Task<MailboxResponse?> GetMessagesByIdAndUserId(int id, int userId)
     {
-        return await _userMailboxRepository.GetMessagesByIdAndUserId(id, userId);
-    }
+        var dbMessage = await userMailboxRepository.GetMessagesByIdAndUserId(id, userId);
 
-    public async Task SaveMessage(UserMailboxEntity message)
-    {
-        await _userMailboxRepository.InsertMessage(message);
+        if (dbMessage == null) return null;
+
+        return new MailboxResponse
+        {
+            Id = dbMessage.Id,
+            CreatedAt = dbMessage.OriginalInsert,
+            Unread = !dbMessage.HasSeen,
+            MessageBody = dbMessage.MessageBody,
+            MessageKey = dbMessage.MessageKey,
+        };
     }
+    
 
     public async Task DeleteMessage(int id, int userId)
     {
-        await _userMailboxRepository.DeleteMessage(id, userId);
+        await userMailboxRepository.DeleteMessage(id, userId);
     }
-    
+
     public async Task DeleteAllMessages(int userId)
     {
-        await _userMailboxRepository.DeleteAllMessages(userId);
+        await userMailboxRepository.DeleteAllMessages(userId);
     }
 
     public async Task MarkMessageAsRead(int id, int userId)
     {
-        await _userMailboxRepository.MarkMessageAsRead(id, userId);
+        await userMailboxRepository.MarkMessageAsRead(id, userId);
     }
 }

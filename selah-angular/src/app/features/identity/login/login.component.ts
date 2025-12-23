@@ -48,28 +48,21 @@ export class LoginComponent implements OnInit {
       password: this.loginForm.get('password')?.value || '',
       rememberMe: this.loginForm.get('rememberMe')?.value || false,
     };
-    this.authService
-      .loginUser$(request)
-      .pipe(
-        tap((loginRsp: BaseApiResponse<AccessToken>) => {
-          const tokenData = loginRsp.data;
-          sessionStorage.setItem('accessToken', tokenData.accessToken);
-          sessionStorage.setItem('sessionExpiration', tokenData.accessTokenExpiration);
-        }),
-        switchMap(() => this.authService.loadSession$())
-      )
-      .subscribe({
-        next: (userRsp: BaseApiResponse<AppUser>) => {
-          this.router.navigateByUrl('/dashboard');
-        },
-        error: (e) => {
-          console.error(e);
-          if (e.status === 401) {
-            this.loginError = 'Please check your login credentials and try again.';
-          } else {
-            this.loginError = `We're unable to sign you in at this moment. Please try again later.`;
-          }
-        },
-      });
+    this.authService.loginUser$(request).subscribe({
+      next: (loginRsp: BaseApiResponse<AccessToken>) => {
+        const tokenData = loginRsp.data;
+        sessionStorage.setItem('accessToken', tokenData.accessToken);
+        sessionStorage.setItem('sessionExpiration', tokenData.accessTokenExpiration);
+        this.router.navigateByUrl('/dashboard');
+      },
+      error: (e) => {
+        console.error(e);
+        if (e.status === 401) {
+          this.loginError = 'Please check your login credentials and try again.';
+        } else {
+          this.loginError = `We're unable to sign you in at this moment. Please try again later.`;
+        }
+      },
+    });
   }
 }
