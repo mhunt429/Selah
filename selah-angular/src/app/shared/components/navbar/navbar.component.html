@@ -1,120 +1,171 @@
-<nav
-  class="w-full bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-300"
->
-  <div class="container mx-auto px-6">
-    <div class="flex h-16 items-center">
-      <div class="hidden sm:flex items-center space-x-6">
-        <a
-          (click)="setSelectedTab('Dashboard')"
-          routerLink="/profile/dashboard"
-          class="px-4 py-2 rounded-md transition cursor-pointer"
-          [ngClass]="{
-            'bg-teal-500 text-white shadow-md': selectedTab() === 'Dashboard',
-            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
-              selectedTab() !== 'Dashboard'
-          }"
-        >
-          Dashboard
-        </a>
-        <a
-          [ngClass]="{
-            'bg-teal-500 text-white shadow-md': selectedTab() === 'Accounts',
-            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
-              selectedTab() !== 'Accounts'
-          }"
-          (click)="setSelectedTab('Accounts')"
-          class="px-4 py-2 rounded-md transition cursor-pointer"
-          >Accounts</a
-        >
-        <a
-          [ngClass]="{
-            'bg-teal-500 text-white shadow-md': selectedTab() === 'Transactions',
-            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
-              selectedTab() !== 'Transactions'
-          }"
-          (click)="setSelectedTab('Transactions')"
-          class="px-4 py-2 rounded-md transition cursor-pointer"
-          >Transactions</a
-        >
-        <a
-          [ngClass]="{
-            'bg-teal-500 text-white shadow-md': selectedTab() === 'Investments',
-            'text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400':
-              selectedTab() !== 'Investments'
-          }"
-          (click)="setSelectedTab('Investments')"
-          class="px-4 py-2 rounded-md transition cursor-pointer"
-          >Investments</a
-        >
+<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Logo and Desktop Navigation -->
+      <div class="flex items-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mr-8">Selah.fi</h1>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex space-x-1">
+          @for (item of navigationItems; track item.id) {
+          <button
+            (click)="navigateToPage(item)"
+            [ngClass]="{
+              'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentPage(
+                item.id
+              ),
+              'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+                !isCurrentPage(item.id)
+            }"
+            class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-2"></lucide-angular>
+            {{ item.label }}
+          </button>
+          }
+        </div>
       </div>
 
-      <!-- Mobile menu button -->
-      <div class="sm:hidden flex items-center">
+      <!-- Right side actions -->
+      <div class="flex items-center space-x-4">
+        <!-- Desktop Actions -->
+        <div class="hidden md:flex items-center space-x-4">
+          <!-- Notifications -->
+          <button
+            (click)="handleNotificationsClick()"
+            class="relative p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+          >
+            <lucide-angular name="bell" class="h-5 w-5"></lucide-angular>
+            @if (unreadNotifications() > 0) {
+            <span
+              class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full min-w-[1.25rem] h-5"
+            >
+              {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+            </span>
+            }
+          </button>
+
+          <!-- Dark Mode Toggle -->
+          <button
+            (click)="toggleDarkMode()"
+            class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+          >
+            @if (themeService.darkMode()) {
+            <lucide-angular name="sun" class="h-5 w-5"></lucide-angular>
+            } @else {
+            <lucide-angular name="moon" class="h-5 w-5"></lucide-angular>
+            }
+          </button>
+
+          <!-- Settings -->
+          <button
+            class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+          >
+            <lucide-angular name="settings" class="h-5 w-5"></lucide-angular>
+          </button>
+
+          <!-- User Name -->
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ userName() }}</span>
+
+          <!-- Logout -->
+          <button
+            (click)="handleLogout()"
+            class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+          >
+            <lucide-angular name="log-out" class="h-5 w-5"></lucide-angular>
+          </button>
+        </div>
+
+        <!-- Mobile menu button -->
         <button
-          type="button"
           (click)="toggleMobileMenu()"
-          [attr.aria-expanded]="mobileMenuOpen"
-          class="inline-flex items-center justify-center rounded-md p-2 text-teal-600 dark:hover:text-teal-400 focus:outline-none transition"
+          class="md:hidden p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
         >
-          <!-- Hamburger -->
-          @if(!mobileMenuOpen){
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-          } @if(mobileMenuOpen){
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          @if (mobileMenuOpen) {
+          <lucide-angular name="x" class="h-6 w-6"></lucide-angular>
+          } @else {
+          <lucide-angular name="menu" class="h-6 w-6"></lucide-angular>
           }
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- Mobile dropdown -->
-  <div
-    class="sm:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden"
-    [class.hidden]="!mobileMenuOpen"
-  >
-    <div class="space-y-2 px-6 py-4">
-      <a
-        class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
-        >Dashboard</a
-      >
-      <a
-        class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
-        >Accounts</a
-      >
-      <a
-        class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
-        >Transactions</a
-      >
-      <a
-        class="block text-gray-700 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 transition"
-        >Investments</a
-      >
+    <!-- Mobile Navigation Menu -->
+    @if (mobileMenuOpen) {
+    <div class="md:hidden border-t border-gray-200 dark:border-gray-700 py-4">
+      <!-- Mobile Navigation Items -->
+      <div class="space-y-1">
+        @for (item of navigationItems; track item.id) {
+        <button
+          (click)="navigateToPage(item)"
+          [ngClass]="{
+            'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentPage(
+              item.id
+            ),
+            'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+              !isCurrentPage(item.id)
+          }"
+          class="w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-3"></lucide-angular>
+          {{ item.label }}
+        </button>
+        }
+      </div>
+
+      <!-- Mobile Actions -->
+      <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+        <!-- Notifications -->
+        <button
+          (click)="handleNotificationsClick(); toggleMobileMenu()"
+          class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <lucide-angular name="bell" class="h-4 w-4 mr-3"></lucide-angular>
+          Notifications @if (unreadNotifications() > 0) {
+          <span
+            class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[1.25rem] h-5"
+          >
+            {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+          </span>
+          }
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button
+          (click)="toggleDarkMode(); toggleMobileMenu()"
+          class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          @if (themeService.darkMode()) {
+          <lucide-angular name="sun" class="h-4 w-4 mr-3"></lucide-angular>
+          } @else {
+          <lucide-angular name="moon" class="h-4 w-4 mr-3"></lucide-angular>
+          }
+          {{ themeService.darkMode() ? 'Light Mode' : 'Dark Mode' }}
+        </button>
+
+        <!-- Settings -->
+        <button
+          class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <lucide-angular name="settings" class="h-4 w-4 mr-3"></lucide-angular>
+          Settings
+        </button>
+
+        <!-- User Info -->
+        <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+          Signed in as {{ userName() }}
+        </div>
+
+        <!-- Logout -->
+        <button
+          (click)="handleLogout()"
+          class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <lucide-angular name="log-out" class="h-4 w-4 mr-3"></lucide-angular>
+          Logout
+        </button>
+      </div>
     </div>
+    }
   </div>
 </nav>
