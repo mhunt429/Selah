@@ -10,11 +10,14 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   imports: [RouterOutlet, LucideAngularModule, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
-  providers: [HttpClientService, AuthService, ThemeService],
+  providers: [HttpClientService, AuthService],
 })
 export class App {
   protected readonly title = signal('Selah.fi');
 
   // Inject ThemeService to ensure it's initialized early (constructor runs immediately)
-  private themeService = inject(ThemeService);
+  // Since ThemeService is providedIn: 'root', we don't need to add it to providers
+  constructor(private themeService: ThemeService) {
+    // Service will initialize and apply dark mode on construction
+  }
 }

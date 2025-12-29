@@ -1,2 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 @use "tailwindcss";
+
+/* Configure dark mode variant for Tailwind CSS v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Ensure browser respects class-based dark mode */
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  
+  html.dark {
+    color-scheme: dark;
+  }
+}

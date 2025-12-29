@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
@@ -6,20 +6,30 @@ import { Injectable, signal } from '@angular/core';
 export class ThemeService {
   private readonly DARK_MODE_KEY = 'darkMode';
 
-  // Signal to track dark mode state
-  private _darkMode = signal<boolean>(this.getInitialDarkMode());
+  // Signal to track dark mode state (public for template access)
+  darkMode = signal<boolean>(this.getInitialDarkMode());
 
   constructor() {
-    // Apply initial dark mode state immediately
-    const initialDarkMode = this._darkMode();
-    this.applyDarkMode(initialDarkMode);
-  }
+    // Check if dark class already exists on HTML element (might be from previous session or SSR)
+    const htmlHasDarkClass =
+      typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
 
-  /**
-   * Get dark mode signal (read-only access)
-   */
-  get darkMode() {
-    return this._darkMode.asReadonly();
+    // Apply initial dark mode state immediately
+    const initialDarkMode = this.darkMode();
+
+    // If HTML element state doesn't match our signal, sync them
+    if (htmlHasDarkClass !== initialDarkMode) {
+      // Sync to what localStorage/system preference says (our signal value)
+      this.applyDarkMode(initialDarkMode);
+    } else {
+      this.applyDarkMode(initialDarkMode);
+    }
+
+    // Watch for signal changes and apply dark mode class automatically
+    effect(() => {
+      const isDark = this.darkMode();
+      this.applyDarkMode(isDark);
+    });
   }
 
   /**
@@ -27,10 +37,22 @@ export class ThemeService {
    */
   private applyDarkMode(isDark: boolean): void {
     if (typeof document !== 'undefined') {
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
+      const htmlElement = document.documentElement;
+
+      // Use toggle with force parameter for cleaner state management
+      htmlElement.classList.toggle('dark', isDark);
+
+      // Verify the class state
+      const hasDarkClass = htmlElement.classList.contains('dark');
+
+      // If there's still a mismatch, force it
+      if (isDark !== hasDarkClass) {
+        console.warn('⚠️ Mismatch detected! Forcing class...');
+        if (isDark) {
+          htmlElement.classList.add('dark');
+        } else {
+          htmlElement.classList.remove('dark');
+        }
       }
     }
   }
@@ -39,18 +61,22 @@ export class ThemeService {
    * Get initial dark mode state from localStorage or system preference
    */
   private getInitialDarkMode(): boolean {
-    // Check localStorage first
-    const stored = localStorage.getItem(this.DARK_MODE_KEY);
-    if (stored !== null) {
-      return stored === 'true';
+    // Check localStorage first (user's explicit preference)
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem(this.DARK_MODE_KEY);
+      if (stored !== null) {
+        const value = stored === 'true';
+        return value;
+      }
     }
 
-    // Check system preference
+    // If no localStorage preference, check system preference
     if (typeof window !== 'undefined' && window.matchMedia) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      // Don't save system preference to localStorage - let user toggle first
+      return systemPrefersDark;
     }
 
-    // Default to light mode
     return false;
   }
 
@@ -58,8 +84,8 @@ export class ThemeService {
    * Toggle dark mode
    */
   toggleDarkMode(): void {
-    const newValue = !this._darkMode();
-    this._darkMode.set(newValue);
+    const newValue = !this.darkMode();
+    this.darkMode.set(newValue);
     this.applyDarkMode(newValue);
     this.savePreference(newValue);
   }
@@ -68,7 +94,7 @@ export class ThemeService {
    * Set dark mode explicitly
    */
   setDarkMode(isDark: boolean): void {
-    this._darkMode.set(isDark);
+    this.darkMode.set(isDark);
     this.applyDarkMode(isDark);
     this.savePreference(isDark);
   }
@@ -86,6 +112,6 @@ export class ThemeService {
    * Check if dark mode is currently enabled
    */
   isDarkMode(): boolean {
-    return this._darkMode();
+    return this.darkMode();
   }
 }

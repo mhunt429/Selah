@@ -55,7 +55,6 @@ export class ConnectorComponent implements OnInit {
   }
 
   private linkInstitution$(publicToken: string, metadata: PlaidLinkMetadata): Observable<void> {
-    console.log('test1234');
     const request: PlaidLinkTokenRequest = {
       publicToken,
       institutionId: metadata.institution.institution_id,
