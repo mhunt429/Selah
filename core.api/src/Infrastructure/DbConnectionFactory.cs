@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using Npgsql;
 
 namespace Infrastructure

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class TransactionRepository(AppDbContext dbContext): ITransactionRepository
+public class TransactionRepository(AppDbContext dbContext) : ITransactionRepository
 {
     public async Task<DbOperationResult<IEnumerable<TransactionLineItemEntity>>> GetTransactionLineItems(
         int transactionId)
@@ -77,7 +77,7 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
     {
         IQueryable<TransactionEntity> query = dbContext.Transactions
             .AsNoTracking()
-            .Where(x => x.UserId == userId && x.Id > cursor);
+            .Where(x => x.UserId == userId);
 
         query = sortParameters?.SortColumn switch
         {
@@ -107,15 +107,10 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
 
     public async Task DeleteTransaction(int transactionId, int userId)
     {
-        var transactionToDelete = await dbContext.Transactions
+        await dbContext.Transactions
             .Include(t => t.LineItems)
-            .FirstOrDefaultAsync(t => t.Id == transactionId && t.UserId == userId);
-        if (transactionToDelete != null)
-        {
-            dbContext.Transactions.Remove(transactionToDelete);
-
-            await dbContext.SaveChangesAsync();
-        }
+            .Where(t => t.Id == transactionId && t.UserId == userId)
+            .ExecuteDeleteAsync();
     }
 
 
@@ -144,15 +139,12 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
             ;
         }
 
-        var transactionsToDelete = dbContext.Transactions
+        var deletedTransactions = await dbContext.Transactions
             .Where(x =>
                 x.UserId == userId &&
                 !string.IsNullOrEmpty(x.ExternalTransactionId) &&
-                externalIds.Contains(x.ExternalTransactionId));
-
-        int deletedTransactions = transactionsToDelete.Count();
-        dbContext.Transactions.RemoveRange(transactionsToDelete);
-        await dbContext.SaveChangesAsync();
+                externalIds.Contains(x.ExternalTransactionId))
+            .ExecuteDeleteAsync();
 
         return new DbOperationResult<int>()
         {
@@ -162,14 +154,14 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
         ;
     }
 
-    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions, int userId)
+    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(
+        IReadOnlyCollection<TransactionEntity> transactions, int userId)
     {
-        var txnsToDelete = dbContext.Transactions.Where(x =>
-            x.UserId == userId && transactions.Select(t => t.ExternalTransactionId).Contains(x.ExternalTransactionId));
-        
-        dbContext.Transactions.RemoveRange(txnsToDelete);
-        await dbContext.SaveChangesAsync();
-        
+        await dbContext.Transactions.Where(x =>
+                x.UserId == userId &&
+                transactions.Select(t => t.ExternalTransactionId).Contains(x.ExternalTransactionId))
+            .ExecuteDeleteAsync();
+
         await dbContext.Transactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
 
@@ -178,5 +170,13 @@ public class TransactionRepository(AppDbContext dbContext): ITransactionReposito
         {
             Status = ResultStatus.Success,
         };
+    }
+
+    public async Task<decimal> GetExpenseTransactionTotals(int userId, DateTimeOffset start, DateTimeOffset end)
+    {
+        return await dbContext.Transactions
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && x.TransactionDate >= start && x.TransactionDate <= end)
+            .SumAsync(x => x.Amount);
     }
 }

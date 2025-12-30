@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class UserMailboxRepository(AppDbContext dbContext): IUserMailboxRepository
+public class UserMailboxRepository(AppDbContext dbContext) : IUserMailboxRepository
 {
     public async Task<IEnumerable<UserMailboxEntity>> GetMessagesByUserId(int userId)
     {
@@ -28,23 +28,16 @@ public class UserMailboxRepository(AppDbContext dbContext): IUserMailboxReposito
 
     public async Task DeleteMessage(int id, int userId)
     {
-        var messageToDelete = await dbContext.UserMailboxes
+        await dbContext.UserMailboxes
             .Where(x => x.Id == id && x.UserId == userId)
-            .FirstOrDefaultAsync();
-
-        if (messageToDelete != null)
-        {
-            dbContext.UserMailboxes.Remove(messageToDelete);
-            await dbContext.SaveChangesAsync();
-        }
+            .ExecuteDeleteAsync();
     }
 
     public async Task DeleteAllMessages(int userId)
     {
-        var messagesToDelete = dbContext.UserMailboxes
-            .Where(x => x.UserId == userId);
-        dbContext.UserMailboxes.RemoveRange(messagesToDelete);
-        await dbContext.SaveChangesAsync();
+        await dbContext.UserMailboxes
+            .Where(x => x.UserId == userId)
+            .ExecuteDeleteAsync();
     }
 
     public async Task MarkMessageAsRead(int id, int userId)
