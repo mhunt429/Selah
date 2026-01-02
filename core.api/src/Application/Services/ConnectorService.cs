@@ -43,7 +43,9 @@ public class ConnectorService
             DateConnected = DateTime.UtcNow,
             EncryptedAccessToken = _cryptoService.Encrypt(plaidTokenExchangeResponse.data.AccessToken),
             TransactionSyncCursor = "",
-            ExternalEventId = plaidTokenExchangeResponse.data.ItemId
+            ExternalEventId = plaidTokenExchangeResponse.data.ItemId,
+            LastSyncDate = DateTimeOffset.UtcNow,
+            NextSyncDate = DateTimeOffset.UtcNow // Set this so that it will update on the next run of the balance import job.
         };
 
         await _accountConnectorRepository.InsertAccountConnectorRecord(dataToSave);
