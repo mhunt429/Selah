@@ -27,7 +27,7 @@ public interface IAccountConnectorRepository
     /// <returns></returns>
     Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate);
 
-    Task<IEnumerable<ConnectionSyncDataEntity>> GetConnectorRecordsToImport();
+    Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 
-    Task<ConnectionSyncDataEntity> GetConnectorSyncRecordByConnectorId(int userId, int connectorId);
+    Task<AccountConnectorEntity?> GetConnectorSyncRecordByConnectorId(int userId, int id);
 }

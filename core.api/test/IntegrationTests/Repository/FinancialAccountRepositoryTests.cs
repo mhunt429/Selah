@@ -28,7 +28,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
     {
         _fixture = fixture;
         _financialAccountRepository = new FinancialAccountRepository(_dbContext);
-        _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
+        _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
     }
 
     public async Task InitializeAsync()
@@ -47,6 +47,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "abc123"u8.ToArray(),
             TransactionSyncCursor = "",
+            RequiresReauthentication =  false,
         };
         _connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
     }

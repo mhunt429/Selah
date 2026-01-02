@@ -1,3 +1,5 @@
+using Domain.Models.Plaid;
+
 namespace Domain.Events;
 
 public class ConnectorDataSyncEvent : IntegrationEvent
@@ -12,6 +14,7 @@ public class ConnectorDataSyncEvent : IntegrationEvent
     
     public required EventType EventType { get; set; }
     
+    public PlaidApiErrorResponse?  Error { get; set; }
     
 }
 
@@ -20,4 +23,5 @@ public enum EventType
 {
     BalanceImport,
     TransactionImport,
+    UpdateCredentials
 }

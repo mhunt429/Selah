@@ -20,7 +20,13 @@ public class AccountConnectorEntity : BaseAuditFields
 
     [Column("transaction_sync_cursor")] public required string TransactionSyncCursor { get; set; } = "";
 
+    [Column("requires_reauthentication")] public bool RequiresReauthentication { get; set; }
+
     [Column("external_event_id")]
     //Set this field for the 3rd party webhooks
     public string ExternalEventId { get; set; } = "";
+
+    [Column("last_sync_date")] public DateTimeOffset LastSyncDate { get; set; }
+
+    [Column("next_sync_date")] public DateTimeOffset NextSyncDate { get; set; }
 }

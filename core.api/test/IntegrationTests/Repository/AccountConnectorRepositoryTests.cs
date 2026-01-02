@@ -10,7 +10,7 @@ namespace IntegrationTests.Repository;
 [Collection("Database")]
 public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLifetime
 {
-    private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.TestDbFactory);
+    private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.BuildTestDbContext());
     private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
 
     private int _userId;
@@ -39,6 +39,9 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
             DateConnected = DateTimeOffset.UtcNow,
             EncryptedAccessToken = "abc123"u8.ToArray(),
             TransactionSyncCursor = "",
+            RequiresReauthentication =  false,
+            LastSyncDate = DateTimeOffset.UtcNow,
+            NextSyncDate = DateTimeOffset.UtcNow.AddDays(3)
         };
         int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
 
@@ -59,7 +62,7 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
         connectionSync.Should().NotBeNull();
         connectionSync.UserId.Should().Be(_userId);
         connectionSync.Id.Should().BeGreaterThan(0);
-        connectionSync.ConnectorId.Should().Be(connectorId);
+        connectionSync.Id.Should().Be(connectorId);
         connectionSync.LastSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
         connectionSync.NextSyncDate.Should().BeAfter(DateTimeOffset.MinValue);
         connectionSync.EncryptedAccessToken.Should().BeEquivalentTo(data.EncryptedAccessToken);

@@ -19,7 +19,7 @@ public class ConnectorDataSyncRecurringJob(
     {
         logger.LogInformation("ConnectorDataSyncRecurringJob started at {CurrentTimeUtc}", DateTimeOffset.UtcNow);
 
-        IEnumerable<ConnectionSyncDataEntity> dbRecords = await connectorRepository.GetConnectorRecordsToImport();
+        IEnumerable<AccountConnectorEntity> dbRecords = await connectorRepository.GetConnectorRecordsToImport();
 
         logger.LogInformation("ConnectorDataSyncRecurringJob found {numRecords} connection records to import",
             dbRecords.Count());
@@ -28,14 +28,14 @@ public class ConnectorDataSyncRecurringJob(
         foreach (var group in groups)
         {
             var publisherTasks = new List<Task>();
-            foreach (ConnectionSyncDataEntity connectorRecord in group)
+            foreach (AccountConnectorEntity connectorRecord in group)
             {
                 publisherTasks.Add(PublishSyncEvent(new ConnectorDataSyncEvent
                 {
                     DataSyncId =  connectorRecord.Id,
                     AccessToken = connectorRecord.EncryptedAccessToken, 
                     UserId =  connectorRecord.UserId,
-                    ConnectorId = connectorRecord.ConnectorId,
+                    ConnectorId = connectorRecord.Id,
                     EventType = EventType.BalanceImport,
                 }));
             }

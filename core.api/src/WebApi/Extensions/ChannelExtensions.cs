@@ -32,7 +32,7 @@ public static class ChannelExtensions
         services.AddSingleton(c => c.GetRequiredService<Channel<ConnectorDataSyncEvent>>().Writer);
 
         services.AddHostedService<PlaidWebhookProcessorChannel>();
-        services.AddHostedService<AccountBalanceImportChannel>();
+        services.AddHostedService<AccountConnectorEventChannel>();
 
         return services;
     }
