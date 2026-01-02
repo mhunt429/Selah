@@ -8,6 +8,7 @@ using AwesomeAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure.Repository;
+using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,7 +29,7 @@ public class RegistrationServiceUnitTests
     public RegistrationServiceUnitTests()
     {
         _registrationRepository
-            .Setup(x => x.RegisterAccount(It.IsAny<UserAccountEntity>(), It.IsAny<ApplicationUserEntity>()))
+            .Setup(x => x.RegisterAccount( It.IsAny<ApplicationUserEntity>()))
             .ReturnsAsync((1, 2));
 
         _validatorMock = new Mock<IValidator<AccountRegistrationRequest>>();

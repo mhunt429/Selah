@@ -8,8 +8,7 @@ namespace IntegrationTests.Helpers;
 
 public static class TestHelpers
 {
-    public static string TestConnectionString { get; } =
-        "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres";
+    public static string TestConnectionString => "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres";
 
     public static AppDbContext BuildTestDbContext()
     {
@@ -19,8 +18,7 @@ public static class TestHelpers
 
         return new AppDbContext(options);
     }
-
-    public static SelahDbConnectionFactory TestDbFactory { get; } = new SelahDbConnectionFactory(TestConnectionString);
+    
 
     /// <summary>
     /// It's simple, most records need a user, and each user needs a single account
@@ -45,12 +43,13 @@ public static class TestHelpers
             EncryptedName = "FirstName|LastName"u8.ToArray(),
             EncryptedPhone = "123-123-1234"u8.ToArray(),
             LastLoginIp = "127.0.0.1",
-            EmailHash = "email"
+            EmailHash = "email",
+            UserAccount =  account,
         };
 
         var registrationRepository = new RegistrationRepository(dbContext);
 
-        (int, int) registrationResult = await registrationRepository.RegisterAccount(account, user);
+        (int, int) registrationResult = await registrationRepository.RegisterAccount(user);
 
         account.Id = registrationResult.Item1;
         user.Id = registrationResult.Item2;

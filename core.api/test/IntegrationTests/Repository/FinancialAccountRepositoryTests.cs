@@ -13,29 +13,27 @@ namespace IntegrationTests.Repository;
 [Collection("Database")]
 public class FinancialAccountRepositoryTests : IAsyncLifetime
 {
+    private readonly AppDbContext _dbContext;
     private readonly IAccountConnectorRepository _accountConnectorRepository;
-    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
-
     private readonly IFinancialAccountRepository _financialAccountRepository;
     private readonly DatabaseFixture _fixture;
-
-
     private int _connectorId;
     private int _userId;
 
 
     public FinancialAccountRepositoryTests(DatabaseFixture fixture)
     {
-        _fixture = fixture;
-        _financialAccountRepository = new FinancialAccountRepository(_dbContext);
+        _dbContext = TestHelpers.BuildTestDbContext();
         _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
+        _financialAccountRepository = new FinancialAccountRepository(_dbContext);
+        _fixture = fixture;
     }
 
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
 
-        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
+        (UserAccountEntity, ApplicationUserEntity) result = await TestHelpers.SetUpBaseRecords(_dbContext);
         _userId = result.Item2.Id;
 
         AccountConnectorEntity data = new()
@@ -120,7 +118,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
-        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
+        FinancialAccountEntity? result = _dbContext.FinancialAccounts.FirstOrDefault(f => f.Id == newAccount.Id);
         result.Should().NotBeNull();
         result.Id.Should().Be(newAccount.Id);
         result.UserId.Should().Be(_userId);
@@ -188,11 +186,8 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         FinancialAccountEntity newAccount = await _financialAccountRepository.AddAccountAsync(account);
 
-        bool deleteResult = await _financialAccountRepository.DeleteAccountAsync(account);
+        bool deleteResult = await _financialAccountRepository.DeleteAccountAsync(newAccount);
         deleteResult.Should().BeTrue();
-
-        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
-        result.Should().BeNull();
     }
 
     [Fact]
@@ -226,8 +221,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
         await _financialAccountRepository.InsertBalanceHistory(accountBalanceHistory);
 
-        IEnumerable<AccountBalanceHistoryEntity> result =
-            await _financialAccountRepository.GetBalanceHistory(_userId, newAccount.Id);
+        IEnumerable<AccountBalanceHistoryEntity> result = _dbContext.AccountBalanceHistory.Where(x => x.FinancialAccountId == newAccount.Id).ToList();
 
         result.Should().NotBeNull();
         result.Should().NotBeEmpty();

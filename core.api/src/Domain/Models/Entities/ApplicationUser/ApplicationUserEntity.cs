@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Domain.Models.Entities.UserAccount;
 
 namespace Domain.Models.Entities.ApplicationUser;
 
@@ -12,6 +13,9 @@ public class ApplicationUserEntity : BaseAuditFields
     public int Id { get; set; }
 
     [Column("account_id")] public int AccountId { get; set; }
+    
+    [ForeignKey("AccountId")]
+    public virtual required UserAccountEntity UserAccount { get; set; }
 
     [Column("created_date")] public DateTimeOffset CreatedDate { get; set; }
 
@@ -32,4 +36,5 @@ public class ApplicationUserEntity : BaseAuditFields
     [Column("email_verified")] public bool EmailVerified { get; set; }
 
     [Column("email_hash")] public required string EmailHash { get; set; }
+
 }

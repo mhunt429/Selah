@@ -19,14 +19,14 @@ public class SessionRepositoryTests : IAsyncLifetime
     public SessionRepositoryTests(DatabaseFixture fixture)
     {
         _fixture = fixture;
-        _userSessionRepository = new UserSessionRepository(TestHelpers.TestDbFactory);
+        _userSessionRepository = new UserSessionRepository(_dbContext);
     }
 
 
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
+        var result = await TestHelpers.SetUpBaseRecords(_dbContext);
         _userId = result.Item2.Id;
     }
 

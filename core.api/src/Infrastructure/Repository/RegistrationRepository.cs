@@ -1,35 +1,16 @@
 using Domain.Models.Entities.ApplicationUser;
 using Domain.Models.Entities.UserAccount;
+using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
 public class RegistrationRepository(AppDbContext dbContext) : IRegistrationRepository
 {
-    public async Task<(int, int)> RegisterAccount(UserAccountEntity userAccount, ApplicationUserEntity user)
+    public async Task<(int, int)> RegisterAccount(ApplicationUserEntity user)
     {
-        using (var transaction = await dbContext.Database.BeginTransactionAsync())
-        {
-            try
-            {
-                dbContext.UserAccounts.Add(userAccount);
+        await dbContext.ApplicationUsers.AddAsync(user);
+        await dbContext.SaveChangesAsync();
 
-                await dbContext.SaveChangesAsync();
-
-                user.AccountId = userAccount.Id;
-
-                dbContext.ApplicationUsers.Add(user);
-
-                await dbContext.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                return (userAccount.Id, user.Id);
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
+        return (user.AccountId, user.Id);
     }
 }

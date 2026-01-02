@@ -13,6 +13,4 @@ public interface IUserSessionRepository
     Task RevokeSessionsByUser(int userId);
 
     Task<int> GetActiveSessions();
-
-    Task<ApplicationUserEntity?> GetUserByActiveSessionId(Guid sessionId);
 }

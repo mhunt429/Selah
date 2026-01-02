@@ -6,6 +6,7 @@ using Domain.Models.Entities.UserAccount;
 using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure.Repository;
+using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -40,12 +41,11 @@ public class RegistrationService
             return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Failed, data: null,
                 message: string.Join(",", validationResult.Errors.Select(x => x.ErrorMessage)));
         }
-
-        UserAccountEntity userAccountEntity = MapRequestToUserAccount(request);
+        
         ApplicationUserEntity applicationUserEntity = MapRequestToUser(request);
 
         (int, int) registrationResult =
-            await _registrationRepository.RegisterAccount(userAccountEntity, applicationUserEntity);
+            await _registrationRepository.RegisterAccount(applicationUserEntity);
 
         AccessTokenResponse accessTokenResponse = await _tokenService.GenerateAccessToken(registrationResult.Item2);
 
@@ -75,7 +75,12 @@ public class RegistrationService
             PhoneVerified = false,
             EmailVerified = false,
             EmailHash = _cryptoService.HashValue(request.Email),
-            CreatedDate = DateTimeOffset.UtcNow
+            CreatedDate = DateTimeOffset.UtcNow,
+            UserAccount = new UserAccountEntity
+            {
+                AccountName = request.AccountName,
+                CreatedOn = DateTimeOffset.UtcNow,
+            }
         };
     }
 }

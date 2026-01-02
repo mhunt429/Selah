@@ -6,13 +6,14 @@ using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.Repository;
 
-public class UserSessionRepository(IDbConnectionFactory dbConnectionFactory)
-    : BaseRepository(dbConnectionFactory), IUserSessionRepository
+public class UserSessionRepository(AppDbContext dbContext)
+    : IUserSessionRepository
 {
     public async Task<UserSessionEntity?> GetUserSessionAsync(int userId)
     {
-        return await GetFirstOrDefaultAsync<UserSessionEntity>("select * from user_session where user_id = @user_id",
-            new { user_id = userId });
+        return await dbContext.UserSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == userId);
     }
 
     /// <summary>
@@ -21,44 +22,20 @@ public class UserSessionRepository(IDbConnectionFactory dbConnectionFactory)
     /// <param name="userSession"></param>
     public async Task IssueSession(UserSessionEntity userSession)
     {
-        await RevokeSessionsByUser(userSession.UserId);
-
-        string sql =
-            @"INSERT INTO user_session(id, user_id, issued_at, 
-                         expires_at, 
-                         app_last_changed_by) 
-                         VALUES (@id, @user_id, @issued_at, @expires_at, @app_last_changed_by)";
-
-        await AddAsync<int>(sql, new
-        {
-            id = userSession.Id,
-            user_id = userSession.UserId,
-            issued_at = userSession.IssuedAt,
-            expires_at = userSession.ExpiresAt,
-            app_last_changed_by = userSession.AppLastChangedBy
-        });
+        dbContext.UserSessions.Remove(userSession);
+        
+        await dbContext.UserSessions.AddAsync(userSession);
+        
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task RevokeSessionsByUser(int userId)
     {
-        await DeleteAsync("DELETE FROM user_session WHERE user_id = @user_id", new { user_id = userId });
+        await dbContext.UserSessions.Where(x => x.UserId == userId).ExecuteDeleteAsync();
     }
 
     public async Task<int> GetActiveSessions()
     {
-        string sql = "SELECT COUNT(*) FROM user_session WHERE expires_at > @currentDate";
-
-        return await GetFirstOrDefaultAsync<int>(sql, new { currentDate = DateTimeOffset.UtcNow });
-    }
-
-    public async Task<ApplicationUserEntity> GetUserByActiveSessionId(Guid sessionId)
-    {
-        string sql = @"SELECT u.*
-            FROM app_user u
-            INNER JOIN user_session us on u.id = us.user_id
-            where us.id = @id
-            AND expires_at > now()";
-
-        return await GetFirstOrDefaultAsync<ApplicationUserEntity>(sql, new { id = sessionId });
+        return await dbContext.UserSessions.Where(x => x.ExpiresAt == DateTimeOffset.UtcNow).CountAsync();
     }
 }

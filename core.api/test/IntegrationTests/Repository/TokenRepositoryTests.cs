@@ -9,7 +9,7 @@ namespace IntegrationTests.Repository;
 [Collection("Database")]
 public class TokenRepositoryTests : IAsyncLifetime
 {
-    private readonly IDbConnectionFactory _dbConnectionFactory = TestHelpers.TestDbFactory;
+    private readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
     private TokenRepository _tokenRepo;
 
     private readonly DatabaseFixture _fixture;
@@ -18,7 +18,7 @@ public class TokenRepositoryTests : IAsyncLifetime
     public TokenRepositoryTests(DatabaseFixture fixture)
     {
         _fixture = fixture;
-        _tokenRepo = new TokenRepository(_dbConnectionFactory);
+        _tokenRepo = new TokenRepository(_dbContext);
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class TokenRepositoryTests : IAsyncLifetime
         var entityToSave = new TokenEntity
         {
             UserId = _userId,
-            Token = "abc123",
+            Token =  Guid.NewGuid().ToString(),
             TokenType = TokenType.AccessToken,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
             CreatedAt = DateTimeOffset.UtcNow
@@ -50,7 +50,7 @@ public class TokenRepositoryTests : IAsyncLifetime
         var entityToSave = new TokenEntity
         {
             UserId = _userId,
-            Token = "abc123",
+            Token = Guid.NewGuid().ToString(),
             TokenType = TokenType.RefreshToken,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
             CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)
@@ -79,7 +79,7 @@ public class TokenRepositoryTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
+        var result = await TestHelpers.SetUpBaseRecords(_dbContext);
         _userId = result.Item2.Id;
     }
 

@@ -4,21 +4,24 @@ using Infrastructure;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using IntegrationTests.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntegrationTests.Repository;
 
 [Collection("Database")]
 public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLifetime
 {
-    private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(TestHelpers.BuildTestDbContext());
-    private readonly BaseRepository _baseRepository = new(TestHelpers.TestDbFactory);
+
+    private static readonly AppDbContext _dbContext = TestHelpers.BuildTestDbContext();
+    
+    private readonly IAccountConnectorRepository _accountConnectorRepository = new AccountConnectorRepository(_dbContext);
 
     private int _userId;
 
     public async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
-        var result = await TestHelpers.SetUpBaseRecords(TestHelpers.BuildTestDbContext());
+        var result = await TestHelpers.SetUpBaseRecords(_dbContext);
 
         _userId = result.Item2.Id;
     }
@@ -45,10 +48,9 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
         };
         int connectorId = await _accountConnectorRepository.InsertAccountConnectorRecord(data);
 
-        var queryResult =
-            await _baseRepository.GetFirstOrDefaultAsync<AccountConnectorEntity>(
-                "SELECT * FROM account_connector WHERE user_id = @user_id", new { user_id = _userId });
-
+        var queryResult = await _dbContext.AccountConnectors
+            .FirstOrDefaultAsync(x => x.UserId == _userId);
+        
         connectorId.Should().BeGreaterThan(0);
         queryResult.Should().NotBeNull();
         queryResult.UserId.Should().Be(_userId);
