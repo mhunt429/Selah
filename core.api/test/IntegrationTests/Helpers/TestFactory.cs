@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.RateLimiting;
 using Domain.Configuration;
+using Domain.Shared;
 using Infrastructure;
 using Infrastructure.Services;
 using Infrastructure.Services.Interfaces;
@@ -51,9 +52,9 @@ public class TestFactory : WebApplicationFactory<Program>
 
             services.AddSingleton(new SecurityConfig
             {
-                JwtSecret = "DontUseThisInProduction",
-                HashIdSalt = "DontUseThisInProduction",
-                CryptoSecret = "DontUseThisInProduction",
+                JwtSecret = StringUtilities.GenerateJwtSecret(),
+                HashIdSalt =  StringUtilities.ConvertToBase64("DontUseThisInProduction"),
+                CryptoSecret =  StringUtilities.GenerateAesSecret(),
                 AccessTokenExpiryMinutes = 30,
                 RefreshTokenExpiryDays = 3
             });

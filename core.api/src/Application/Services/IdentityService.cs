@@ -32,7 +32,7 @@ public class IdentityService
         string hashedEmail = _cryptoService.HashValue(request.Email);
         ApplicationUserEntity? dbUser = await _userRepository.GetUserByEmail(hashedEmail);
 
-        if (dbUser == null) return new LoginResult(false, null);
+        if (dbUser == null) return new LoginResult(LoginStatus.Failed, null);
 
         if (_passwordHasherService.VerifyPassword(request.Password, dbUser.Password))
         {
@@ -50,18 +50,18 @@ public class IdentityService
                 ExpiresAt = sessionExpiration
             });
             AccessTokenResponse rsp = await _tokenService.GenerateAccessToken(dbUser.Id, request.RememberMe);
-            return new LoginResult(true, rsp);
+            return new LoginResult(LoginStatus.Success, rsp);
         }
 
-        return new LoginResult(false, null);
+        return new LoginResult(LoginStatus.Failed, null);
     }
     
     
     public async Task<LoginResult> RefreshAccessToken(RefreshTokenRequest request)
     {
         AccessTokenResponse? rsp = await _tokenService.RefreshToken(request.RefreshToken);
-        if (rsp is null) return new LoginResult(false, null);
+        if (rsp is null) return new LoginResult(LoginStatus.Failed, null);
 
-        return new LoginResult(true, rsp);
+        return new LoginResult(LoginStatus.Success, rsp);
     }
 }

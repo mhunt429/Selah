@@ -44,14 +44,14 @@ public class IdentityController(IdentityService identityService, AppUserService 
     {
         LoginResult result = await identityService.Login(request);
 
-        if (!result.Success || result.AccessTokenResponse is null)
+        if (result is {Status: LoginStatus.Failed})
         {
             return Unauthorized();
         }
 
         if (request.RememberMe)
         {
-            Response.Cookies.Append("x_session_id", result.AccessTokenResponse.SessionId.ToString(), new CookieOptions
+            Response.Cookies.Append("x_session_id", result!.AccessTokenResponse!.SessionId.ToString(), new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -59,7 +59,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
             });
         }
 
-        Response.Cookies.Append("x_api_token", result.AccessTokenResponse.AccessToken, new CookieOptions
+        Response.Cookies.Append("x_api_token", result!.AccessTokenResponse!.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -75,7 +75,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         LoginResult result = await identityService.RefreshAccessToken(request);
-        if (!result.Success) return Unauthorized();
+        if (result is {Status: LoginStatus.Failed}) return Unauthorized();
 
         return Ok(result.AccessTokenResponse.ToBaseHttpResponse(HttpStatusCode.OK));
     }
