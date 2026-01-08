@@ -1,0 +1,11 @@
+namespace Domain.ApiContracts.Connector;
+
+public enum WebhookType
+{
+    HISTORICAL_UPDATE,
+    RECURRING_TRANSACTIONS_UPDATE,
+    SYNC_UPDATES_AVAILABLE,
+    PENDING_DISCONNECT,
+    NEW_ACCOUNTS_AVAILABLE,
+    ERROR
+}

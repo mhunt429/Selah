@@ -40,6 +40,12 @@ public class AccountConnectorEventChannel : BackgroundService
                         await importService.ImportAccountBalancesAsync(connectorDataSyncEvent);
                         break;
                     }
+                    
+                    case EventType.TransactionImport:
+                    {
+                        break;
+                    } 
+                        
                     case EventType.UpdateCredentials:
                         //Send notification to use that they need to re-authenticate with their bank
                         await HandleReauthNotification(connectorDataSyncEvent);

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Models;
 using Domain.ApiContracts;
 using Domain.ApiContracts.Identity;
+using Domain.Constants;
 using Domain.Results;
 using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Extensions;
@@ -39,7 +40,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
 
     [AllowAnonymous]
     [HttpPost("login")]
-    [EnableRateLimiting("PublicEndpointPolicy")]
+    [EnableRateLimiting(Constants.PublicEndpointPolicy)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         LoginResult result = await identityService.Login(request);
@@ -71,7 +72,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
 
     [AllowAnonymous]
     [HttpPost("refresh-token")]
-    [EnableRateLimiting("PublicEndpointPolicy")]
+    [EnableRateLimiting(Constants.PublicEndpointPolicy)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         LoginResult result = await identityService.RefreshAccessToken(request);

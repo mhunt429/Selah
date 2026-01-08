@@ -12,6 +12,8 @@ public class ConnectorDataSyncEvent : IntegrationEvent
     
     public int UserId { get; set; }
     
+    public string? ItemId { get; set; }
+    
     public required EventType EventType { get; set; }
     
     public PlaidApiErrorResponse?  Error { get; set; }

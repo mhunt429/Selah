@@ -1,6 +1,7 @@
 using System.Net;
 using Application.Services;
 using Domain.ApiContracts.Mailbox;
+using Domain.Constants;
 using Domain.Models.Entities.Mailbox;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace WebApi.Controllers;
 [ApiController]
 [Authorize]
 [ValidAppRequestContextFilter]
-[EnableRateLimiting("UserTokenPolicy")]
+[EnableRateLimiting(Constants.UserTokenPolicy)]
 [Route("api/[controller]")]
 public class MailboxController(UserMailboxService mailboxService) : ControllerBase
 {

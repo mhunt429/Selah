@@ -55,7 +55,7 @@ public class Program
         builder.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
-                policy.WithOrigins(ClientUrls.Localhost, ClientUrls.Production)
+                policy.WithOrigins(Constants.Localhost, Constants.Production)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials());

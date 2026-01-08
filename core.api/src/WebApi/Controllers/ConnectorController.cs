@@ -1,5 +1,6 @@
 using System.Net;
 using Application.Services;
+using Domain.Constants;
 using Domain.Models;
 using Domain.Models.Plaid;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,7 @@ namespace WebApi.Controllers;
 [ApiController]
 [Authorize]
 [ValidAppRequestContextFilter]
-[EnableRateLimiting("UserTokenPolicy")]
+[EnableRateLimiting(Constants.UserTokenPolicy)]
 [Route("api/[controller]")]
 public class ConnectorController : ControllerBase
 {

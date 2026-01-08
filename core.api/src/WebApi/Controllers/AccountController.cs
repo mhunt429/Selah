@@ -4,6 +4,7 @@ using Application.Services;
 using Domain.ApiContracts;
 using Domain.ApiContracts.AccountRegistration;
 using Domain.ApiContracts.Identity;
+using Domain.Constants;
 using Domain.Models;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -11,7 +12,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [AllowAnonymous]
-    [EnableRateLimiting("PublicEndpointPolicy")]
+    [EnableRateLimiting(Constants.UserTokenPolicy)]
     [Route("api/[controller]")]
     public class AccountController(RegistrationService registrationService) : ControllerBase
     {
