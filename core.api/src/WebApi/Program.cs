@@ -5,7 +5,6 @@ using Infrastructure.Services.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Npgsql;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -71,7 +70,6 @@ public class Program
             {
                 tracing
                     .AddAspNetCoreInstrumentation()
-                    .AddNpgsql()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter();
@@ -95,6 +93,10 @@ public class Program
         builder.Services.AddMetrics();
 
         builder.Logging.ClearProviders();
+        
+        // Filter out EF Core database command logs before adding OpenTelemetry
+        builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+        
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.IncludeFormattedMessage = true;
