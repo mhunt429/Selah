@@ -8,9 +8,14 @@ public class TokenRepository(AppDbContext dbContext)
 {
     public async Task SaveTokenAsync(TokenEntity token)
     {
-        await dbContext.Tokens
+        var existingTokens = await dbContext.Tokens
             .Where(x => x.UserId == token.UserId && x.TokenType == token.TokenType)
-            .ExecuteDeleteAsync();
+            .ToListAsync();
+        
+        if (existingTokens.Any())
+        {
+            dbContext.Tokens.RemoveRange(existingTokens);
+        }
 
         var newToken = new TokenEntity
         {

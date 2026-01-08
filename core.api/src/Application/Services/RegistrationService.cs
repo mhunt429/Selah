@@ -47,7 +47,11 @@ public class RegistrationService
         (int, int) registrationResult =
             await _registrationRepository.RegisterAccount(applicationUserEntity);
 
-        AccessTokenResponse accessTokenResponse = await _tokenService.GenerateAccessToken(registrationResult.Item2);
+        // Ensure the user is fully committed before generating token
+        // This prevents foreign key constraint violations when tests run together
+        var userId = registrationResult.Item2;
+        
+        AccessTokenResponse accessTokenResponse = await _tokenService.GenerateAccessToken(userId);
 
         _logger.LogInformation("User with id {id} was successfully created", registrationResult.Item2);
         return new ApiResponseResult<AccessTokenResponse>(status: ResultStatus.Success, data: accessTokenResponse,
