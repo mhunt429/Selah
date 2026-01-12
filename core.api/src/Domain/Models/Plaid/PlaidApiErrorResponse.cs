@@ -10,3 +10,8 @@ public class PlaidApiErrorResponse
 
     [JsonPropertyName("error_message")] public string? ErrorMessage { get; set; }
 }
+
+public static class ErrorCodes
+{
+    public static readonly string LoginRequired = "ITEM_LOGIN_REQUIRED";
+}

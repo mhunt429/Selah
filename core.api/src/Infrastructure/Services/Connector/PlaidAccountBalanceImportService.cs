@@ -1,7 +1,9 @@
+using System.Threading.Channels;
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Plaid;
+using Infrastructure.Extensions;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -13,7 +15,8 @@ public class PlaidAccountBalanceImportService(
     IFinancialAccountRepository financialAccountRepository,
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidAccountBalanceImportService> logger,
-    IAccountConnectorRepository accountConnectorRepository)
+    IAccountConnectorRepository accountConnectorRepository,
+    ChannelWriter<ConnectorDataSyncEvent> publisher)
 {
     public async Task ImportAccountBalancesAsync(ConnectorDataSyncEvent syncEvent)
     {
@@ -25,6 +28,11 @@ public class PlaidAccountBalanceImportService(
         {
             logger.LogError("Account Balance Update failed for user {UserId} with error {ErrorMsg}", syncEvent.UserId,
                 balancesResponse.message);
+
+            syncEvent.ParseErrorResponse(balancesResponse.message);
+            
+            await publisher.WriteAsync(syncEvent);
+            
             return;
         }
 

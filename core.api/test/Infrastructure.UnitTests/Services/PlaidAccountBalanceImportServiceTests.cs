@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Entities.FinancialAccount;
@@ -7,7 +8,7 @@ using Infrastructure.Services.Connector;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Infrastructure.UnitTests.Services;
 
@@ -16,24 +17,26 @@ public class PlaidAccountBalanceImportServiceTests
     private readonly Mock<ICryptoService> _mockCryptoService;
     private readonly Mock<IFinancialAccountRepository> _mockFinancialAccountRepository;
     private readonly Mock<IPlaidHttpService> _mockPlaidHttpService;
-    private readonly Mock<ILogger<PlaidAccountBalanceImportService>> _mockLogger;
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
     private readonly PlaidAccountBalanceImportService _service;
+    private readonly Mock<ChannelWriter<ConnectorDataSyncEvent>> mockChannelWriter;
 
     public PlaidAccountBalanceImportServiceTests()
     {
         _mockCryptoService = new Mock<ICryptoService>();
         _mockFinancialAccountRepository = new Mock<IFinancialAccountRepository>();
         _mockPlaidHttpService = new Mock<IPlaidHttpService>();
-        _mockLogger = new Mock<ILogger<PlaidAccountBalanceImportService>>();
+        var mockLogger = new Mock<ILogger<PlaidAccountBalanceImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
+        mockChannelWriter = new Mock<ChannelWriter<ConnectorDataSyncEvent>>();
 
         _service = new PlaidAccountBalanceImportService(
             _mockCryptoService.Object,
             _mockFinancialAccountRepository.Object,
             _mockPlaidHttpService.Object,
-            _mockLogger.Object,
-            _mockAccountConnectorRepository.Object);
+            mockLogger.Object,
+            _mockAccountConnectorRepository.Object,
+            mockChannelWriter.Object);
     }
 
     [Fact]
@@ -286,5 +289,45 @@ public class PlaidAccountBalanceImportServiceTests
                 It.IsAny<DateTimeOffset>()),
             Times.Never);
     }
-}
 
+    [Fact]
+    public async Task ImportAccountBalancesAsync_CanHandleAndParseError()
+    {
+        var syncEvent = new ConnectorDataSyncEvent
+        {
+            UserId = 123,
+            DataSyncId = 1,
+            ConnectorId = 1,
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.BalanceImport
+        };
+
+        var responseBody = new PlaidApiErrorResponse
+        {
+            ErrorCode = "ITEM_LOGIN_REQUIRED",
+            ErrorMessage = "the login details of this item have changed"
+        };
+        
+        _mockPlaidHttpService
+            .Setup(x => x.GeAccountBalance(It.IsAny<string>()))
+            .ReturnsAsync(new ApiResponseResult<PlaidBalanceApiResponse>(
+                ResultStatus.Failed,
+                JsonSerializer.Serialize(responseBody),
+                null));
+        
+        await _service.ImportAccountBalancesAsync(syncEvent);
+        
+        mockChannelWriter.Verify(
+            x => x.WriteAsync(It.Is<ConnectorDataSyncEvent>(e =>
+                e.UserId == 123 &&
+                e.DataSyncId == 1 &&
+                e.ConnectorId == 1 &&
+                e.EventType == EventType.BalanceImport &&
+                e.Error != null &&
+                e.Error.ErrorCode == responseBody.ErrorCode &&
+                e.Error.ErrorMessage == responseBody.ErrorMessage
+            )),
+            Times.Once
+        );
+    }
+}

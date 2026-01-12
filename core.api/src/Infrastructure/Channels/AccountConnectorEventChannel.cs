@@ -2,6 +2,7 @@ using System.Threading.Channels;
 using Domain.Events;
 using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Entities.Mailbox;
+using Domain.Models.Plaid;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Connector;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,13 @@ public class AccountConnectorEventChannel : BackgroundService
         {
             while (_reader.TryRead(out ConnectorDataSyncEvent? connectorDataSyncEvent))
             {
+                if (connectorDataSyncEvent.Error != null &&
+                    connectorDataSyncEvent.Error.ErrorCode == ErrorCodes.LoginRequired)
+                {
+                    await HandleReauthNotification(connectorDataSyncEvent);
+                    return;
+                }
+
                 switch (connectorDataSyncEvent.EventType)
                 {
                     case EventType.BalanceImport:
@@ -45,11 +53,7 @@ public class AccountConnectorEventChannel : BackgroundService
                     {
                         break;
                     } 
-                        
-                    case EventType.UpdateCredentials:
-                        //Send notification to use that they need to re-authenticate with their bank
-                        await HandleReauthNotification(connectorDataSyncEvent);
-                        break;
+             
                 }
             }
         }
