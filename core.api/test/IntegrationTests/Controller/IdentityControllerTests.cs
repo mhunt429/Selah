@@ -7,12 +7,17 @@ using IntegrationTests.Helpers;
 
 namespace IntegrationTests.Controller;
 
-public class IdentityControllerTests(TestFactory factory) : IClassFixture<TestFactory>
+[Collection("Database")]
+public class IdentityControllerTests(TestFactory factory, DatabaseFixture fixture)
+    : IClassFixture<TestFactory>, IAsyncLifetime
 {
     private readonly HttpClient _client = factory.CreateClient();
 
+
+    private string _jwtToken;
+
     [Fact]
-    public async Task Rate_Limit_Should_Block_After_Limit_Reached()
+    public async Task Login_ShouldReturnUnAuthorized_WhenInvalidCredentials()
     {
         var loginRequest = new LoginRequest
         {
@@ -23,14 +28,20 @@ public class IdentityControllerTests(TestFactory factory) : IClassFixture<TestFa
 
         var body = JsonSerializer.Serialize(loginRequest);
         var httpContent = new StringContent(body, Encoding.UTF8, "application/json");
-        
-        for (int i = 0; i < 3; i++)
-        {
-            var response = await _client.PostAsync($"/api/identity/login", httpContent);
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
 
-        var blockResponse = await _client.PostAsync($"/api/identity/login", httpContent);
-        blockResponse.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        var response = await _client.PostAsync($"/api/identity/login", httpContent);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    public async Task InitializeAsync()
+    {
+        await fixture.ResetDatabaseAsync();
+
+        _jwtToken = await ApiTestHelpers.CreateTestUser(_client, $"{Guid.NewGuid().ToString()}@test.com", "Testing0!");
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 }

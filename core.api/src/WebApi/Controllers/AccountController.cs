@@ -12,7 +12,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [AllowAnonymous]
-    [EnableRateLimiting(Constants.UserTokenPolicy)]
+    [EnableRateLimiting(Constants.PublicEndpointPolicy)]
     [Route("api/[controller]")]
     public class AccountController(RegistrationService registrationService) : ControllerBase
     {
