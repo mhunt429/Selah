@@ -22,6 +22,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
     /// </summary>
     /// <returns></returns>
     [Authorize]
+    [EnableRateLimiting(Constants.UserTokenPolicy)]
     [HttpGet("current-user")]
     public async Task<IActionResult> GetCurrentUser()
     {

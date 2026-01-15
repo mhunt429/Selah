@@ -28,17 +28,51 @@ public static class RateLimitingExtensions
 
             options.AddPolicy("UserTokenPolicy", context =>
             {
-                var accessToken = context.Request.Cookies["x_api_token"] ?? "anonymous";
+                var accessToken = GetAccessTokenFromRequest(context.Request);
+                
+                // Use SlidingWindowLimiter for IntegrationTests for more predictable behavior
+                if (env.EnvironmentName == "IntegrationTests")
+                {
+                    return RateLimitPartition.GetSlidingWindowLimiter(
+                        accessToken,
+                        _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(1),
+                            SegmentsPerWindow = 4,
+                            QueueLimit = 0
+                        });
+                }
+                
                 return RateLimitPartition.GetTokenBucketLimiter(
                     accessToken,
                     _ => new TokenBucketRateLimiterOptions
                     {
-                        TokenLimit = env.EnvironmentName == "IntegrationTests" ? 3 : 100,
+                        TokenLimit = 100,
                         TokensPerPeriod = 10,
                         ReplenishmentPeriod = TimeSpan.FromMinutes(1),
                         QueueLimit = 0
                     });
             });
         });
+    }
+
+    private static string GetAccessTokenFromRequest(HttpRequest request)
+    {
+        var accessToken = request.Cookies["x_api_token"];
+
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            accessToken =request.Headers["Authorization"]
+                .FirstOrDefault(h => h.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
+                ?.Substring("Bearer ".Length);
+            
+            if (string.IsNullOrWhiteSpace(accessToken))
+            {
+                return "anonymous";
+            }
+        }
+        
+        return accessToken;
     }
 }

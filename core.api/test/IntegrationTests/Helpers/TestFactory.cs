@@ -50,9 +50,12 @@ public class TestFactory : WebApplicationFactory<Program>
                 BaseUrl = "https://sandbox.plaid.com"
             });
 
+            // Use a consistent JWT secret for both token generation and validation
+            const string testJwtSecret = "DontUseThisInProductionDontUseThisInProductionDontUseThisInProductionDontUseThisInProduction";
+            
             services.AddSingleton(new SecurityConfig
             {
-                JwtSecret = StringUtilities.GenerateJwtSecret(),
+                JwtSecret = testJwtSecret,
                 HashIdSalt =  StringUtilities.ConvertToBase64("DontUseThisInProduction"),
                 CryptoSecret =  StringUtilities.GenerateAesSecret(),
                 AccessTokenExpiryMinutes = 30,
@@ -82,7 +85,7 @@ public class TestFactory : WebApplicationFactory<Program>
                 {
                     ValidIssuer = "selah-api",
                     ValidAudience = "selah-api",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("DontUseThisInProduction")),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(testJwtSecret)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
