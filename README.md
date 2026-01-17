@@ -1,6 +1,7 @@
 # Selah
 
 Core API Build Status: ![Build Status](https://github.com/mhunt429/Selah/actions/workflows/core-api.yml/badge.svg)
+[![codecov](https://codecov.io/gh/mhunt429/Selah/branch/main/graph/badge.svg)](https://codecov.io/gh/mhunt429/Selah)
 
 Selah is a financial management application with a .NET Core API backend and Angular frontend.
 
@@ -32,6 +33,7 @@ docker compose up -d
 ```
 
 This will start:
+
 - **PostgreSQL** on port `55432` (main database)
 - **PostgreSQL** on port `65432` (test database)
 - **RabbitMQ** on port `5672` (management UI on port `15672`)
@@ -152,6 +154,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 Copy the output and use it as the value for `SecurityConfig.JwtSecret`.
 
 **Example output:**
+
 - AES Key (32 bytes): `VThScBiMoqHx1GoIiDfCLxBIwDEHkPFDib/MWYEvBWw=`
 - JWT Key (64 bytes): `TzQ+fsT13LSQ8oc6WQjHqiixB9wRYl8YrnECfoosORi7amkMD4z0eVf64eleZtiD5KBLelwenj6b94VOQCsjzA==`
 
@@ -177,6 +180,7 @@ dotnet run --project src/WebApi/WebApi.csproj
 The API will be available at `https://localhost:5001` (or the port configured in `launchSettings.json`).
 
 In development mode, you can access:
+
 - Swagger UI: `https://localhost:5001/swagger`
 - Scalar API Reference: `https://localhost:5001/scalar/v1`
 - Health Check: `https://localhost:5001/hc`
@@ -236,6 +240,7 @@ dotnet test
 ### Database Migrations
 
 When creating new migrations, add them to `database/Migrations/` following the Flyway naming convention:
+
 - `V{version}__{description}.sql`
 
 Then run the migration script:
@@ -247,6 +252,7 @@ Then run the migration script:
 ### RabbitMQ Management
 
 Access the RabbitMQ management UI at `http://localhost:15672` with credentials:
+
 - Username: `guest`
 - Password: `guest`
 

@@ -111,6 +111,15 @@ jobs:
         with:
           trx_files: "${{ github.workspace }}/**/*.trx"
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ${{ github.workspace }}/Cobertura.xml
+          fail_ci_if_error: false
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       # - name: Add Coverage PR Comment
       #  uses: marocchino/sticky-pull-request-comment@v2
       #  with:
