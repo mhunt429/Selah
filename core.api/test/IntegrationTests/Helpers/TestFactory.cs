@@ -26,14 +26,6 @@ public class TestFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("IntegrationTests");
         builder.ConfigureServices(services =>
         {
-            var descriptor = services.FirstOrDefault(
-                s => s.ServiceType == typeof(RateLimiterOptions));
-
-            if (descriptor != null)
-            {
-                services.Remove(descriptor);
-            }
-            
             services.AddSingleton<IDbConnectionFactory>(provider => new SelahDbConnectionFactory("User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres"));
 
             services.AddSingleton(new AwsConfig

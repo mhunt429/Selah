@@ -33,7 +33,7 @@ public class RateLimitTests(TestFactory factory, DatabaseFixture fixture) : ICla
         var defaultHttpContent = new StringContent(jsonBody, Encoding.UTF8, "application/json");
         
         // For IntegrationTests, the limit is 3, so make 3 requests then expect the 4th to be blocked
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 20; i++)
         {
             var response = await client.PostAsync("/api/webhooks/plaid", defaultHttpContent);
             response.EnsureSuccessStatusCode();
@@ -47,12 +47,11 @@ public class RateLimitTests(TestFactory factory, DatabaseFixture fixture) : ICla
     public async Task PrivateEndpointPolicy_Rate_Limit_Should_Block_After_ExceededLimit()
     {
         // Create a unique client per test with a unique JWT token to avoid sharing rate limiter state
-        var jwt = await ApiTestHelpers.CreateTestUser(_factory.CreateClient(), $"{Guid.NewGuid().ToString()}@test.com", "Testing0!");
+        var jwt = (await ApiTestHelpers.CreateTestUser(_factory.CreateClient(), $"{Guid.NewGuid().ToString()}@test.com", "Testing0!")).Item1;
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
         
-        // For IntegrationTests, the limit is 3, so make 3 requests then expect the 4th to be blocked
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 100; i++)
         {
             var response = await client.GetAsync("/api/identity/current-user");
             response.EnsureSuccessStatusCode();

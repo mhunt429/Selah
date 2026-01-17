@@ -8,7 +8,16 @@ namespace IntegrationTests.Helpers;
 
 public static class ApiTestHelpers
 {
-    public static async Task<string> CreateTestUser(HttpClient client, string email, string password)
+    /// <summary>
+    /// Returns a tuple of two string
+    /// 1. JWT Access Token
+    /// 2. Refresh Token
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="email"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
+    public static async Task<(string, string)> CreateTestUser(HttpClient client, string email, string password)
     {
         AccountRegistrationRequest loginRequest = new()
         {
@@ -32,6 +41,28 @@ public static class ApiTestHelpers
         
         BaseHttpResponse<AccessTokenResponse>  rsp = JsonSerializer.Deserialize<BaseHttpResponse<AccessTokenResponse>>(responseString);
         
-        return rsp.Data.AccessToken;
+        return (rsp.Data.AccessToken, rsp.Data.RefreshToken);
+    }
+
+    public static void GenerateClientHeaders(this HttpClient client, string jwt = "")
+    {
+        var uniqueIp = $"192.168.3.{new Random().Next(100, 255)}";
+        client.DefaultRequestHeaders.Add("X-Forwarded-For", uniqueIp);
+        
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {jwt}");
+    }
+    
+    
+    //In the event of parallel test execution or out-of-order test, clear this out so the headers don't bleed over
+    public static void ClearAuthHeader(this HttpClient client)
+    {
+        client.DefaultRequestHeaders.Remove("Authorization");
+    }
+    
+    public static StringContent BuildRequestBody<T>(this T body)
+    {
+        var json = JsonSerializer.Serialize(body);
+       
+       return new StringContent(json, Encoding.UTF8, "application/json");
     }
 }

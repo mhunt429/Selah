@@ -8,52 +8,38 @@ public static class RateLimitingExtensions
     {
         services.AddRateLimiter(options =>
         {
-            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+          options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            options.AddPolicy("PublicEndpointPolicy", context =>
-            {
-                var ip = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
-                         ?? context.Connection.RemoteIpAddress?.ToString()
-                         ?? "unknown";
-                return RateLimitPartition.GetSlidingWindowLimiter(
-                    ip,
-                    _ => new SlidingWindowRateLimiterOptions
-                    {
-                        PermitLimit = env.EnvironmentName == "IntegrationTests" ? 3 : 20,
-                        Window = TimeSpan.FromMinutes(1),
-                        SegmentsPerWindow = 4,
-                        QueueLimit = 0
-                    });
-            });
-
-            options.AddPolicy("UserTokenPolicy", context =>
-            {
-                var accessToken = GetAccessTokenFromRequest(context.Request);
-                
-                // Use SlidingWindowLimiter for IntegrationTests for more predictable behavior
-                if (env.EnvironmentName == "IntegrationTests")
+                options.AddPolicy("PublicEndpointPolicy", context =>
                 {
+                    var ip = context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                             ?? context.Connection.RemoteIpAddress?.ToString()
+                             ?? "unknown";
                     return RateLimitPartition.GetSlidingWindowLimiter(
-                        accessToken,
+                        ip,
                         _ => new SlidingWindowRateLimiterOptions
                         {
-                            PermitLimit = 3,
+                            PermitLimit = 20,
                             Window = TimeSpan.FromMinutes(1),
                             SegmentsPerWindow = 4,
                             QueueLimit = 0
                         });
-                }
-                
-                return RateLimitPartition.GetTokenBucketLimiter(
-                    accessToken,
-                    _ => new TokenBucketRateLimiterOptions
-                    {
-                        TokenLimit = 100,
-                        TokensPerPeriod = 10,
-                        ReplenishmentPeriod = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0
-                    });
-            });
+                });
+
+                options.AddPolicy("UserTokenPolicy", context =>
+                {
+                    var accessToken = GetAccessTokenFromRequest(context.Request);
+
+                    return RateLimitPartition.GetTokenBucketLimiter(
+                        accessToken,
+                        _ => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 100,
+                            TokensPerPeriod = 10,
+                            ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        });
+                });
         });
     }
 
@@ -63,16 +49,16 @@ public static class RateLimitingExtensions
 
         if (string.IsNullOrWhiteSpace(accessToken))
         {
-            accessToken =request.Headers["Authorization"]
+            accessToken = request.Headers["Authorization"]
                 .FirstOrDefault(h => h.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
                 ?.Substring("Bearer ".Length);
-            
+
             if (string.IsNullOrWhiteSpace(accessToken))
             {
                 return "anonymous";
             }
         }
-        
+
         return accessToken;
     }
 }

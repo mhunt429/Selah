@@ -14,15 +14,13 @@ public class IdentityControllerTests(TestFactory factory, DatabaseFixture fixtur
     private string _email = $"{Guid.NewGuid().ToString()}@test.com";
     private string _password = "Testing0!";
     private string _jwtToken = string.Empty;
+    private string _refreshToken = string.Empty;
+
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task Login_ShouldReturnUnAuthorized_WhenInvalidCredentials()
     {
-        // Create a unique client per test with a unique IP to avoid sharing rate limiter state
-        var uniqueIp = $"192.168.2.{new Random().Next(100, 255)}";
-        var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Forwarded-For", uniqueIp);
-        
         var loginRequest = new LoginRequest
         {
             Email = "invalid@test.com",
@@ -30,43 +28,80 @@ public class IdentityControllerTests(TestFactory factory, DatabaseFixture fixtur
             RememberMe = true
         };
 
-        var body = JsonSerializer.Serialize(loginRequest);
-        var httpContent = new StringContent(body, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync($"/api/identity/login", httpContent);
+        var response = await _client.PostAsync($"/api/identity/login", loginRequest.BuildRequestBody());
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task Login_ShouldReturnOk_WhenValidCredentials()
     {
-        // Create a unique client per test with a unique IP to avoid sharing rate limiter state
-        var uniqueIp = $"192.168.3.{new Random().Next(100, 255)}";
-        var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Forwarded-For", uniqueIp);
-        
         var loginRequest = new LoginRequest
         {
             Email = _email,
             Password = _password,
             RememberMe = true
         };
-        var body = JsonSerializer.Serialize(loginRequest);
-        var httpContent = new StringContent(body, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync($"/api/identity/login", httpContent);
+
+        var response = await _client.PostAsync($"/api/identity/login", loginRequest.BuildRequestBody());
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task GetCurrentUser_Returns401WhenUnAuthenticated()
+    {
+        _client.ClearAuthHeader();
+        var response = await _client.GetAsync("/api/identity/current-user");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetCurrentUser_ReturnsSuccesshenUnAuthenticated()
+    {
+        _client.ClearAuthHeader();
+        _client.GenerateClientHeaders(_jwtToken);
+        var response = await _client.GetAsync("/api/identity/current-user");
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public async Task RefreshToken_Returns401WithInvalidToken()
+    {
+        var request = new RefreshTokenRequest
+        {
+            RefreshToken = "invalid"
+        };
+
+        var response = await _client.PostAsync("/api/identity/refresh-token",
+            request.BuildRequestBody());
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task RefreshToken_ReturnsSuccessWithValidToken()
+    {
+        var request = new RefreshTokenRequest
+        {
+            RefreshToken = _refreshToken
+        };
+
+        var response = await _client.PostAsync("/api/identity/refresh-token",
+            request.BuildRequestBody());
+
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
 
-        // Create a unique client for InitializeAsync with a unique IP to avoid sharing rate limiter state
-        var uniqueIp = $"192.168.4.{new Random().Next(100, 255)}";
-        var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Forwarded-For", uniqueIp);
-        
-        _jwtToken = await ApiTestHelpers.CreateTestUser(client, _email, _password);
+        var tokens = await ApiTestHelpers.CreateTestUser(_client, _email, _password);
+
+        _jwtToken = tokens.Item1;
+        _refreshToken = tokens.Item2;
+
+        _client.GenerateClientHeaders(_jwtToken);
     }
 
     public Task DisposeAsync()

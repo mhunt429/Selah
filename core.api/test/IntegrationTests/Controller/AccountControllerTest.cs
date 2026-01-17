@@ -11,7 +11,7 @@ public class AccountControllerTest(TestFactory factory, DatabaseFixture fixture)
     [Fact]
     public async Task UserShouldBeAbleToRegister()
     {
-       string jwt = await ApiTestHelpers.CreateTestUser(_client, $"{Guid.NewGuid().ToString()}@test.com", "Testing0!");
+       string jwt = (await ApiTestHelpers.CreateTestUser(_client, $"{Guid.NewGuid().ToString()}@test.com", "Testing0!")).Item1;
        
        jwt.Should().NotBeNullOrEmpty();
     }
