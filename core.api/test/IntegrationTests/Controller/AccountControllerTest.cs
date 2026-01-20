@@ -1,4 +1,6 @@
+using System.Net;
 using AwesomeAssertions;
+using Domain.ApiContracts.AccountRegistration;
 using IntegrationTests.Helpers;
 
 namespace IntegrationTests.Controller;
@@ -14,6 +16,19 @@ public class AccountControllerTest(TestFactory factory, DatabaseFixture fixture)
        string jwt = (await ApiTestHelpers.CreateTestUser(_client, $"{Guid.NewGuid().ToString()}@test.com", "Testing0!")).Item1;
        
        jwt.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task InvalidRegistrationShouldReturnBadRequest()
+    {
+        var request = new AccountRegistrationRequest
+        {
+            Email = "Email",
+            Password = "password",
+        };
+        
+        var response = await _client.PostAsync("/api/account/register", request.BuildRequestBody());
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     public async Task InitializeAsync()
