@@ -5,6 +5,7 @@ using Domain.Models.Entities.Mailbox;
 using Domain.Models.Plaid;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Connector;
+using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -27,57 +28,13 @@ public class AccountConnectorEventChannel : BackgroundService
     {
         while (await _reader.WaitToReadAsync(stoppingToken))
         {
-            while (_reader.TryRead(out ConnectorDataSyncEvent? connectorDataSyncEvent))
+            while (_reader.TryRead(out ConnectorDataSyncEvent? @event))
             {
-                if (connectorDataSyncEvent.Error != null &&
-                    connectorDataSyncEvent.Error.ErrorCode == ErrorCodes.LoginRequired)
-                {
-                    await HandleReauthNotification(connectorDataSyncEvent);
-                    return;
-                }
-
-                switch (connectorDataSyncEvent.EventType)
-                {
-                    case EventType.BalanceImport:
-                    {
-                        using var scope = _scopeFactory.CreateScope();
-
-                        var importService = scope.ServiceProvider
-                            .GetRequiredService<PlaidAccountBalanceImportService>();
-
-                        await importService.ImportAccountBalancesAsync(connectorDataSyncEvent);
-                        break;
-                    }
-                    
-                    case EventType.TransactionImport:
-                    {
-                        break;
-                    } 
-             
-                }
+               using var scope = _scopeFactory.CreateScope();
+               var connectorEventService = scope.ServiceProvider.GetRequiredService<IConnectorEventService>();
+               
+               await connectorEventService.ProcessEventAsync(@event);
             }
-        }
-    }
-
-    private async Task HandleReauthNotification(ConnectorDataSyncEvent connectorDataSyncEvent)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        var mailboxRepository = scope.ServiceProvider.GetRequiredService<IUserMailboxRepository>();
-        var accountConnectorRepository = scope.ServiceProvider.GetRequiredService<IAccountConnectorRepository>();
-        
-        AccountConnectorEntity? connnectorRecord = await accountConnectorRepository.GetConnectorSyncRecordByConnectorId(connectorDataSyncEvent.ConnectorId, connectorDataSyncEvent.UserId);
-        if (connnectorRecord != null)
-        {
-            var entityToSave = new UserMailboxEntity
-            {
-                MessageKey = $"BankReauthRequired",
-                MessageBody = @$"Your {connnectorRecord.InstitutionName} connection requires you to re-authenticate. 
-You can reconnect Selah to ${connnectorRecord.InstitutionName} 
-through this link <a>https://localhost:4200/connector/${connnectorRecord.Id}/update</a>.",
-                ActionType = "Error"
-            };
-            
-            await mailboxRepository.InsertMessage(entityToSave);
         }
     }
 }

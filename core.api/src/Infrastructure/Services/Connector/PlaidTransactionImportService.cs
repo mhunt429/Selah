@@ -15,7 +15,7 @@ public class PlaidTransactionImportService(
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidTransactionImportService> logger,
     IAccountConnectorRepository accountConnectorRepository,
-    ITransactionRepository transactionRepository)
+    ITransactionRepository transactionRepository): IPlaidTransactionImportService
 {
     public async Task ImportTransactionsAsync(ConnectorDataSyncEvent syncEvent)
     {

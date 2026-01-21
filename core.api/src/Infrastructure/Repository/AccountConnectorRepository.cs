@@ -44,4 +44,12 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
             .Where(x => x.Id == id && x.UserId == userId)
             .FirstOrDefaultAsync();
     }
+    
+    public async Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId)
+    {
+        return await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.RequiresReauthentication, true)
+            );
+    }
 }

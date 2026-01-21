@@ -16,7 +16,7 @@ public class PlaidAccountBalanceImportService(
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidAccountBalanceImportService> logger,
     IAccountConnectorRepository accountConnectorRepository,
-    ChannelWriter<ConnectorDataSyncEvent> publisher)
+    ChannelWriter<ConnectorDataSyncEvent> publisher): IPlaidAccountBalanceImportService
 {
     public async Task ImportAccountBalancesAsync(ConnectorDataSyncEvent syncEvent)
     {
