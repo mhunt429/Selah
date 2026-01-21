@@ -8,7 +8,19 @@ import { UserRegistration } from '../../../core/models/identity/userRegistration
 import { AlertComponent, AlertType } from '../../../shared/components/alert/alert.component';
 import { BaseApiResponse } from '../../../core/models/baseApiResponse';
 import { AccessToken } from '../../../core/models/identity/accessToken';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import {
+  UserPlus,
+  Mail,
+  Lock,
+  User,
+  Sparkles,
+  CheckCircle,
+  LUCIDE_ICONS,
+  LucideIconProvider,
+  LucideAngularModule,
+} from 'lucide-angular';
+import { CardComponent } from '../../../shared/components/card/card.component';
 
 @Component({
   selector: 'app-register',
@@ -19,6 +31,23 @@ import { Router } from '@angular/router';
     ReactiveFormsModule,
     PasswordValidationSummaryComponent,
     AlertComponent,
+    RouterLink,
+    LucideAngularModule,
+    CardComponent,
+  ],
+  providers: [
+    {
+      provide: LUCIDE_ICONS,
+      multi: true,
+      useValue: new LucideIconProvider({
+        UserPlus,
+        Mail,
+        Lock,
+        User,
+        Sparkles,
+        CheckCircle,
+      }),
+    },
   ],
 })
 export class RegisterComponent implements OnInit {

@@ -9,19 +9,47 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AlertComponent, AlertType } from '../../../shared/components/alert/alert.component';
-import { PrimaryButtonComponent } from '../../../shared/components/primary-button/primary-button.component';
 import { passwordMatchValidator } from '../../../core/validators';
 import { BaseApiResponse } from '../../../core/models/baseApiResponse';
 import { AccessToken } from '../../../core/models/identity/accessToken';
 import { switchMap, tap } from 'rxjs';
 import { AppUser } from '../../../core/models/appUser/appUser';
+import {
+  LogIn,
+  Mail,
+  Lock,
+  Sparkles,
+  LUCIDE_ICONS,
+  LucideIconProvider,
+  LucideAngularModule,
+} from 'lucide-angular';
+import { CardComponent } from '../../../shared/components/card/card.component';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  imports: [FloatingLabelComponent, ReactiveFormsModule, AlertComponent, PrimaryButtonComponent],
+  imports: [
+    FloatingLabelComponent,
+    ReactiveFormsModule,
+    AlertComponent,
+    RouterLink,
+    LucideAngularModule,
+    CardComponent,
+  ],
+  providers: [
+    {
+      provide: LUCIDE_ICONS,
+      multi: true,
+      useValue: new LucideIconProvider({
+        LogIn,
+        Mail,
+        Lock,
+        Sparkles,
+      }),
+    },
+  ],
 })
 export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);

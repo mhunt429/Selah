@@ -69,6 +69,7 @@ public class Program
             .WithTracing(tracing =>
             {
                 tracing
+                    .AddSource("selah-webapi")
                     .AddAspNetCoreInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddHttpClientInstrumentation()

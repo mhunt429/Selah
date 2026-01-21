@@ -1,12 +1,7 @@
 import { NgClass } from '@angular/common';
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  LayoutDashboard,
-  CreditCard,
-  Wallet,
-  PiggyBank,
-  LineChart,
   Settings,
   LogOut,
   Menu,
@@ -21,13 +16,6 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 
-interface NavigationItem {
-  id: string;
-  label: string;
-  iconName: string;
-  route: string;
-}
-
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -38,11 +26,6 @@ interface NavigationItem {
       provide: LUCIDE_ICONS,
       multi: true,
       useValue: new LucideIconProvider({
-        LayoutDashboard,
-        CreditCard,
-        Wallet,
-        PiggyBank,
-        LineChart,
         Settings,
         LogOut,
         Menu,
@@ -59,18 +42,11 @@ export class NavbarComponent implements OnInit {
   private authService = inject(AuthService);
   protected themeService = inject(ThemeService);
 
-  mobileMenuOpen = false;
-  unreadNotifications = signal(3); // Mock unread count
-  currentPage = signal('dashboard');
-  userName = signal('User');
+  @Input() sidebarOpen = false;
+  @Output() sidebarToggle = new EventEmitter<void>();
 
-  navigationItems: NavigationItem[] = [
-    { id: 'dashboard', label: 'Dashboard', iconName: 'layout-dashboard', route: '/dashboard' },
-    { id: 'accounts', label: 'Accounts', iconName: 'credit-card', route: '/accounts' },
-    { id: 'transactions', label: 'Transactions', iconName: 'wallet', route: '/transactions' },
-    { id: 'cash-flow', label: 'Cash Flow', iconName: 'piggy-bank', route: '/cash-flow' },
-    { id: 'investments', label: 'Investments', iconName: 'line-chart', route: '/investments' },
-  ];
+  unreadNotifications = signal(3); // Mock unread count
+  userName = signal('User');
 
   constructor() {
     // Load user info
@@ -78,18 +54,8 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Set current page based on route
-    this.updateCurrentPageFromRoute();
-    this.router.events.subscribe(() => {
-      this.updateCurrentPageFromRoute();
-    });
-  }
-
-  private updateCurrentPageFromRoute() {
-    const currentRoute = this.router.url.split('?')[0];
-    const routeParts = currentRoute.split('/').filter((part) => part);
-    const page = routeParts[routeParts.length - 1] || 'dashboard';
-    this.currentPage.set(page);
+    // Load user info
+    this.loadUserInfo();
   }
 
   private loadUserInfo() {
@@ -108,8 +74,8 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  toggleMobileMenu() {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
+  toggleSidebar() {
+    this.sidebarToggle.emit();
   }
 
   toggleDarkMode() {
@@ -126,17 +92,5 @@ export class NavbarComponent implements OnInit {
     sessionStorage.clear();
     // Navigate to login
     this.router.navigate(['/identity/login']);
-  }
-
-  navigateToPage(item: NavigationItem) {
-    this.currentPage.set(item.id);
-    this.router.navigate([item.route]);
-    if (this.mobileMenuOpen) {
-      this.mobileMenuOpen = false;
-    }
-  }
-
-  isCurrentPage(itemId: string): boolean {
-    return this.currentPage() === itemId;
   }
 }

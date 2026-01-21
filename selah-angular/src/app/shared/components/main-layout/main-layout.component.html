@@ -1,6 +1,12 @@
-<app-navbar> </app-navbar>
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
-  <div class="main-content">
+<app-navbar [sidebarOpen]="sidebarOpen()" (sidebarToggle)="toggleSidebar()"></app-navbar>
+<app-sidebar [open]="sidebarOpen()" (openChange)="sidebarOpen.set($event)"></app-sidebar>
+<div
+  class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300"
+  [ngClass]="{
+    'lg:ml-64': sidebarOpen()
+  }"
+>
+  <div class="main-content p-4 lg:p-6">
     <router-outlet></router-outlet>
   </div>
 </div>

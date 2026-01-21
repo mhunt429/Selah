@@ -1,12 +1,13 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-floating-label',
   standalone: true,
   templateUrl: './floating-label.component.html',
   styleUrls: ['./floating-label.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, NgClass],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -21,6 +22,7 @@ export class FloatingLabelComponent {
   @Input() name = '';
   @Input() type = 'text';
   @Input() required = false;
+  @Input() classes = '';
 
   value: string | number | Date | null = '';
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Domain.Events;
 using Domain.Models.Entities.Mailbox;
 using Domain.Models.Plaid;
@@ -9,27 +10,31 @@ namespace Infrastructure.Services.Connector;
 public class ConnectorEventService(IPlaidAccountBalanceImportService accountBalanceImportService, IUserMailboxRepository mailboxRepository,
     IAccountConnectorRepository connectorRepository, IPlaidTransactionImportService txImportService ): IConnectorEventService
 {
+    private static readonly ActivitySource ActivitySource = new("selah-webapi");
     public async Task ProcessEventAsync(ConnectorDataSyncEvent @event)
     {
-        if ( @event.Error != null &&
-             @event.Error.ErrorCode == ErrorCodes.LoginRequired)
+        using (var _ = ActivitySource.StartActivity(@event.EventType.ToString()))
         {
-            await HandleReauthNotification(@event);
-            return;
-        }
-
-        switch (@event.EventType)
-        {
-            case EventType.BalanceImport:
+            if ( @event.Error != null &&
+                 @event.Error.ErrorCode == ErrorCodes.LoginRequired)
             {
-                await accountBalanceImportService.ImportAccountBalancesAsync(@event);
-                break;
+                await HandleReauthNotification(@event);
+                return;
             }
-            case EventType.TransactionImport:
+
+            switch (@event.EventType)
             {
-                await txImportService.ImportTransactionsAsync(@event);
-                break;
-            } 
+                case EventType.BalanceImport:
+                {
+                    await accountBalanceImportService.ImportAccountBalancesAsync(@event);
+                    break;
+                }
+                case EventType.TransactionImport:
+                {
+                    await txImportService.ImportTransactionsAsync(@event);
+                    break;
+                } 
+            }
         }
     }
 

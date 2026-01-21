@@ -1,30 +1,196 @@
 <div
   class="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 dark:text-white transition-colors duration-200"
 >
+  <!-- Navigation -->
   <nav class="container mx-auto px-6 py-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
+        <lucide-angular name="sparkles" class="h-6 w-6 text-teal-600 dark:text-teal-400"></lucide-angular>
         <span class="text-2xl font-bold text-gray-900 dark:text-white"> Selah.fi </span>
       </div>
 
       <div class="flex items-center space-x-4">
         <button
+          (click)="toggleDarkMode()"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           aria-label="Toggle dark mode"
-        ></button>
+        >
+          @if (themeService.darkMode()) {
+          <lucide-angular name="sun" class="h-5 w-5 text-gray-600 dark:text-gray-300"></lucide-angular>
+          } @else {
+          <lucide-angular name="moon" class="h-5 w-5 text-gray-600 dark:text-gray-300"></lucide-angular>
+          }
+        </button>
         <button
           routerLink="/identity/login"
-          class="px-4 py-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
+          class="px-4 py-2 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition"
         >
           Login
         </button>
         <button
           routerLink="/identity/register"
-          class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 transition"
+          class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 transition font-medium shadow-md hover:shadow-lg"
         >
           Get Started
         </button>
       </div>
     </div>
   </nav>
+
+  <!-- Hero Section -->
+  <section class="container mx-auto px-6 py-20 lg:py-32">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 dark:bg-teal-900/20 rounded-full border border-teal-200 dark:border-teal-800">
+          <lucide-angular name="sparkles" class="h-4 w-4 text-teal-600 dark:text-teal-400"></lucide-angular>
+          <span class="text-sm font-medium text-teal-700 dark:text-teal-300">Agentic Financial Intelligence</span>
+        </div>
+      </div>
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+        Automate Your
+        <span class="text-teal-600 dark:text-teal-400">Finances</span>
+        <br />
+        & Lifestyle
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+        Selah.fi is an agentic solution that automates budgeting, financial planning, and overall lifestyle management.
+        Let AI agents handle your finances, calendar, and schedule so you can focus on what matters most.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <button
+          routerLink="/identity/register"
+          class="px-8 py-4 bg-teal-600 text-white rounded-lg hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 transition font-semibold text-lg shadow-lg hover:shadow-xl flex items-center gap-2"
+        >
+          Start Free Trial
+          <lucide-angular name="arrow-right" class="h-5 w-5"></lucide-angular>
+        </button>
+        <button
+          routerLink="/identity/login"
+          class="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg border-2 border-gray-300 dark:border-gray-700 hover:border-teal-600 dark:hover:border-teal-500 transition font-semibold text-lg"
+        >
+          Sign In
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="container mx-auto px-6 py-20 lg:py-32 bg-white/50 dark:bg-gray-800/50">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          Powerful Automation at Your Fingertips
+        </h2>
+        <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          Our intelligent agents work behind the scenes to streamline your financial life
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        @for (feature of features; track feature.title) {
+        <div
+          class="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700"
+        >
+          <div class="flex items-start gap-4">
+            <div class="p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
+              <lucide-angular
+                [name]="feature.icon"
+                class="h-6 w-6 text-teal-600 dark:text-teal-400"
+              ></lucide-angular>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{{ feature.title }}</h3>
+              <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ feature.description }}</p>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="container mx-auto px-6 py-20 lg:py-32">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Why Choose
+            <span class="text-teal-600 dark:text-teal-400">Selah.fi</span>?
+          </h2>
+          <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            Experience the future of financial management with our intelligent agentic platform. Make smarter decisions,
+            save time, and achieve your goals faster.
+          </p>
+          <ul class="space-y-4">
+            @for (benefit of benefits; track benefit) {
+            <li class="flex items-start gap-3">
+              <div class="flex-shrink-0 mt-1">
+                <lucide-angular name="check" class="h-5 w-5 text-teal-600 dark:text-teal-400"></lucide-angular>
+              </div>
+              <span class="text-lg text-gray-700 dark:text-gray-300">{{ benefit }}</span>
+            </li>
+            }
+          </ul>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl border border-teal-200 dark:border-teal-800">
+            <lucide-angular name="trending-up" class="h-8 w-8 text-teal-600 dark:text-teal-400 mb-4"></lucide-angular>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">24/7</div>
+            <div class="text-gray-600 dark:text-gray-300">Active Monitoring</div>
+          </div>
+          <div class="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl border border-teal-200 dark:border-teal-800">
+            <lucide-angular name="shield" class="h-8 w-8 text-teal-600 dark:text-teal-400 mb-4"></lucide-angular>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">100%</div>
+            <div class="text-gray-600 dark:text-gray-300">Secure & Encrypted</div>
+          </div>
+          <div class="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl border border-teal-200 dark:border-teal-800">
+            <lucide-angular name="zap" class="h-8 w-8 text-teal-600 dark:text-teal-400 mb-4"></lucide-angular>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">AI</div>
+            <div class="text-gray-600 dark:text-gray-300">Powered Agents</div>
+          </div>
+          <div class="p-6 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl border border-teal-200 dark:border-teal-800">
+            <lucide-angular
+              name="clock"
+              class="h-8 w-8 text-teal-600 dark:text-teal-400 mb-4"
+            ></lucide-angular>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">Hours</div>
+            <div class="text-gray-600 dark:text-gray-300">Saved Weekly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="container mx-auto px-6 py-20 lg:py-32">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="bg-gradient-to-r from-teal-600 to-teal-700 dark:from-teal-700 dark:to-teal-800 rounded-2xl p-12 md:p-16 shadow-2xl">
+        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+          Ready to Transform Your Financial Life?
+        </h2>
+        <button
+          routerLink="/identity/register"
+          class="px-8 py-4 bg-white text-teal-600 rounded-lg hover:bg-gray-50 transition font-semibold text-lg shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+        >
+          Get Started Free
+          <lucide-angular name="arrow-right" class="h-5 w-5"></lucide-angular>
+        </button>
+        <p class="text-teal-100 text-sm mt-6">No credit card required • 14-day free trial</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="container mx-auto px-6 py-12 border-t border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col md:flex-row justify-between items-center">
+      <div class="flex items-center space-x-2 mb-4 md:mb-0">
+        <lucide-angular name="sparkles" class="h-5 w-5 text-teal-600 dark:text-teal-400"></lucide-angular>
+        <span class="text-lg font-bold text-gray-900 dark:text-white">Selah.fi</span>
+      </div>
+      <div class="text-gray-600 dark:text-gray-400 text-sm">
+        © 2026 Selah.fi. All rights reserved.
+      </div>
+    </div>
+  </footer>
 </div>

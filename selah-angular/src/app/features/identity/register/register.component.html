@@ -1,108 +1,222 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-  <div class="max-w-md w-full space-y-8">
-    <div class="text-center">
-      <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-        Welcome to Selah.fi
-      </h2>
-      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Your personal finance companion</p>
-    </div>
-    @if(errors.length > 0){
-    <app-alert [alertType]="AlertType.Error">
-      @for (error of errors; track $index) {
-      <div>{{ error }}</div>
-      }
-    </app-alert>
-    }
-    <form
-      [formGroup]="registrationForm"
-      (ngSubmit)="registrationSubmit($event)"
-      class="mt-8 space-y-6"
-    >
-      <div class="space-y-4">
-        <app-floating-label
-          formControlName="accountName"
-          class="py-3 px-4"
-          id="accountName"
-          label="Account Name (Optional)"
-          name="accountName"
-          type="text"
-          [required]="false"
-        />
-        <app-floating-label
-          formControlName="firstName"
-          class="py-3 px-4"
-          id="firstName"
-          label="First Name"
-          name="firstName"
-          type="text"
-          [required]="true"
-        />
-        @if( registrationForm.get('firstName')?.invalid &&
-        (registrationForm.get('firstName')?.touched || registrationForm.get('firstName')?.dirty)) {
-        <div class="text-red-400 text-sm">First Name is required</div>
-        }
-        <app-floating-label
-          formControlName="lastName"
-          class="py-3 px-4"
-          id="lastName"
-          label="Last Name"
-          name="lastName"
-          type="text"
-          [required]="true"
-        />
-        @if( registrationForm.get('lastName')?.invalid && (registrationForm.get('lastName')?.touched
-        || registrationForm.get('lastName')?.dirty)) {
-        <div class="text-red-400 text-sm">Last Name is required</div>
-        }
-        <app-floating-label
-          formControlName="emailAddress"
-          class="py-3 px-4"
-          id="emailAddress"
-          label="Email Address"
-          name="emailAddress"
-          type="text"
-          [required]="true"
-        />
-        @if( registrationForm.get('emailAddress')?.invalid &&
-        (registrationForm.get('emailAddress')?.touched ||
-        registrationForm.get('emailAddress')?.dirty)) {
-        <div class="text-red-400 text-sm">Email is required</div>
-        }
-        <app-floating-label
-          formControlName="password"
-          class="py-3 px-4"
-          id="password"
-          label="Password"
-          name="password"
-          type="password"
-          [required]="true"
-          (input)="updatePasswordRules()"
-        />
-        <app-floating-label
-          formControlName="passwordConfirmation"
-          class="py-3 px-4"
-          id="passwordConfirmation"
-          label="Password Confirmation"
-          name="passwordConfirmation"
-          type="password"
-          [required]="true"
-        />
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-teal-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-12">
+  <div class="max-w-md w-full">
+    <!-- Logo and Header -->
+    <div class="text-center mb-8">
+      <div class="flex justify-center mb-4">
+        <div class="p-3 bg-teal-100 dark:bg-teal-900/20 rounded-2xl">
+          <lucide-angular name="sparkles" class="h-8 w-8 text-teal-600 dark:text-teal-400"></lucide-angular>
+        </div>
       </div>
-      <app-password-validation-summary
-        [greaterThanOrEqualToMinLength]="passwordRules.minLength"
-        [containsNumber]="passwordRules.number"
-        [containsSymbol]="passwordRules.symbol"
-        [containsUpperCase]="passwordRules.uppercase"
-        [containsLowerCase]="passwordRules.lowercase"
-        class="mt-2"
-      ></app-password-validation-summary>
-      <button
-        [disabled]="!registrationForm.valid"
-        type="submit"
-        class="mt-4 w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal-600"
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Your Account</h1>
+      <p class="text-gray-600 dark:text-gray-400">Start automating your finances today</p>
+    </div>
+
+    <!-- Card Container -->
+    <app-card cardClasses="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+      @if(errors.length > 0){
+      <div class="mb-6">
+        <app-alert [alertType]="AlertType.Error">
+          @for (error of errors; track $index) {
+          <div>{{ error }}</div>
+          }
+        </app-alert>
+      </div>
+      }
+
+      <form
+        [formGroup]="registrationForm"
+        (ngSubmit)="registrationSubmit($event)"
+        class="space-y-5"
       >
-        Register
-      </button>
-    </form>
+        <div class="space-y-5">
+          <!-- Account Name (Optional) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="user" class="h-4 w-4 text-gray-500"></lucide-angular>
+                Account Name
+                <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="accountName"
+              class="py-3 px-4"
+              id="accountName"
+              label="Account Name (Optional)"
+              name="accountName"
+              type="text"
+              [required]="false"
+            />
+          </div>
+
+          <!-- First Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="user" class="h-4 w-4 text-gray-500"></lucide-angular>
+                First Name
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="firstName"
+              class="py-3 px-4"
+              id="firstName"
+              label="First Name"
+              name="firstName"
+              type="text"
+              [required]="true"
+            />
+            @if( registrationForm.get('firstName')?.invalid &&
+            (registrationForm.get('firstName')?.touched || registrationForm.get('firstName')?.dirty)) {
+            <div class="mt-1 text-red-500 text-sm">First Name is required</div>
+            }
+          </div>
+
+          <!-- Last Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="user" class="h-4 w-4 text-gray-500"></lucide-angular>
+                Last Name
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="lastName"
+              class="py-3 px-4"
+              id="lastName"
+              label="Last Name"
+              name="lastName"
+              type="text"
+              [required]="true"
+            />
+            @if( registrationForm.get('lastName')?.invalid && (registrationForm.get('lastName')?.touched
+            || registrationForm.get('lastName')?.dirty)) {
+            <div class="mt-1 text-red-500 text-sm">Last Name is required</div>
+            }
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="mail" class="h-4 w-4 text-gray-500"></lucide-angular>
+                Email Address
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="emailAddress"
+              class="py-3 px-4"
+              id="emailAddress"
+              label="Email Address"
+              name="emailAddress"
+              type="text"
+              [required]="true"
+            />
+            @if( registrationForm.get('emailAddress')?.invalid &&
+            (registrationForm.get('emailAddress')?.touched ||
+            registrationForm.get('emailAddress')?.dirty)) {
+            <div class="mt-1 text-red-500 text-sm">Email is required</div>
+            }
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="lock" class="h-4 w-4 text-gray-500"></lucide-angular>
+                Password
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="password"
+              class="py-3 px-4"
+              id="password"
+              label="Password"
+              name="password"
+              type="password"
+              [required]="true"
+              (input)="updatePasswordRules()"
+            />
+          </div>
+
+          <!-- Password Confirmation -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <div class="flex items-center gap-2">
+                <lucide-angular name="lock" class="h-4 w-4 text-gray-500"></lucide-angular>
+                Confirm Password
+              </div>
+            </label>
+            <app-floating-label
+              formControlName="passwordConfirmation"
+              class="py-3 px-4"
+              id="passwordConfirmation"
+              label="Password Confirmation"
+              name="passwordConfirmation"
+              type="password"
+              [required]="true"
+            />
+          </div>
+        </div>
+
+        <!-- Password Validation -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+          <app-password-validation-summary
+            [greaterThanOrEqualToMinLength]="passwordRules.minLength"
+            [containsNumber]="passwordRules.number"
+            [containsSymbol]="passwordRules.symbol"
+            [containsUpperCase]="passwordRules.uppercase"
+            [containsLowerCase]="passwordRules.lowercase"
+          ></app-password-validation-summary>
+        </div>
+
+        <button
+          [disabled]="!registrationForm.valid"
+          type="submit"
+          class="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal-600 transition-all"
+        >
+          <lucide-angular name="user-plus" class="h-5 w-5"></lucide-angular>
+          Create Account
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+          Already have an account?
+          <a
+            routerLink="/identity/login"
+            class="font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300"
+          >
+            Sign in
+          </a>
+        </p>
+      </div>
+    </app-card>
+
+    <!-- Benefits Section -->
+    <app-card cardClasses="mt-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
+      <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 text-center">
+        What you'll get:
+      </h3>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <span>AI-powered budgeting</span>
+        </div>
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <span>Calendar automation</span>
+        </div>
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <span>Financial insights</span>
+        </div>
+        <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <span>Secure & private</span>
+        </div>
+      </div>
+    </app-card>
   </div>
-</div>
+  </div>
