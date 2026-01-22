@@ -89,7 +89,8 @@ public class PlaidAccountBalanceImportService(
 
             await accountConnectorRepository.UpdateConnectionSync(syncEvent.ConnectorId,
                 syncEvent.UserId,
-                DateTimeOffset.UtcNow.AddDays(3));
+                DateTimeOffset.UtcNow.AddDays(3),
+                syncEvent.TransactionSyncCursor);
         }
     }
 }

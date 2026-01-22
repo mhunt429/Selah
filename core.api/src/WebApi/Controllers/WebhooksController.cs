@@ -29,6 +29,6 @@ public class WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher) : Co
             });
             return NoContent();
         }
-       return BadRequest("Invalid Webhook Code");
+        return BadRequest("Invalid Webhook Code");
     }
 }

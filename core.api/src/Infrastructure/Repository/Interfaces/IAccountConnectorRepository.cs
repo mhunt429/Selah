@@ -24,8 +24,9 @@ public interface IAccountConnectorRepository
     /// <param name="id"></param>
     /// <param name="userId"></param>
     /// <param name="nextDate"></param>
+    /// <param name="nextCursor"></param>
     /// <returns></returns>
-    Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate);
+    Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate, string nextCursor);
 
     Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 

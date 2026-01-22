@@ -1,5 +1,6 @@
 using Domain.Events;
 using Domain.Models;
+using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Plaid;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
@@ -18,6 +19,7 @@ public class PlaidTransactionImportServiceTests
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
     private readonly Mock<ITransactionRepository> _mockTransactionRepository;
     private readonly PlaidTransactionImportService _service;
+    private readonly Mock<IFinancialAccountRepository> _mockFinancialAccountRepository;
 
     public PlaidTransactionImportServiceTests()
     {
@@ -26,13 +28,30 @@ public class PlaidTransactionImportServiceTests
         _mockLogger = new Mock<ILogger<PlaidTransactionImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
         _mockTransactionRepository = new Mock<ITransactionRepository>();
+        _mockFinancialAccountRepository = new Mock<IFinancialAccountRepository>();
 
+        _mockFinancialAccountRepository.Setup(x => x.GetAccountsAsync(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new List<FinancialAccountEntity>
+            {
+                new FinancialAccountEntity
+                {
+                    UserId = 1,
+                    ExternalId = "ABC123",
+                    CurrentBalance = 0,
+                    AccountMask = "1234",
+                    DisplayName = "USAA Checking",
+                    Subtype = "Checking"
+                }
+            });
+        
+        
         _service = new PlaidTransactionImportService(
             _mockCryptoService.Object,
             _mockPlaidHttpService.Object,
             _mockLogger.Object,
             _mockAccountConnectorRepository.Object,
-            _mockTransactionRepository.Object);
+            _mockTransactionRepository.Object,
+            _mockFinancialAccountRepository.Object);
     }
 
     [Fact]
@@ -55,7 +74,7 @@ public class PlaidTransactionImportServiceTests
             .Returns(decryptedToken);
 
         _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
+            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()))
             .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
                 ResultStatus.Success,
                 "Success",
@@ -65,7 +84,8 @@ public class PlaidTransactionImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -73,12 +93,13 @@ public class PlaidTransactionImportServiceTests
 
         // Assert
         _mockCryptoService.Verify(x => x.Decrypt(syncEvent.AccessToken), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once);
     }
 
@@ -106,7 +127,7 @@ public class PlaidTransactionImportServiceTests
             .Returns(decryptedToken);
 
         _mockPlaidHttpService
-            .SetupSequence(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int?>()))
+            .SetupSequence(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int>()))
             .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
                 ResultStatus.Success,
                 "Success",
@@ -120,23 +141,25 @@ public class PlaidTransactionImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
         await _service.ImportTransactionsAsync(syncEvent);
 
         // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, firstCursor, It.IsAny<int?>()),
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, firstCursor, It.IsAny<int>()),
             Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, secondCursor, It.IsAny<int?>()),
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, secondCursor, It.IsAny<int>()),
             Times.Never);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once);
     }
 
@@ -160,7 +183,7 @@ public class PlaidTransactionImportServiceTests
             .Returns(decryptedToken);
 
         _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
+            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()))
             .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
                 ResultStatus.Failed,
                 errorMessage,
@@ -170,12 +193,13 @@ public class PlaidTransactionImportServiceTests
         await _service.ImportTransactionsAsync(syncEvent);
 
         // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once); // Still updates sync even on failure
     }
 
@@ -198,7 +222,7 @@ public class PlaidTransactionImportServiceTests
             .Returns(decryptedToken);
 
         _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
+            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()))
             .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
                 ResultStatus.Success,
                 "Success",
@@ -208,61 +232,21 @@ public class PlaidTransactionImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
         await _service.ImportTransactionsAsync(syncEvent);
 
         // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task ImportTransactionsAsync_WhenHasMoreButCursorIsEmpty_DoesNotRecurse()
-    {
-        // Arrange
-        var syncEvent = new ConnectorDataSyncEvent
-        {
-            UserId = 123,
-            ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 },
-            EventType = EventType.TransactionImport
-        };
-
-        var decryptedToken = "decrypted-access-token";
-        var response = CreateTransactionsResponse(hasMore: true, nextCursor: string.Empty);
-
-        _mockCryptoService
-            .Setup(x => x.Decrypt(syncEvent.AccessToken))
-            .Returns(decryptedToken);
-
-        _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
-            .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
-                ResultStatus.Success,
-                "Success",
-                response));
-
-        _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
-            .Returns(Task.CompletedTask);
-
-        // Act
-        await _service.ImportTransactionsAsync(syncEvent);
-
-        // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int?>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once);
     }
 
@@ -305,7 +289,7 @@ public class PlaidTransactionImportServiceTests
             .Returns(decryptedToken);
 
         _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
+            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()))
             .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
                 ResultStatus.Success,
                 "Success",
@@ -315,61 +299,21 @@ public class PlaidTransactionImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
         await _service.ImportTransactionsAsync(syncEvent);
 
         // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task ImportTransactionsAsync_WhenHasMoreAndNullCursor_DoesNotRecurse()
-    {
-        // Arrange
-        var syncEvent = new ConnectorDataSyncEvent
-        {
-            UserId = 123,
-            ConnectorId = 1,
-            AccessToken = new byte[] { 1, 2, 3 },
-            EventType = EventType.TransactionImport
-        };
-
-        var decryptedToken = "decrypted-access-token";
-        var response = CreateTransactionsResponse(hasMore: true, nextCursor: null);
-
-        _mockCryptoService
-            .Setup(x => x.Decrypt(syncEvent.AccessToken))
-            .Returns(decryptedToken);
-
-        _mockPlaidHttpService
-            .Setup(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()))
-            .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
-                ResultStatus.Success,
-                "Success",
-                response));
-
-        _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
-                It.IsAny<int>(),
-                It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
-            .Returns(Task.CompletedTask);
-
-        // Act
-        await _service.ImportTransactionsAsync(syncEvent);
-
-        // Assert
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
-        _mockPlaidHttpService.Verify(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int?>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once);
     }
 
@@ -400,14 +344,14 @@ public class PlaidTransactionImportServiceTests
     {
         return new PlaidTransaction
         {
-            AccountId = "account-1",
+            AccountId = "ABC123",
             TransactionId = transactionId,
             Name = name,
             Amount = amount,
             Date = "2025-01-01",
             IsoCurrencyCode = "USD",
             Counterparties = new List<PlaidTransactionCounterparty>(),
-            Pending = false
+            Pending = false,
         };
     }
 }

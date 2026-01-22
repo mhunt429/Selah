@@ -98,8 +98,9 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody));
     }
+    
 
-    public async Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int? count = null)
+    public async Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int count = 50)
     {
         Uri transactionsSyncEndpoint = new Uri($"{httpClient.BaseAddress}transactions/sync");
 

@@ -18,7 +18,7 @@ public class AccountConnectorEntity : BaseAuditFields
 
     [Column("encrypted_access_token")] public required byte[] EncryptedAccessToken { get; set; }
 
-    [Column("transaction_sync_cursor")] public required string TransactionSyncCursor { get; set; } = "";
+    [Column("transaction_sync_cursor")] public required string? TransactionSyncCursor { get; set; } = "";
 
     [Column("requires_reauthentication")] public bool RequiresReauthentication { get; set; }
 

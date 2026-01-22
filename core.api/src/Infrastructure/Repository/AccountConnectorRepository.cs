@@ -22,12 +22,13 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
     }
 
 
-    public async Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate)
+    public async Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate, string? nextCursor)
     {
         await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.LastSyncDate, DateTimeOffset.UtcNow)
                 .SetProperty(x => x.NextSyncDate, nextDate)
+                .SetProperty(x => x.TransactionSyncCursor, nextCursor)
             );
     }
 

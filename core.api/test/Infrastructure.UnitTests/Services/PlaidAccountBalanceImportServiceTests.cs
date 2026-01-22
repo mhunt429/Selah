@@ -96,7 +96,8 @@ public class PlaidAccountBalanceImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -113,7 +114,8 @@ public class PlaidAccountBalanceImportServiceTests
             x => x.UpdateConnectionSync(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Once);
     }
 
@@ -187,7 +189,8 @@ public class PlaidAccountBalanceImportServiceTests
             .Setup(x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()))
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -242,7 +245,8 @@ public class PlaidAccountBalanceImportServiceTests
             x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Never);
     }
 
@@ -282,7 +286,8 @@ public class PlaidAccountBalanceImportServiceTests
             x => x.UpdateConnectionSync(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>()),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>()),
             Times.Never);
     }
 
@@ -302,20 +307,19 @@ public class PlaidAccountBalanceImportServiceTests
             ErrorCode = "ITEM_LOGIN_REQUIRED",
             ErrorMessage = "the login details of this item have changed"
         };
-        
+
         _mockPlaidHttpService
             .Setup(x => x.GeAccountBalance(It.IsAny<string>()))
             .ReturnsAsync(new ApiResponseResult<PlaidBalanceApiResponse>(
                 ResultStatus.Failed,
                 JsonSerializer.Serialize(responseBody),
                 null));
-        
+
         await _service.ImportAccountBalancesAsync(syncEvent);
-        
+
         mockChannelWriter.Verify(
             x => x.WriteAsync(It.Is<ConnectorDataSyncEvent>(e =>
                 e.UserId == 123 &&
-      
                 e.ConnectorId == 1 &&
                 e.EventType == EventType.BalanceImport &&
                 e.Error != null &&

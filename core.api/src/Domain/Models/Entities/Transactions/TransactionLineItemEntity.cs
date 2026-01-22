@@ -16,11 +16,10 @@ public class TransactionLineItemEntity: BaseAuditFields
     
     [Column("amount")]
     public decimal Amount { get; set; }
-    
-    [Column("category_id")]
-    public int CategoryId { get; set; }
 
-    public virtual TransactionCategoryEntity Category { get; set; } = null!;
+    [Column("category_id")] public int? CategoryId { get; set; }
+
+    public virtual TransactionCategoryEntity? Category { get; set; }
     
     public virtual TransactionEntity Transaction { get; set; } = null!;
 }

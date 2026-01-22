@@ -1,9 +1,9 @@
 using Domain.Events;
 using Domain.Models;
+using Domain.Models.Entities.FinancialAccount;
 using Domain.Models.Entities.Transactions;
 using Domain.Models.Plaid;
 using Domain.Shared;
-using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -15,102 +15,91 @@ public class PlaidTransactionImportService(
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidTransactionImportService> logger,
     IAccountConnectorRepository accountConnectorRepository,
-    ITransactionRepository transactionRepository): IPlaidTransactionImportService
+    ITransactionRepository transactionRepository,
+    IFinancialAccountRepository financialAccountRepository) : IPlaidTransactionImportService
 {
     public async Task ImportTransactionsAsync(ConnectorDataSyncEvent syncEvent)
     {
         var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
         
-        // Start with no cursor for initial sync
-        await ImportTransactionsRecursiveAsync(syncEvent, accessToken, cursor: null);
+        //Go ahead and load existing accounts per connector so we can map a transaction to an account
+      IEnumerable<FinancialAccountEntity?> financialAccounts = await financialAccountRepository.GetAccountsAsync(syncEvent.UserId, syncEvent.ConnectorId);
+
+        bool hasMoreTransactions = true;
+        string? cursor = syncEvent.TransactionSyncCursor;
+
+        while (hasMoreTransactions)
+        {
+            ApiResponseResult<PlaidTransactionsSyncResponse> transactionsResponse =
+                await plaidHttpService.SyncTransactions(accessToken, cursor);
+            
+            logger.LogInformation("Importing transactions for user {UserId} with cursor {Cursor}", syncEvent.UserId, cursor);
+            
+            if (transactionsResponse.status == ResultStatus.Failed)
+            {
+                logger.LogError(
+                    "Transactions Sync failed for user {UserId} with error {ErrorMsg}",
+                    syncEvent.UserId,
+                    transactionsResponse.message);
+                break;
+            }
+
+            if (transactionsResponse.data == null)
+            {
+                break;
+            }
+
+            var transactionsData = transactionsResponse.data;
+
+            if (transactionsData.Added.Any())
+            {
+                await AddNewTransactionsAsync(transactionsData.Added, syncEvent.UserId, financialAccounts);
+            }
+
+            if (transactionsData.Modified.Any())
+            {
+                await UpdateTransactionsAsync(transactionsData.Modified, syncEvent.UserId, financialAccounts);
+            }
+
+            if (transactionsData.Removed.Any())
+            {
+                await transactionRepository.DeleteTransactionsInBulk(transactionsData.Modified
+                        .Select(t => t.TransactionId)
+                        .ToList(), syncEvent.UserId
+                );
+            }
+
+            if (!string.IsNullOrEmpty(transactionsData.NextCursor))
+            {
+                cursor = transactionsData.NextCursor;
+            }
+            
+            hasMoreTransactions = transactionsData.HasMore;
+        }
+
 
         await accountConnectorRepository.UpdateConnectionSync(
             syncEvent.ConnectorId,
             syncEvent.UserId,
-            DateTimeOffset.UtcNow.AddDays(3));
+            DateTimeOffset.UtcNow.AddDays(3),
+            cursor);
     }
 
-    private async Task ImportTransactionsRecursiveAsync(
-        ConnectorDataSyncEvent syncEvent,
-        string accessToken,
-        string? cursor)
+    private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
     {
-        ApiResponseResult<PlaidTransactionsSyncResponse> transactionsResponse =
-            await plaidHttpService.SyncTransactions(accessToken, cursor);
-
-        if (transactionsResponse.status == ResultStatus.Failed)
-        {
-            logger.LogError(
-                "Transactions Sync failed for user {UserId} with error {ErrorMsg}",
-                syncEvent.UserId,
-                transactionsResponse.message);
-            return;
-        }
-
-        PlaidTransactionsSyncResponse? transactionsData = transactionsResponse.data;
-
-        if (transactionsData == null)
-        {
-            logger.LogWarning(
-                "Transactions Sync returned null data for user {UserId}",
-                syncEvent.UserId);
-            return;
-        }
-
-        if (transactionsData.Added.Any())
-        {
-            await AddNewTransactionsAsync(transactionsData.Added, syncEvent.UserId);
-        }
-
-        if (transactionsData.Modified.Any())
-        {
-            await UpdateTransactionsAsync(transactionsData.Modified, syncEvent.UserId);
-        }
-
-        // Process removed transactions
-        if (transactionsData.Removed.Any())
-        {
-            await transactionRepository.DeleteTransactionsInBulk(transactionsData.Modified
-                    .Select(t => t.TransactionId)
-                    .ToList(), syncEvent.UserId
-            );
-        }
-
-        // Continue pagination if there are more transactions
-        if (transactionsData.HasMore && !string.IsNullOrEmpty(transactionsData.NextCursor))
-        {
-            logger.LogInformation(
-                "More transactions available for user {UserId}. Continuing with cursor {Cursor}",
-                syncEvent.UserId,
-                transactionsData.NextCursor);
-
-            await ImportTransactionsRecursiveAsync(syncEvent, accessToken, transactionsData.NextCursor);
-        }
-        else
-        {
-            logger.LogInformation(
-                "Transaction import completed for user {UserId}. Total transactions processed.",
-                syncEvent.UserId);
-        }
-    }
-
-    private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId)
-    {
-        var mappedTransactions = transactions.Select(t => MapPlaidTransaction(t, userId)).ToList();
+        var mappedTransactions = transactions.Select(t => MapPlaidTransaction(t, userId, financialAccounts)).ToList();
         await transactionRepository.AddTransactionsInBulk(mappedTransactions);
-        logger.LogInformation(
-            "Adding new transactions for user {UserId} with {Count} transactions", userId, mappedTransactions.Count());
     }
 
-    private async Task UpdateTransactionsAsync(IEnumerable<PlaidTransaction> transactions, int userId)
+    private async Task UpdateTransactionsAsync(IEnumerable<PlaidTransaction> transactions, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
     {
         var mappedTransactions = transactions.Select(t =>
-            MapPlaidTransaction(t, userId)).ToList();
+            MapPlaidTransaction(t, userId, financialAccounts)).ToList();
         await transactionRepository.UpdateTransactionsInBulk(mappedTransactions, userId);
     }
 
 
-    private TransactionEntity MapPlaidTransaction(PlaidTransaction plaidTransaction, int userId)
+    private TransactionEntity MapPlaidTransaction(PlaidTransaction plaidTransaction, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
     {
         return new TransactionEntity
         {
@@ -132,7 +121,8 @@ public class PlaidTransactionImportService(
                         : "",
                     Amount = plaidTransaction.Amount,
                 }
-            }
+            },
+            AccountId = financialAccounts.FirstOrDefault(x => x.ExternalId == plaidTransaction.AccountId).Id,
         };
     }
 }

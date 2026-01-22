@@ -22,4 +22,5 @@ public interface IFinancialAccountRepository
     Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId);
 
     Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId);
+    
 }
