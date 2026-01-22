@@ -20,12 +20,12 @@ public class PlaidTransactionImportService(
     public async Task ImportTransactionsAsync(ConnectorDataSyncEvent syncEvent)
     {
         var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
-
+        
         // Start with no cursor for initial sync
         await ImportTransactionsRecursiveAsync(syncEvent, accessToken, cursor: null);
 
         await accountConnectorRepository.UpdateConnectionSync(
-            syncEvent.DataSyncId,
+            syncEvent.ConnectorId,
             syncEvent.UserId,
             DateTimeOffset.UtcNow.AddDays(3));
     }

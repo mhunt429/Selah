@@ -25,7 +25,7 @@ public class ConnectorEventServiceTests
         _mailboxRepository = new Mock<IUserMailboxRepository>();
         _accountConnectorRepository = new Mock<IAccountConnectorRepository>();
 
-        _accountConnectorRepository.Setup(x => x.GetConnectorSyncRecordByConnectorId(It.IsAny<int>(), It.IsAny<int>()))
+        _accountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(new AccountConnectorEntity
             {
                 InstitutionId = "123",
@@ -46,7 +46,6 @@ public class ConnectorEventServiceTests
     {
         var @event = new ConnectorDataSyncEvent
         {
-            DataSyncId = 1,
             ConnectorId = 1,
             EventType = EventType.BalanceImport,
             Error = new PlaidApiErrorResponse
@@ -57,7 +56,7 @@ public class ConnectorEventServiceTests
 
         await _connectorEventService.ProcessEventAsync(@event);
 
-        _accountConnectorRepository.Verify(x => x.GetConnectorSyncRecordByConnectorId(It.IsAny<int>(), It.IsAny<int>()),
+        _accountConnectorRepository.Verify(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()),
             Times.Once);
 
         _accountConnectorRepository.Verify(
@@ -71,7 +70,6 @@ public class ConnectorEventServiceTests
     {
         var @event = new ConnectorDataSyncEvent
         {
-            DataSyncId = 1,
             ConnectorId = 1,
             EventType = EventType.BalanceImport,
             Error = null
@@ -87,7 +85,6 @@ public class ConnectorEventServiceTests
     {
         var @event = new ConnectorDataSyncEvent
         {
-            DataSyncId = 1,
             ConnectorId = 1,
             EventType = EventType.TransactionImport,
             Error = null

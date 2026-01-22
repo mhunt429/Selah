@@ -32,7 +32,6 @@ public class ConnectorDataSyncRecurringJob(
             {
                 publisherTasks.Add(PublishSyncEvent(new ConnectorDataSyncEvent
                 {
-                    DataSyncId =  connectorRecord.Id,
                     AccessToken = connectorRecord.EncryptedAccessToken, 
                     UserId =  connectorRecord.UserId,
                     ConnectorId = connectorRecord.Id,

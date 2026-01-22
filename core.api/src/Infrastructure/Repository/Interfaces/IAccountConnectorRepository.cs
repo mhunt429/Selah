@@ -29,7 +29,11 @@ public interface IAccountConnectorRepository
 
     Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 
-    Task<AccountConnectorEntity?> GetConnectorSyncRecordByConnectorId(int userId, int id);
+    
+    Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id);
 
+   
     Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId);
+    
+    Task<AccountConnectorEntity?> GetConnectorRecordByExternalId(string externalId);
 }

@@ -46,7 +46,6 @@ public class PlaidAccountBalanceImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.BalanceImport
@@ -95,7 +94,7 @@ public class PlaidAccountBalanceImportServiceTests
 
         _mockAccountConnectorRepository
             .Setup(x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()))
             .Returns(Task.CompletedTask);
@@ -112,7 +111,7 @@ public class PlaidAccountBalanceImportServiceTests
             Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
@@ -125,7 +124,6 @@ public class PlaidAccountBalanceImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.BalanceImport
@@ -213,7 +211,6 @@ public class PlaidAccountBalanceImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.BalanceImport
@@ -256,7 +253,6 @@ public class PlaidAccountBalanceImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.BalanceImport
@@ -296,7 +292,6 @@ public class PlaidAccountBalanceImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.BalanceImport
@@ -320,7 +315,7 @@ public class PlaidAccountBalanceImportServiceTests
         mockChannelWriter.Verify(
             x => x.WriteAsync(It.Is<ConnectorDataSyncEvent>(e =>
                 e.UserId == 123 &&
-                e.DataSyncId == 1 &&
+      
                 e.ConnectorId == 1 &&
                 e.EventType == EventType.BalanceImport &&
                 e.Error != null &&

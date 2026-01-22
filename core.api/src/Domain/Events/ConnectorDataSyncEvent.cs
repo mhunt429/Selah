@@ -5,8 +5,6 @@ namespace Domain.Events;
 public class ConnectorDataSyncEvent : IntegrationEvent
 {
     public byte[] AccessToken { get; set; }
-
-    public required int DataSyncId { get; set; }
     
     public required int ConnectorId { get; set; }
     
@@ -18,6 +16,8 @@ public class ConnectorDataSyncEvent : IntegrationEvent
     
     public PlaidApiErrorResponse?  Error { get; set; }
     
+    public string? TransactionSyncCursor { get; set; }
+    
 }
 
 
@@ -25,5 +25,6 @@ public enum EventType
 {
     BalanceImport,
     TransactionImport,
-    UpdateCredentials
+    UpdateCredentials,
+    RecurringTransactionImport
 }

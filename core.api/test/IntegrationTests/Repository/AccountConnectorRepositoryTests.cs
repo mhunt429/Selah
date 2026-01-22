@@ -60,7 +60,7 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
         queryResult.InstitutionName.Should().Be(data.InstitutionName);
 
         var connectionSync =
-            await _accountConnectorRepository.GetConnectorSyncRecordByConnectorId(_userId, connectorId);
+            await _accountConnectorRepository.GetConnectorRecordByIdAndUser(_userId, connectorId);
         connectionSync.Should().NotBeNull();
         connectionSync.UserId.Should().Be(_userId);
         connectionSync.Id.Should().BeGreaterThan(0);

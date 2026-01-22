@@ -42,7 +42,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -64,7 +63,7 @@ public class PlaidTransactionImportServiceTests
 
         _mockAccountConnectorRepository
             .Setup(x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()))
             .Returns(Task.CompletedTask);
@@ -77,7 +76,7 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
@@ -90,7 +89,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -136,7 +134,7 @@ public class PlaidTransactionImportServiceTests
             Times.Never);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
@@ -149,7 +147,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -189,7 +186,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -222,7 +218,7 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
@@ -235,7 +231,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -278,7 +273,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport
@@ -331,7 +325,7 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int?>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
             x => x.UpdateConnectionSync(
-                syncEvent.DataSyncId,
+                syncEvent.ConnectorId,
                 syncEvent.UserId,
                 It.IsAny<DateTimeOffset>()),
             Times.Once);
@@ -344,7 +338,6 @@ public class PlaidTransactionImportServiceTests
         var syncEvent = new ConnectorDataSyncEvent
         {
             UserId = 123,
-            DataSyncId = 1,
             ConnectorId = 1,
             AccessToken = new byte[] { 1, 2, 3 },
             EventType = EventType.TransactionImport

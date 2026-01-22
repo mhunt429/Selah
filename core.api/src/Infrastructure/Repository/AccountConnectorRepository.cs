@@ -38,18 +38,25 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
         ).ToListAsync();
     }
 
-    public async Task<AccountConnectorEntity?> GetConnectorSyncRecordByConnectorId(int userId, int id)
+    public async Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id)
     {
         return await dbContext.AccountConnectors
             .Where(x => x.Id == id && x.UserId == userId)
             .FirstOrDefaultAsync();
     }
-    
+
     public async Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId)
     {
         return await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.RequiresReauthentication, true)
             );
+    }
+
+    public async Task<AccountConnectorEntity?> GetConnectorRecordByExternalId(string externalId)
+    {
+        return await dbContext.AccountConnectors
+            .Where(x => x.ExternalEventId == externalId)
+            .FirstOrDefaultAsync();
     }
 }
