@@ -23,11 +23,19 @@ public class PlaidTransactionImportService(
         var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
 
         //Go ahead and load existing accounts per connector so we can map a transaction to an account
-        IReadOnlyCollection<FinancialAccountEntity?> financialAccounts =
+        IReadOnlyCollection<FinancialAccountEntity?> nullableFinancialAccounts =
             await financialAccountRepository.GetAccountsAsync(syncEvent.UserId, syncEvent.ConnectorId);
+
+        // Filter out null accounts and convert to non-nullable collection
+        IReadOnlyCollection<FinancialAccountEntity> financialAccounts = nullableFinancialAccounts
+            .Where(acc => acc != null)
+            .Cast<FinancialAccountEntity>()
+            .ToList();
 
         bool hasMoreTransactions = true;
         string? cursor = syncEvent.TransactionSyncCursor;
+
+        int interation = 1;
 
         while (hasMoreTransactions)
         {
@@ -53,19 +61,27 @@ public class PlaidTransactionImportService(
 
             var transactionsData = transactionsResponse.data;
 
-            if (transactionsData.Added.Any())
+            var addedTransactions = transactionsData.Added;
+            var modifiedTransactions = transactionsData.Modified;
+            var removedTransactions = transactionsData.Removed;
+
+            logger.LogInformation(
+                "Retrieved {NewTransactions} new transactions, {UpdatedTransactions} updated transactions, and {DeletedTransactions} deleted transactions for iteration {Iteration}",
+                addedTransactions.Count, modifiedTransactions.Count, removedTransactions.Count, interation);
+
+            if (addedTransactions.Any())
             {
-                await AddNewTransactionsAsync(transactionsData.Added, syncEvent.UserId, financialAccounts);
+                await AddNewTransactionsAsync(addedTransactions, syncEvent.UserId, financialAccounts);
             }
 
-            if (transactionsData.Modified.Any())
+            if (modifiedTransactions.Any())
             {
-                await UpdateTransactionsAsync(transactionsData.Modified, syncEvent.UserId, financialAccounts);
+                await UpdateTransactionsAsync(modifiedTransactions, syncEvent.UserId, financialAccounts);
             }
 
-            if (transactionsData.Removed.Any())
+            if (removedTransactions.Any())
             {
-                await transactionRepository.DeleteTransactionsInBulk(transactionsData.Modified
+                await transactionRepository.DeleteTransactionsInBulk(removedTransactions
                         .Select(t => t.TransactionId)
                         .ToList(), syncEvent.UserId
                 );
@@ -77,14 +93,18 @@ public class PlaidTransactionImportService(
             }
 
             hasMoreTransactions = transactionsData.HasMore;
+
+            interation += 1;
         }
 
 
-        await accountConnectorRepository.UpdateConnectionSync(
+        logger.LogInformation("Finished syncing transactions for user {UserId}", syncEvent.UserId);
+
+        await accountConnectorRepository.UpdateConnectionSyncCursor(
             syncEvent.ConnectorId,
             syncEvent.UserId,
-            DateTimeOffset.UtcNow.AddDays(3),
-            cursor);
+            cursor
+        );
     }
 
     private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId,
@@ -112,16 +132,20 @@ public class PlaidTransactionImportService(
         IReadOnlyCollection<FinancialAccountEntity> financialAccounts)
     {
         var mappedTransactions = new List<TransactionEntity>();
-        for (int i = 0; i < financialAccounts.Count(); i++)
+        
+        var accountLookup = financialAccounts.ToDictionary(acc => acc.ExternalId, acc => acc.Id);
+        
+        foreach (var plaidTransaction in transactions)
         {
-            var externalId = financialAccounts.ElementAt(i).ExternalId;
-            var accountId = financialAccounts.ElementAt(i).Id;
-
-            var transactionToMap = transactions.FirstOrDefault(t => t.AccountId == externalId);
-
-            if (transactionToMap != null)
+            if (accountLookup.TryGetValue(plaidTransaction.AccountId, out var accountId))
             {
-                mappedTransactions.Add(MapPlaidTransaction(transactionToMap, userId, accountId));
+                mappedTransactions.Add(MapPlaidTransaction(plaidTransaction, userId, accountId));
+            }
+            else
+            {
+                logger.LogWarning(
+                    "No linked account found for transaction {TransactionId} with account {AccountId} for user {UserId}",
+                    plaidTransaction.TransactionId, plaidTransaction.AccountId, userId);
             }
         }
 

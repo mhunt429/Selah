@@ -95,10 +95,9 @@ public class PlaidAccountBalanceImportServiceTests
             .Returns(Task.CompletedTask);
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -113,11 +112,10 @@ public class PlaidAccountBalanceImportServiceTests
                 accounts.Any(a => a.ExternalId == "account-1" && a.CurrentBalance == 1000.50m))),
             Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateAccountSyncTimes(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<string>()),
+                It.IsAny<DateTimeOffset>()),
             Times.Once);
     }
 
@@ -188,10 +186,9 @@ public class PlaidAccountBalanceImportServiceTests
             .Returns(Task.CompletedTask);
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -244,10 +241,9 @@ public class PlaidAccountBalanceImportServiceTests
             x => x.GetAccountsAsync(It.IsAny<int>()),
             Times.Never);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Never);
     }
@@ -285,10 +281,9 @@ public class PlaidAccountBalanceImportServiceTests
             x => x.GetAccountsAsync(It.IsAny<int>()),
             Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Never);
     }

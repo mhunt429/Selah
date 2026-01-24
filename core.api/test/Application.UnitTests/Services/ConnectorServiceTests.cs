@@ -1,7 +1,9 @@
+using System.Threading.Channels;
 using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Plaid;
 using Application.Services;
+using Domain.Events;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Moq;
@@ -15,17 +17,20 @@ public class ConnectorServiceTests
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
     private readonly Mock<ICryptoService> _mockCryptoService;
     private readonly ConnectorService _service;
+    private readonly Mock<ChannelWriter<ConnectorDataSyncEvent>> _publisher;
 
     public ConnectorServiceTests()
     {
         _mockPlaidHttpService = new Mock<IPlaidHttpService>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
         _mockCryptoService = new Mock<ICryptoService>();
+        _publisher = new Mock<ChannelWriter<ConnectorDataSyncEvent>>();
 
         _service = new ConnectorService(
             _mockPlaidHttpService.Object,
             _mockAccountConnectorRepository.Object,
-            _mockCryptoService.Object);
+            _mockCryptoService.Object,
+            _publisher.Object);
     }
 
     [Fact]

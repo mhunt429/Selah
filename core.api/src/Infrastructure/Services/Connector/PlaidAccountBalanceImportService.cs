@@ -41,9 +41,11 @@ public class PlaidAccountBalanceImportService(
         var existingAccounts = (await financialAccountRepository.GetAccountsAsync(syncEvent.UserId))
             .ToDictionary(a => a.ExternalId);
 
+        
 
         if (balanceData != null)
         {
+            logger.LogInformation("Retrieved {AccountCount} accounts for user {UserId}", balanceData.Accounts.Count(), syncEvent.UserId);
             if (!existingAccounts.Any())
             {
                 var dbObjectsToSave = balanceData.Accounts.Select(a => new FinancialAccountEntity
@@ -87,10 +89,8 @@ public class PlaidAccountBalanceImportService(
             }
 
 
-            await accountConnectorRepository.UpdateConnectionSync(syncEvent.ConnectorId,
-                syncEvent.UserId,
-                DateTimeOffset.UtcNow.AddDays(3),
-                syncEvent.TransactionSyncCursor);
+            await accountConnectorRepository
+                .UpdateAccountSyncTimes(id: syncEvent.ConnectorId, userId: syncEvent.UserId, nextSyncDate: DateTimeOffset.UtcNow.AddDays(3));
         }
     }
 }

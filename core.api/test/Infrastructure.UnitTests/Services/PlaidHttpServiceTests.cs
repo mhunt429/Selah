@@ -34,7 +34,8 @@ public class PlaidHttpServiceTests
         {
             ClientId = "test-client-id",
             ClientSecret = "test-client-secret",
-            BaseUrl = _httpClient.BaseAddress.ToString()
+            BaseUrl = _httpClient.BaseAddress.ToString(),
+            MaxDaysRequested = 30
         };
 
         _plaidHttpService = new PlaidHttpService(_httpClient, _plaidConfig, _mockLogger.Object);

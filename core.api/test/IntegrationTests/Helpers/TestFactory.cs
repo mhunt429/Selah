@@ -39,7 +39,8 @@ public class TestFactory : WebApplicationFactory<Program>
             {
                 ClientId = "abced",
                 ClientSecret = "abced",
-                BaseUrl = "https://sandbox.plaid.com"
+                BaseUrl = "https://sandbox.plaid.com",
+                MaxDaysRequested = 30
             });
 
             // Use a consistent JWT secret for both token generation and validation

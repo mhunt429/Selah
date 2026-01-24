@@ -81,10 +81,9 @@ public class PlaidTransactionImportServiceTests
                 transactionsResponse));
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -95,10 +94,9 @@ public class PlaidTransactionImportServiceTests
         _mockCryptoService.Verify(x => x.Decrypt(syncEvent.AccessToken), Times.Once);
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Once);
     }
@@ -138,10 +136,9 @@ public class PlaidTransactionImportServiceTests
                 secondResponse));
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -155,10 +152,9 @@ public class PlaidTransactionImportServiceTests
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, secondCursor, It.IsAny<int>()),
             Times.Never);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Once);
     }
@@ -195,10 +191,9 @@ public class PlaidTransactionImportServiceTests
         // Assert
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Once); // Still updates sync even on failure
     }
@@ -229,10 +224,9 @@ public class PlaidTransactionImportServiceTests
                 null));
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -242,10 +236,9 @@ public class PlaidTransactionImportServiceTests
         // Assert
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Once);
     }
@@ -295,10 +288,9 @@ public class PlaidTransactionImportServiceTests
                 response));
 
         _mockAccountConnectorRepository
-            .Setup(x => x.UpdateConnectionSync(
+            .Setup(x => x.UpdateConnectionSyncCursor(
                 It.IsAny<int>(),
                 It.IsAny<int>(),
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
@@ -308,10 +300,9 @@ public class PlaidTransactionImportServiceTests
         // Assert
         _mockPlaidHttpService.Verify(x => x.SyncTransactions(decryptedToken, null, It.IsAny<int>()), Times.Once);
         _mockAccountConnectorRepository.Verify(
-            x => x.UpdateConnectionSync(
+            x => x.UpdateConnectionSyncCursor(
                 syncEvent.ConnectorId,
                 syncEvent.UserId,
-                It.IsAny<DateTimeOffset>(),
                 It.IsAny<string>()),
             Times.Once);
     }

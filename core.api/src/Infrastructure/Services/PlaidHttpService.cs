@@ -20,13 +20,22 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase // optional, Plaid API expects camelCase
     };
 
-    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false)
+    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false,
+        bool initialLink = true)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
-            User = new PlaidUser { UserId = userId.ToString() }
+            User = new PlaidUser { UserId = userId.ToString() },
+            Products = initialLink
+                ? new List<string>() { "auth", "transactions" }
+                : new List<string>() { "investments" },
+            Transactions = new LinkTokenTransactions
+            {
+                DaysRequested = plaidConfig.MaxDaysRequested
+            },
+            Webhook = !string.IsNullOrEmpty(plaidConfig.WebhookUrl) ? plaidConfig.WebhookUrl : null,
         };
 
         Uri linkTokenEndpoint = new Uri($"{httpClient.BaseAddress}link/token/create");
@@ -98,9 +107,10 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         return new ApiResponseResult<PlaidBalanceApiResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidBalanceApiResponse>(messageBody));
     }
-    
 
-    public async Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int count = 50)
+
+    public async Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken,
+        string? cursor = null, int count = 50)
     {
         Uri transactionsSyncEndpoint = new Uri($"{httpClient.BaseAddress}transactions/sync");
 
@@ -130,7 +140,8 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
             JsonSerializer.Deserialize<PlaidTransactionsSyncResponse>(messageBody));
     }
 
-    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken)
+    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(
+        string accessToken)
     {
         Uri recurringTransactionsEndpoint = new Uri($"{httpClient.BaseAddress}transactions/recurring/get");
 
@@ -165,10 +176,10 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         var request = new WebhookVerificationRequest
         {
             KeyId = keyId,
-            ClientId =plaidConfig.ClientId,
+            ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
         };
-        
+
         HttpResponseMessage response = await httpClient.PostAsync(verificationEndpoint, request);
         var messageBody = await response.Content.ReadAsStringAsync();
 
@@ -179,7 +190,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
                 response.StatusCode, messageBody);
             return new ApiResponseResult<PlaidWebhookVerificationResponse>(ResultStatus.Failed, messageBody, null);
         }
-        
+
         return new ApiResponseResult<PlaidWebhookVerificationResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidWebhookVerificationResponse>(messageBody));
     }

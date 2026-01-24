@@ -19,14 +19,13 @@ public interface IAccountConnectorRepository
     Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecordsByUserId(int userId);
 
     /// <summary>
-    /// Updates the specific connector record after the recurring job as has ran
+    /// Updates the transactions cursor after a given sync
     /// </summary>
     /// <param name="id"></param>
     /// <param name="userId"></param>
-    /// <param name="nextDate"></param>
     /// <param name="nextCursor"></param>
     /// <returns></returns>
-    Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate, string nextCursor);
+    Task UpdateConnectionSyncCursor(int id, int userId, string? nextCursor);
 
     Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 
@@ -37,4 +36,6 @@ public interface IAccountConnectorRepository
     Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId);
     
     Task<AccountConnectorEntity?> GetConnectorRecordByExternalId(string externalId);
+
+    Task UpdateAccountSyncTimes(int id, int userId, DateTimeOffset nextSyncDate);
 }

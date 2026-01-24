@@ -15,7 +15,7 @@ namespace WebApi.Controllers;
 public class WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher) : ControllerBase
 {
     [HttpPost("plaid")]
-    [TypeFilter(typeof(PlaidWebhookVerificationActionFilter))]
+   // [TypeFilter(typeof(PlaidWebhookVerificationActionFilter))]
     public async Task<IActionResult> ProcessPlaidWebhook([FromBody] PlaidWebhookRequest request)
     {
         PlaidWebhookType webhookType;

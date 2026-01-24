@@ -22,12 +22,10 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
     }
 
 
-    public async Task UpdateConnectionSync(int id, int userId, DateTimeOffset nextDate, string? nextCursor)
+    public async Task UpdateConnectionSyncCursor(int id, int userId, string? nextCursor)
     {
         await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
-                .SetProperty(x => x.LastSyncDate, DateTimeOffset.UtcNow)
-                .SetProperty(x => x.NextSyncDate, nextDate)
                 .SetProperty(x => x.TransactionSyncCursor, nextCursor)
             );
     }
@@ -59,5 +57,14 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
         return await dbContext.AccountConnectors
             .Where(x => x.ExternalEventId == externalId)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task UpdateAccountSyncTimes(int id, int userId, DateTimeOffset nextSyncDate)
+    {
+      await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.LastSyncDate, DateTimeOffset.UtcNow)
+                .SetProperty(x => x.NextSyncDate, nextSyncDate)
+            );
     }
 }

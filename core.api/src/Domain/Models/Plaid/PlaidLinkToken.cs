@@ -13,12 +13,17 @@ public class PlainLinkTokenRequest
 
     [JsonPropertyName("secret")] public required string Secret { get; set; }
 
-    [JsonPropertyName("country_codes")] public List<string> CountryCodes { get; set; } = new List<string> { "US" };
+    [JsonPropertyName("country_codes")] public List<string> CountryCodes { get; set; } = new() { "US" };
 
     [JsonPropertyName("language")] public string Language { get; set; } = "en";
+    
+    [JsonPropertyName("webhook")]
+    public string? Webhook { get; set; }
 
-    [JsonPropertyName("products")]
-    public List<string> Products { get; set; } = new List<string> { "auth", "transactions" };
+    [JsonPropertyName("products")] public required List<string> Products { get; set; }
+    
+    [JsonPropertyName("transactions")]
+    public required LinkTokenTransactions Transactions { get; set; }
 
     [JsonPropertyName("client_name")] public string ClientName { get; set; } = "Selah";
 
@@ -27,7 +32,7 @@ public class PlainLinkTokenRequest
 
 public class PlaidUser
 {
-    [JsonPropertyName("client_user_id")] public string UserId { get; set; }
+    [JsonPropertyName("client_user_id")] public required string UserId { get; set; }
 }
 
 public class PlaidTokenExchangeRequest
@@ -61,4 +66,9 @@ public class PlaidLinkUpdate
 {
     [JsonPropertyName("account_selection_enabled")]
     public bool AccountSelectionEnabled { get; set; }
+}
+
+public class LinkTokenTransactions
+{
+    [JsonPropertyName("days_requested")] public required int DaysRequested { get; set; }
 }
