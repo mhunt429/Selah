@@ -1,25 +1,84 @@
-<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 relative z-[60]">
+<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 relative z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
-      <!-- Left side - Sidebar Toggle Button -->
+      <!-- Logo and Desktop Navigation -->
       <div class="flex items-center">
-        <button
-          (click)="toggleSidebar()"
-          class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
-          [attr.aria-label]="sidebarOpen ? 'Close sidebar' : 'Open sidebar'"
-        >
-          @if (sidebarOpen) {
-          <lucide-angular name="x" class="h-6 w-6"></lucide-angular>
-          } @else {
-          <lucide-angular name="menu" class="h-6 w-6"></lucide-angular>
+        <img src="favicon.jpeg" alt="Selah.fi" class="h-6 w-6 pr-2" />
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mr-8">Selah.fi</h1>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex space-x-1">
+          @for (item of navigationItems; track item.id) {
+            @if (item.hasDropdown) {
+              <!-- Dropdown Navigation Item -->
+              <div class="relative transactions-dropdown-container">
+                <button
+                  (click)="toggleTransactionsDropdown()"
+                  [ngClass]="{
+                    'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400':
+                      isCurrentPage('transactions') || isCurrentPage('recurring-transactions'),
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+                      !isCurrentPage('transactions') && !isCurrentPage('recurring-transactions'),
+                  }"
+                  class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-2"></lucide-angular>
+                  {{ item.label }}
+                  <lucide-angular
+                    name="chevron-down"
+                    class="h-4 w-4 ml-1 transition-transform"
+                    [ngClass]="{ 'rotate-180': transactionsDropdownOpen() }"
+                  ></lucide-angular>
+                </button>
+
+                <!-- Dropdown Menu -->
+                @if (transactionsDropdownOpen()) {
+                  <div
+                    class="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50"
+                  >
+                    @for (dropdownItem of item.dropdownItems; track dropdownItem.id) {
+                      <button
+                        (click)="navigateToDropdownItem(item, dropdownItem)"
+                        [ngClass]="{
+                          'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentDropdownPage(
+                            dropdownItem.id
+                          ),
+                          'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+                            !isCurrentDropdownPage(dropdownItem.id),
+                        }"
+                        class="w-full flex items-center px-4 py-2 text-sm transition-colors"
+                      >
+                        @if (dropdownItem.iconName) {
+                          <lucide-angular [name]="dropdownItem.iconName" class="h-4 w-4 mr-3"></lucide-angular>
+                        }
+                        {{ dropdownItem.label }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <!-- Regular Navigation Item -->
+              <button
+                (click)="navigateToPage(item)"
+                [ngClass]="{
+                  'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentPage(item.id),
+                  'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700': !isCurrentPage(item.id),
+                }"
+                class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-2"></lucide-angular>
+                {{ item.label }}
+              </button>
+            }
           }
-        </button>
+        </div>
       </div>
 
       <!-- Right side actions -->
       <div class="flex items-center space-x-4">
         <!-- Desktop Actions -->
-        <div class="flex items-center space-x-4">
+        <div class="hidden md:flex items-center space-x-4">
           <!-- Notifications -->
           <button
             (click)="handleNotificationsClick()"
@@ -27,11 +86,11 @@
           >
             <lucide-angular name="bell" class="h-5 w-5"></lucide-angular>
             @if (unreadNotifications() > 0) {
-            <span
-              class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full min-w-[1.25rem] h-5"
-            >
-              {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
-            </span>
+              <span
+                class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full min-w-[1.25rem] h-5"
+              >
+                {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+              </span>
             }
           </button>
 
@@ -41,9 +100,9 @@
             class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
           >
             @if (themeService.darkMode()) {
-            <lucide-angular name="sun" class="h-5 w-5"></lucide-angular>
+              <lucide-angular name="sun" class="h-5 w-5"></lucide-angular>
             } @else {
-            <lucide-angular name="moon" class="h-5 w-5"></lucide-angular>
+              <lucide-angular name="moon" class="h-5 w-5"></lucide-angular>
             }
           </button>
 
@@ -65,7 +124,163 @@
             <lucide-angular name="log-out" class="h-5 w-5"></lucide-angular>
           </button>
         </div>
+
+        <!-- Mobile menu button -->
+        <button
+          (click)="toggleMobileMenu()"
+          class="md:hidden p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+        >
+          @if (mobileMenuOpen) {
+            <lucide-angular name="x" class="h-6 w-6"></lucide-angular>
+          } @else {
+            <lucide-angular name="menu" class="h-6 w-6"></lucide-angular>
+          }
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Mobile Navigation Menu Overlay -->
+  @if (mobileMenuOpen) {
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" (click)="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu Panel -->
+    <div
+      class="fixed top-16 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-lg z-50 md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto"
+    >
+      <!-- Close Button -->
+      <div class="flex justify-end px-4 pt-4">
+        <button
+          (click)="toggleMobileMenu()"
+          class="p-2 text-gray-500 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors rounded-lg"
+          aria-label="Close menu"
+        >
+          <lucide-angular name="x" class="h-6 w-6"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="px-4 pb-4">
+        <!-- Mobile Navigation Items -->
+        <div class="space-y-1">
+          @for (item of navigationItems; track item.id) {
+            @if (item.hasDropdown) {
+              <!-- Mobile Dropdown Navigation Item -->
+              <div>
+                <button
+                  (click)="toggleMobileTransactionsDropdown()"
+                  [ngClass]="{
+                    'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400':
+                      isCurrentPage('transactions') || isCurrentPage('recurring-transactions'),
+                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+                      !isCurrentPage('transactions') && !isCurrentPage('recurring-transactions'),
+                  }"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <div class="flex items-center">
+                    <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-3"></lucide-angular>
+                    {{ item.label }}
+                  </div>
+                  <lucide-angular
+                    name="chevron-down"
+                    class="h-4 w-4 transition-transform"
+                    [ngClass]="{ 'rotate-180': mobileTransactionsDropdownOpen() }"
+                  ></lucide-angular>
+                </button>
+
+                <!-- Mobile Dropdown Menu -->
+                @if (mobileTransactionsDropdownOpen()) {
+                  <div class="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
+                    @for (dropdownItem of item.dropdownItems; track dropdownItem.id) {
+                      <button
+                        (click)="navigateToDropdownItem(item, dropdownItem)"
+                        [ngClass]="{
+                          'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentDropdownPage(
+                            dropdownItem.id
+                          ),
+                          'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700':
+                            !isCurrentDropdownPage(dropdownItem.id),
+                        }"
+                        class="w-full flex items-center px-3 py-2 rounded-lg text-sm transition-colors"
+                      >
+                        @if (dropdownItem.iconName) {
+                          <lucide-angular [name]="dropdownItem.iconName" class="h-4 w-4 mr-3"></lucide-angular>
+                        }
+                        {{ dropdownItem.label }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <!-- Regular Mobile Navigation Item -->
+              <button
+                (click)="navigateToPage(item)"
+                [ngClass]="{
+                  'bg-teal-100 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400': isCurrentPage(item.id),
+                  'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700': !isCurrentPage(item.id),
+                }"
+                class="w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                <lucide-angular [name]="item.iconName" class="h-4 w-4 mr-3"></lucide-angular>
+                {{ item.label }}
+              </button>
+            }
+          }
+        </div>
+
+        <!-- Mobile Actions -->
+        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+          <!-- Notifications -->
+          <button
+            (click)="handleNotificationsClick(); toggleMobileMenu()"
+            class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <lucide-angular name="bell" class="h-4 w-4 mr-3"></lucide-angular>
+            Notifications
+            @if (unreadNotifications() > 0) {
+              <span
+                class="ml-auto inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[1.25rem] h-5"
+              >
+                {{ unreadNotifications() > 99 ? '99+' : unreadNotifications() }}
+              </span>
+            }
+          </button>
+
+          <!-- Dark Mode Toggle -->
+          <button
+            (click)="toggleDarkMode(); toggleMobileMenu()"
+            class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            @if (themeService.darkMode()) {
+              <lucide-angular name="sun" class="h-4 w-4 mr-3"></lucide-angular>
+            } @else {
+              <lucide-angular name="moon" class="h-4 w-4 mr-3"></lucide-angular>
+            }
+            {{ themeService.darkMode() ? 'Light Mode' : 'Dark Mode' }}
+          </button>
+
+          <!-- Settings -->
+          <button
+            class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <lucide-angular name="settings" class="h-4 w-4 mr-3"></lucide-angular>
+            Settings
+          </button>
+
+          <!-- User Info -->
+          <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Signed in as {{ userName() }}</div>
+
+          <!-- Logout -->
+          <button
+            (click)="handleLogout()"
+            class="w-full flex items-center px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <lucide-angular name="log-out" class="h-4 w-4 mr-3"></lucide-angular>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </nav>

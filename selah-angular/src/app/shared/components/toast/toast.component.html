@@ -1,13 +1,13 @@
 @if (toastService.toast$ | async; as toast) {
-<div
-  class="toast shadow-2xl"
-  [ngClass]="{
-    'border-teal-500 bg-teal-50': toast.type === ToastType.Success,
-    'border-red-500 bg-red-50': toast.type === ToastType.Error
-  }"
->
-  <div class="toast-body">
-    <span class="text">{{ toast.message }}</span>
+  <div
+    class="toast shadow-2xl"
+    [ngClass]="{
+      'border-teal-500 bg-teal-50': toast.type === ToastType.Success,
+      'border-red-500 bg-red-50': toast.type === ToastType.Error,
+    }"
+  >
+    <div class="toast-body">
+      <span class="text">{{ toast.message }}</span>
+    </div>
   </div>
-</div>
 }

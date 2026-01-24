@@ -1,52 +1,50 @@
-@if(showEmptyState){
-
-<app-card class="w-1/2 text-center">
-  <div class="text-2xl font-semibold text-gray-900 dark:text-white">No data available</div>
-  <p class="pt-4 text-sm text-gray-600 dark:text-gray-400">Get started by connecting an account.</p>
-  <p class="pt-4">
-    <app-primary-button (onClick)="linkAccount($event)">
-      <div class="flex items-center">
-        <lucide-angular name="plus" class="h-4 w-4 ml-1"></lucide-angular>
-        <span class="pl-2"> Connect Account</span>
-      </div>
-    </app-primary-button>
-  </p>
-</app-card>
-
+@if (showEmptyState) {
+  <app-card class="w-1/2 text-center">
+    <div class="text-2xl font-semibold text-gray-900 dark:text-white">No data available</div>
+    <p class="pt-4 text-sm text-gray-600 dark:text-gray-400">Get started by connecting an account.</p>
+    <p class="pt-4">
+      <app-primary-button (onClick)="linkAccount($event)">
+        <div class="flex items-center">
+          <lucide-angular name="plus" class="h-4 w-4 ml-1"></lucide-angular>
+          <span class="pl-2"> Connect Account</span>
+        </div>
+      </app-primary-button>
+    </p>
+  </app-card>
 } @else {
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-  <app-card>
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Net Worth</h3>
-    </div>
-    <p class="text-2xl font-semibold text-gray-900 dark:text-white">$24,563.82</p>
-    <p class="text-sm text-green-600 dark:text-green-400">+2.3% from last month</p>
-  </app-card>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <app-card>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Net Worth</h3>
+      </div>
+      <p class="text-2xl font-semibold text-gray-900 dark:text-white">$24,563.82</p>
+      <p class="text-sm text-green-600 dark:text-green-400">+2.3% from last month</p>
+    </app-card>
 
-  <app-card>
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Savings Rate</h3>
-    </div>
-    <p class="text-2xl font-semibold text-gray-900 dark:text-white">$1,850.00</p>
-    <p class="text-sm text-green-600 dark:text-green-400">+15% from last month</p>
-  </app-card>
+    <app-card>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Savings Rate</h3>
+      </div>
+      <p class="text-2xl font-semibold text-gray-900 dark:text-white">$1,850.00</p>
+      <p class="text-sm text-green-600 dark:text-green-400">+15% from last month</p>
+    </app-card>
 
-  <app-card>
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Monthly Expenses</h3>
-    </div>
-    <p class="text-2xl font-semibold text-gray-900 dark:text-white">$2,150.48</p>
-    <p class="text-sm text-gray-500 dark:text-gray-400">Last updated 2h ago</p>
-  </app-card>
-</div>
-
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-  <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
+    <app-card>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Monthly Expenses</h3>
+      </div>
+      <p class="text-2xl font-semibold text-gray-900 dark:text-white">$2,150.48</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Last updated 2h ago</p>
+    </app-card>
   </div>
-  <app-paged-table [columnHeaders]="recentTransactionTableHeaders"></app-paged-table>
-</div>
 
-} @if(showConnectorOverlay){
-<app-connector [linkToken]="linkToken"></app-connector>
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Transactions</h2>
+    </div>
+    <app-paged-table [columnHeaders]="recentTransactionTableHeaders"></app-paged-table>
+  </div>
+}
+@if (showConnectorOverlay) {
+  <app-connector [linkToken]="linkToken"></app-connector>
 }

@@ -1,4 +1,6 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-teal-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-12">
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-teal-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-12"
+>
   <div class="max-w-md w-full">
     <!-- Logo and Header -->
     <div class="text-center mb-8">
@@ -13,21 +15,17 @@
 
     <!-- Card Container -->
     <app-card cardClasses="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-      @if(errors.length > 0){
-      <div class="mb-6">
-        <app-alert [alertType]="AlertType.Error">
-          @for (error of errors; track $index) {
-          <div>{{ error }}</div>
-          }
-        </app-alert>
-      </div>
+      @if (errors.length > 0) {
+        <div class="mb-6">
+          <app-alert [alertType]="AlertType.Error">
+            @for (error of errors; track $index) {
+              <div>{{ error }}</div>
+            }
+          </app-alert>
+        </div>
       }
 
-      <form
-        [formGroup]="registrationForm"
-        (ngSubmit)="registrationSubmit($event)"
-        class="space-y-5"
-      >
+      <form [formGroup]="registrationForm" (ngSubmit)="registrationSubmit($event)" class="space-y-5">
         <div class="space-y-5">
           <!-- Account Name (Optional) -->
           <div>
@@ -66,9 +64,11 @@
               type="text"
               [required]="true"
             />
-            @if( registrationForm.get('firstName')?.invalid &&
-            (registrationForm.get('firstName')?.touched || registrationForm.get('firstName')?.dirty)) {
-            <div class="mt-1 text-red-500 text-sm">First Name is required</div>
+            @if (
+              registrationForm.get('firstName')?.invalid &&
+              (registrationForm.get('firstName')?.touched || registrationForm.get('firstName')?.dirty)
+            ) {
+              <div class="mt-1 text-red-500 text-sm">First Name is required</div>
             }
           </div>
 
@@ -89,9 +89,11 @@
               type="text"
               [required]="true"
             />
-            @if( registrationForm.get('lastName')?.invalid && (registrationForm.get('lastName')?.touched
-            || registrationForm.get('lastName')?.dirty)) {
-            <div class="mt-1 text-red-500 text-sm">Last Name is required</div>
+            @if (
+              registrationForm.get('lastName')?.invalid &&
+              (registrationForm.get('lastName')?.touched || registrationForm.get('lastName')?.dirty)
+            ) {
+              <div class="mt-1 text-red-500 text-sm">Last Name is required</div>
             }
           </div>
 
@@ -112,10 +114,11 @@
               type="text"
               [required]="true"
             />
-            @if( registrationForm.get('emailAddress')?.invalid &&
-            (registrationForm.get('emailAddress')?.touched ||
-            registrationForm.get('emailAddress')?.dirty)) {
-            <div class="mt-1 text-red-500 text-sm">Email is required</div>
+            @if (
+              registrationForm.get('emailAddress')?.invalid &&
+              (registrationForm.get('emailAddress')?.touched || registrationForm.get('emailAddress')?.dirty)
+            ) {
+              <div class="mt-1 text-red-500 text-sm">Email is required</div>
             }
           </div>
 
@@ -196,27 +199,37 @@
 
     <!-- Benefits Section -->
     <app-card cardClasses="mt-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6">
-      <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 text-center">
-        What you'll get:
-      </h3>
+      <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 text-center">What you'll get:</h3>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <lucide-angular
+            name="check-circle"
+            class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"
+          ></lucide-angular>
           <span>AI-powered budgeting</span>
         </div>
         <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <lucide-angular
+            name="check-circle"
+            class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"
+          ></lucide-angular>
           <span>Calendar automation</span>
         </div>
         <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <lucide-angular
+            name="check-circle"
+            class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"
+          ></lucide-angular>
           <span>Financial insights</span>
         </div>
         <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <lucide-angular name="check-circle" class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"></lucide-angular>
+          <lucide-angular
+            name="check-circle"
+            class="h-4 w-4 text-teal-600 dark:text-teal-400 flex-shrink-0"
+          ></lucide-angular>
           <span>Secure & private</span>
         </div>
       </div>
     </app-card>
   </div>
-  </div>
+</div>

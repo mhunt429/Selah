@@ -50,22 +50,26 @@ export class LandingPageComponent implements OnInit {
     {
       icon: 'dollar-sign',
       title: 'Automated Budgeting',
-      description: 'AI-powered agents analyze your spending patterns and automatically create and adjust budgets to help you reach your financial goals.',
+      description:
+        'AI-powered agents analyze your spending patterns and automatically create and adjust budgets to help you reach your financial goals.',
     },
     {
       icon: 'calendar',
       title: 'Smart Calendar Management',
-      description: 'Let our agents optimize your schedule, suggest time blocks for important tasks, and automatically coordinate with your financial planning.',
+      description:
+        'Let our agents optimize your schedule, suggest time blocks for important tasks, and automatically coordinate with your financial planning.',
     },
     {
       icon: 'zap',
       title: 'Intelligent Financial Planning',
-      description: 'Get personalized financial recommendations and automated investment strategies based on your unique lifestyle and goals.',
+      description:
+        'Get personalized financial recommendations and automated investment strategies based on your unique lifestyle and goals.',
     },
     {
       icon: 'clock',
       title: 'Lifestyle Automation',
-      description: 'Seamlessly integrate your finances with your daily life. Our agents handle the complexity so you can focus on what matters.',
+      description:
+        'Seamlessly integrate your finances with your daily life. Our agents handle the complexity so you can focus on what matters.',
     },
   ];
 

@@ -1,4 +1,6 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-teal-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-12">
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-teal-50/30 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-12"
+>
   <div class="max-w-md w-full">
     <!-- Logo and Header -->
     <div class="text-center mb-8">
@@ -13,12 +15,12 @@
 
     <!-- Card Container -->
     <app-card cardClasses="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-      @if(loginError != ''){
-      <div class="mb-6">
-        <app-alert [alertType]="AlertType.Error">
-          {{ loginError }}
-        </app-alert>
-      </div>
+      @if (loginError != '') {
+        <div class="mb-6">
+          <app-alert [alertType]="AlertType.Error">
+            {{ loginError }}
+          </app-alert>
+        </div>
       }
 
       <form [formGroup]="loginForm" (ngSubmit)="handleLogin($event)" class="space-y-6">
@@ -33,7 +35,7 @@
           />
 
           <app-floating-label
-           classes="mt-6"
+            classes="mt-6"
             formControlName="password"
             id="password"
             label="Password"
@@ -52,10 +54,7 @@
             />
             <span class="ml-2 text-gray-600 dark:text-gray-400">Remember me</span>
           </label>
-          <a
-            href="#"
-            class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
-          >
+          <a href="#" class="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium">
             Forgot password?
           </a>
         </div>
@@ -100,12 +99,7 @@
         </div>
         <div class="flex items-center gap-1">
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <span>Fast</span>
         </div>
