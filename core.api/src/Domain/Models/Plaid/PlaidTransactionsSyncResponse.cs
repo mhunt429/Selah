@@ -4,8 +4,6 @@ namespace Domain.Models.Plaid;
 
 public class PlaidTransactionsSyncResponse
 {
-    [JsonPropertyName("accounts")] public required IReadOnlyCollection<PlaidTransactionAccount> Accounts { get; set; }
-
     [JsonPropertyName("added")] public required IReadOnlyCollection<PlaidTransaction> Added { get; set; }
 
     [JsonPropertyName("has_more")] public bool HasMore { get; set; }

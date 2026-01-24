@@ -26,7 +26,7 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<FinancialAccountEntity>> GetAccountsAsync(int userId)
+    public async Task<IReadOnlyCollection<FinancialAccountEntity>> GetAccountsAsync(int userId)
     {
         return await dbContext.FinancialAccounts
             .AsNoTracking()
@@ -34,7 +34,7 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<FinancialAccountEntity>> GetAccountsAsync(int userId, int connectorId)
+    public async Task<IReadOnlyCollection<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId)
     {
         return await dbContext.FinancialAccounts
             .AsNoTracking()

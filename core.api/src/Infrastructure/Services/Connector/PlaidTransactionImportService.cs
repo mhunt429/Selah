@@ -21,9 +21,10 @@ public class PlaidTransactionImportService(
     public async Task ImportTransactionsAsync(ConnectorDataSyncEvent syncEvent)
     {
         var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
-        
+
         //Go ahead and load existing accounts per connector so we can map a transaction to an account
-      IEnumerable<FinancialAccountEntity?> financialAccounts = await financialAccountRepository.GetAccountsAsync(syncEvent.UserId, syncEvent.ConnectorId);
+        IReadOnlyCollection<FinancialAccountEntity?> financialAccounts =
+            await financialAccountRepository.GetAccountsAsync(syncEvent.UserId, syncEvent.ConnectorId);
 
         bool hasMoreTransactions = true;
         string? cursor = syncEvent.TransactionSyncCursor;
@@ -32,9 +33,10 @@ public class PlaidTransactionImportService(
         {
             ApiResponseResult<PlaidTransactionsSyncResponse> transactionsResponse =
                 await plaidHttpService.SyncTransactions(accessToken, cursor);
-            
-            logger.LogInformation("Importing transactions for user {UserId} with cursor {Cursor}", syncEvent.UserId, cursor);
-            
+
+            logger.LogInformation("Importing transactions for user {UserId} with cursor {Cursor}", syncEvent.UserId,
+                cursor);
+
             if (transactionsResponse.status == ResultStatus.Failed)
             {
                 logger.LogError(
@@ -73,7 +75,7 @@ public class PlaidTransactionImportService(
             {
                 cursor = transactionsData.NextCursor;
             }
-            
+
             hasMoreTransactions = transactionsData.HasMore;
         }
 
@@ -85,21 +87,49 @@ public class PlaidTransactionImportService(
             cursor);
     }
 
-    private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
+    private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId,
+        IReadOnlyCollection<FinancialAccountEntity> financialAccounts)
     {
-        var mappedTransactions = transactions.Select(t => MapPlaidTransaction(t, userId, financialAccounts)).ToList();
-        await transactionRepository.AddTransactionsInBulk(mappedTransactions);
+        var mappedTransactions = MapTransactionsInBulk(transactions, userId, financialAccounts);
+        if (mappedTransactions.Any())
+        {
+            await transactionRepository.AddTransactionsInBulk(mappedTransactions);
+        }
     }
 
-    private async Task UpdateTransactionsAsync(IEnumerable<PlaidTransaction> transactions, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
+    private async Task UpdateTransactionsAsync(IEnumerable<PlaidTransaction> transactions, int userId,
+        IReadOnlyCollection<FinancialAccountEntity> financialAccounts)
     {
-        var mappedTransactions = transactions.Select(t =>
-            MapPlaidTransaction(t, userId, financialAccounts)).ToList();
-        await transactionRepository.UpdateTransactionsInBulk(mappedTransactions, userId);
+        var mappedTransactions = MapTransactionsInBulk(transactions, userId, financialAccounts);
+        if (mappedTransactions.Any())
+        {
+            await transactionRepository.UpdateTransactionsInBulk(mappedTransactions, userId);
+        }
+    }
+
+    private IReadOnlyCollection<TransactionEntity> MapTransactionsInBulk(
+        IEnumerable<PlaidTransaction> transactions, int userId,
+        IReadOnlyCollection<FinancialAccountEntity> financialAccounts)
+    {
+        var mappedTransactions = new List<TransactionEntity>();
+        for (int i = 0; i < financialAccounts.Count(); i++)
+        {
+            var externalId = financialAccounts.ElementAt(i).ExternalId;
+            var accountId = financialAccounts.ElementAt(i).Id;
+
+            var transactionToMap = transactions.FirstOrDefault(t => t.AccountId == externalId);
+
+            if (transactionToMap != null)
+            {
+                mappedTransactions.Add(MapPlaidTransaction(transactionToMap, userId, accountId));
+            }
+        }
+
+        return mappedTransactions;
     }
 
 
-    private TransactionEntity MapPlaidTransaction(PlaidTransaction plaidTransaction, int userId, IEnumerable<FinancialAccountEntity> financialAccounts)
+    private TransactionEntity MapPlaidTransaction(PlaidTransaction plaidTransaction, int userId, int accountId)
     {
         return new TransactionEntity
         {
@@ -122,7 +152,7 @@ public class PlaidTransactionImportService(
                     Amount = plaidTransaction.Amount,
                 }
             },
-            AccountId = financialAccounts.FirstOrDefault(x => x.ExternalId == plaidTransaction.AccountId).Id,
+            AccountId = accountId,
         };
     }
 }

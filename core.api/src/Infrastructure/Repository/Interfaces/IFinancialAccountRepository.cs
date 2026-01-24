@@ -8,7 +8,7 @@ public interface IFinancialAccountRepository
 
     Task<FinancialAccountEntity> AddAccountAsync(FinancialAccountEntity account);
 
-    Task<IEnumerable<FinancialAccountEntity>> GetAccountsAsync(int userId);
+    Task<IReadOnlyCollection<FinancialAccountEntity>> GetAccountsAsync(int userId);
 
     Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
 
@@ -21,6 +21,6 @@ public interface IFinancialAccountRepository
 
     Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId);
 
-    Task<IEnumerable<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId);
+    Task<IReadOnlyCollection<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId);
     
 }

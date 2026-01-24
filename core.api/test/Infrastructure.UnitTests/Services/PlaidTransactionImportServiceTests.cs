@@ -1,6 +1,7 @@
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Entities.FinancialAccount;
+using Domain.Models.Entities.Transactions;
 using Domain.Models.Plaid;
 using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
@@ -15,17 +16,16 @@ public class PlaidTransactionImportServiceTests
 {
     private readonly Mock<ICryptoService> _mockCryptoService;
     private readonly Mock<IPlaidHttpService> _mockPlaidHttpService;
-    private readonly Mock<ILogger<PlaidTransactionImportService>> _mockLogger;
     private readonly Mock<IAccountConnectorRepository> _mockAccountConnectorRepository;
-    private readonly Mock<ITransactionRepository> _mockTransactionRepository;
     private readonly PlaidTransactionImportService _service;
     private readonly Mock<IFinancialAccountRepository> _mockFinancialAccountRepository;
+    private readonly Mock<ITransactionRepository> _mockTransactionRepository;
 
     public PlaidTransactionImportServiceTests()
     {
         _mockCryptoService = new Mock<ICryptoService>();
         _mockPlaidHttpService = new Mock<IPlaidHttpService>();
-        _mockLogger = new Mock<ILogger<PlaidTransactionImportService>>();
+        var mockLogger = new Mock<ILogger<PlaidTransactionImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
         _mockTransactionRepository = new Mock<ITransactionRepository>();
         _mockFinancialAccountRepository = new Mock<IFinancialAccountRepository>();
@@ -43,12 +43,12 @@ public class PlaidTransactionImportServiceTests
                     Subtype = "Checking"
                 }
             });
-        
-        
+
+
         _service = new PlaidTransactionImportService(
             _mockCryptoService.Object,
             _mockPlaidHttpService.Object,
-            _mockLogger.Object,
+            mockLogger.Object,
             _mockAccountConnectorRepository.Object,
             _mockTransactionRepository.Object,
             _mockFinancialAccountRepository.Object);
@@ -265,7 +265,6 @@ public class PlaidTransactionImportServiceTests
         var decryptedToken = "decrypted-access-token";
         var response = new PlaidTransactionsSyncResponse
         {
-            Accounts = new List<PlaidTransactionAccount>(),
             Added = new List<PlaidTransaction>
             {
                 CreateTransaction("added-1", "Test Transaction 1", 100.50m)
@@ -317,13 +316,73 @@ public class PlaidTransactionImportServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ImportTransactionsAsync_OnlyMapsTransactionsWithAExistingAccount()
+    {
+        _mockFinancialAccountRepository.Setup(x => x.GetAccountsAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(
+            new List<FinancialAccountEntity>
+            {
+                new FinancialAccountEntity
+                {
+                    UserId = 1,
+                    ExternalId = "ABC123",
+                    CurrentBalance = 0,
+                    AccountMask = "1234",
+                    DisplayName = "USAA Checking",
+                    Subtype = "Checking"
+                },
+            });
+
+        var transactionsSyncResponse = new PlaidTransactionsSyncResponse
+        {
+            Added = new List<PlaidTransaction>
+            {
+                CreateTransaction("added-1", "Test Transaction 1", 100.50m)
+            },
+            Modified = new List<PlaidTransaction>
+            {
+                CreateTransaction("modified-1", "Test Transaction 2", 200.75m, accountId: "invalid-account-id")
+            },
+            Removed = new List<PlaidTransaction>(),
+            HasMore = false,
+            NextCursor = null,
+            RequestId = "req-123",
+            TransactionsUpdateStatus = "COMPLETE",
+        };
+
+        _mockPlaidHttpService.Setup(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int>()))
+            .ReturnsAsync(new ApiResponseResult<PlaidTransactionsSyncResponse>(
+                ResultStatus.Success,
+                "Success",
+                transactionsSyncResponse
+            ));
+
+        var syncEvent = new ConnectorDataSyncEvent
+        {
+            UserId = 123,
+            ConnectorId = 1,
+            AccessToken = new byte[] { 1, 2, 3 },
+            EventType = EventType.TransactionImport
+        };
+
+        await _service.ImportTransactionsAsync(syncEvent);
+
+        _mockTransactionRepository.Verify(
+            x => x.AddTransactionsInBulk(It.IsAny<List<TransactionEntity>>()), Times.Once());
+        
+        _mockTransactionRepository.Verify(
+            x => x.UpdateTransactionsInBulk(It.IsAny<List<TransactionEntity>>(), It.IsAny<int>()), Times.Never);
+
+        _mockTransactionRepository.Verify(
+            x => x.DeleteTransactionsInBulk(It.IsAny<List<string>>(), It.IsAny<int>()), Times.Never);
+    }
+
     private static PlaidTransactionsSyncResponse CreateTransactionsResponse(
         bool hasMore = false,
         string? nextCursor = null)
     {
         return new PlaidTransactionsSyncResponse
         {
-            Accounts = new List<PlaidTransactionAccount>(),
             Added = new List<PlaidTransaction>
             {
                 CreateTransaction("txn-1", "Test Transaction", 50.00m)
@@ -340,11 +399,12 @@ public class PlaidTransactionImportServiceTests
     private static PlaidTransaction CreateTransaction(
         string transactionId,
         string name,
-        decimal amount)
+        decimal amount,
+        string accountId = "ABC123")
     {
         return new PlaidTransaction
         {
-            AccountId = "ABC123",
+            AccountId = accountId,
             TransactionId = transactionId,
             Name = name,
             Amount = amount,
