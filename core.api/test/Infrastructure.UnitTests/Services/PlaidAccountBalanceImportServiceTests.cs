@@ -29,6 +29,11 @@ public class PlaidAccountBalanceImportServiceTests
         var mockLogger = new Mock<ILogger<PlaidAccountBalanceImportService>>();
         _mockAccountConnectorRepository = new Mock<IAccountConnectorRepository>();
         mockChannelWriter = new Mock<ChannelWriter<ConnectorDataSyncEvent>>();
+        
+        _mockFinancialAccountRepository
+            .Setup(x => x.GetAccountsAsync(It.IsAny<int>()))
+            .ReturnsAsync(new List<FinancialAccountEntity>());
+
 
         _service = new PlaidAccountBalanceImportService(
             _mockCryptoService.Object,
@@ -84,10 +89,7 @@ public class PlaidAccountBalanceImportServiceTests
                 "Success",
                 balanceResponse));
 
-        _mockFinancialAccountRepository
-            .Setup(x => x.GetAccountsAsync(syncEvent.UserId))
-            .ReturnsAsync(new List<FinancialAccountEntity>());
-
+      
         _mockFinancialAccountRepository
             .Setup(x => x.ImportFinancialAccountsAsync(It.IsAny<IEnumerable<FinancialAccountEntity>>()))
             .Returns(Task.CompletedTask);
