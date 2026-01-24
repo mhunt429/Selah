@@ -26,7 +26,6 @@ public class TokenServiceTests
         {
             JwtSecret = new string('a', 64), // 64 characters for HMAC-SHA512
             CryptoSecret = Convert.ToBase64String(new byte[32]),
-            HashIdSalt = "test-salt",
             AccessTokenExpiryMinutes = 60,
             RefreshTokenExpiryDays = 30
         };
@@ -40,7 +39,6 @@ public class TokenServiceTests
         {
             JwtSecret = new string('a', 64),
             CryptoSecret = Convert.ToBase64String(new byte[32]),
-            HashIdSalt = "test-salt",
             AccessTokenExpiryMinutes = 60,
             RefreshTokenExpiryDays = 30
         };

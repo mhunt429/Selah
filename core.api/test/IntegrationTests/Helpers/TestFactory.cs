@@ -43,13 +43,12 @@ public class TestFactory : WebApplicationFactory<Program>
             });
 
             // Use a consistent JWT secret for both token generation and validation
-            const string testJwtSecret = "DontUseThisInProductionDontUseThisInProductionDontUseThisInProductionDontUseThisInProduction";
+            string testJwtSecret = StringUtilities.GenerateSecret(bytesize:64);
             
             services.AddSingleton(new SecurityConfig
             {
                 JwtSecret = testJwtSecret,
-                HashIdSalt =  StringUtilities.ConvertToBase64("DontUseThisInProduction"),
-                CryptoSecret =  StringUtilities.GenerateAesSecret(),
+                CryptoSecret =  StringUtilities.GenerateSecret(32),
                 AccessTokenExpiryMinutes = 30,
                 RefreshTokenExpiryDays = 3
             });

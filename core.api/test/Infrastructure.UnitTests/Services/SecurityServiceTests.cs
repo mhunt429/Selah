@@ -18,7 +18,6 @@ public class SecurityServiceTests
         {
             CryptoSecret = "QXIwjylLOdmMMfhjC1nv601gyxU+EABjSvf1iADe0Qw=",
             JwtSecret = "",
-            HashIdSalt = "",
             AccessTokenExpiryMinutes = 60,
             RefreshTokenExpiryDays = 30,
         };

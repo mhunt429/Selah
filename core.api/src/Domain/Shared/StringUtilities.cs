@@ -11,15 +11,10 @@ public class StringUtilities
        return Convert.ToBase64String(bytes);
     }
 
-    public static string GenerateAesSecret()
+    public static string GenerateSecret(int bytesize = 32)
     {
-        byte[] key = RandomNumberGenerator.GetBytes(32);
+        byte[] key = RandomNumberGenerator.GetBytes(bytesize);
         return Convert.ToBase64String(key);
     }
     
-    public static string GenerateJwtSecret()
-    {
-        byte[] key = RandomNumberGenerator.GetBytes(64);
-        return Convert.ToBase64String(key);
-    }
 }

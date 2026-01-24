@@ -1,4 +1,5 @@
 using Domain.Configuration;
+using Domain.Shared;
 using Infrastructure.Services;
 using Infrastructure.Services.Interfaces;
 using Moq;
@@ -24,8 +25,7 @@ public class CryptoServiceTests
         _securityConfig = new SecurityConfig
         {
             CryptoSecret = base64Key,
-            JwtSecret = "test-jwt-secret-key-that-is-long-enough",
-            HashIdSalt = "test-salt",
+            JwtSecret = StringUtilities.GenerateSecret(64),
             AccessTokenExpiryMinutes = 60,
             RefreshTokenExpiryDays = 30
         };

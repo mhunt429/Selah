@@ -9,7 +9,7 @@ public class TransactionCategoryEntity: BaseAuditFields
     public int Id { get; set; }
     
     [Column("user_id")]
-    public int UserId { get; set; }
+    public required int UserId { get; set; }
     
     [Column("category_name")]
     public required string CategoryName { get; set; }
