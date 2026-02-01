@@ -31,7 +31,7 @@ public class PlaidWebhookProcessorChannel(
         }
     }
 
-    public async Task<ConnectorDataSyncEvent> MapWebHookEventToSyncEvent(PlaidWebhookEvent @event)
+    public async Task<ConnectorDataSyncEvent?> MapWebHookEventToSyncEvent(PlaidWebhookEvent @event)
     {
         using var scope = scopeFactory.CreateScope();
         var connectorRepo = scope.ServiceProvider.GetRequiredService<IAccountConnectorRepository>();

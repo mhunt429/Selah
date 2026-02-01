@@ -71,8 +71,7 @@ public class PlaidAccountBalanceImportServiceTests
                     Balance = new Balances
                     {
                         Current = 1000.50m,
-                        Available = 950.00m,
-                        IsoCurrencyCode = "USD"
+                        Available = 950.00m
                     }
                 }
             }
@@ -156,9 +155,11 @@ public class PlaidAccountBalanceImportServiceTests
                     Balance = new Balances
                     {
                         Current = 1000.50m,
-                        Available = 950.00m,
-                        IsoCurrencyCode = "USD"
-                    }
+                        Available = 950.00m
+                    },
+                    Mask = "1234",
+                    OfficialName = "USAA Checking",
+                    Subtype = "Checking"
                 }
             }
         };

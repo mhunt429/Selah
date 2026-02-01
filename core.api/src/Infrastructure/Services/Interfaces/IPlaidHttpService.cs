@@ -13,7 +13,7 @@ public interface IPlaidHttpService
 
     Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int count = 50);
 
-    Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken);
+    Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken, List<string> accountIds);
 
     Task<ApiResponseResult<PlaidWebhookVerificationResponse>> ValidateWebhook(string keyId);
 }

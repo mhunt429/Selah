@@ -7,8 +7,8 @@ namespace IntegrationTests.Helpers;
 
 public class DatabaseFixture : IAsyncLifetime
 {
-    private DbConnection _connection;
-    public Respawner Respawner { get; private set; }
+    private DbConnection? _connection;
+    public Respawner? Respawner { get; private set; }
 
     public async Task InitializeAsync()
     {
@@ -27,11 +27,11 @@ public class DatabaseFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _connection.DisposeAsync();
+        await _connection!.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
     {
-        await Respawner.ResetAsync(_connection);
+        await Respawner!.ResetAsync(_connection!);
     }
 }

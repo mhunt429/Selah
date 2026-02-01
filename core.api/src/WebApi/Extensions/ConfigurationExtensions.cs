@@ -9,20 +9,20 @@ public static class ConfigurationExtensions
     {
         if (environment.EnvironmentName == "IntegrationTests") return;
        
-        AwsConfig awsConfig = configuration.GetSection("AwsConfig").Get<AwsConfig>();
+        AwsConfig? awsConfig = configuration.GetSection("AwsConfig").Get<AwsConfig>();
        
         services.AddSingleton(awsConfig);
 
-        PlaidConfig plaidConfig = configuration.GetSection("PlaidConfig").Get<PlaidConfig>();
+        PlaidConfig? plaidConfig = configuration.GetSection("PlaidConfig").Get<PlaidConfig>();
 
         services.AddSingleton(plaidConfig);
 
-        SecurityConfig securityConfig = configuration.GetSection("SecurityConfig").Get<SecurityConfig>();
+        SecurityConfig? securityConfig = configuration.GetSection("SecurityConfig").Get<SecurityConfig>();
         services.AddSingleton(securityConfig);
         
-        TwilioConfig twilioConfig = configuration.GetSection("TwilioConfig").Get<TwilioConfig>();
+        TwilioConfig? twilioConfig = configuration.GetSection("TwilioConfig").Get<TwilioConfig>();
 
-        QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
+        QuartzConfig? quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
 
         services.AddSingleton(quartzConfig);
     }

@@ -39,4 +39,6 @@ public class AppDbContext : DbContext
     public DbSet<TransactionLineItemEntity> TransactionLineItems { get; set; }
     
     public DbSet<UserMailboxEntity>  UserMailboxes { get; set; }
+
+    public DbSet<RecurringTransactionEntity> RecurringTransactions { get; set; }
 }

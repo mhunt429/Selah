@@ -31,7 +31,7 @@ namespace WebApi.Controllers
                 });
             }
 
-            Response.Cookies.Append("x_api_token", result.data.AccessToken, new CookieOptions
+            Response.Cookies.Append("x_api_token", result!.data!.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,

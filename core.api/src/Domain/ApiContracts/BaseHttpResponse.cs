@@ -10,6 +10,5 @@ public class BaseHttpResponse<T>
     [JsonPropertyName("data")]
     public T? Data { get; set; }
 
-    [JsonPropertyName("errors")]
-    public IEnumerable<string>? Errors { get; set; } = Enumerable.Empty<string>();
+    [JsonPropertyName("errors")] public IEnumerable<string>? Errors { get; set; } = null;
 }

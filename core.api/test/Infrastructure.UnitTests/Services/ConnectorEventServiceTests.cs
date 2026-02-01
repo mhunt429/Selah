@@ -52,6 +52,9 @@ public class ConnectorEventServiceTests
             Error = new PlaidApiErrorResponse
             {
                 ErrorCode = ErrorCodes.LoginRequired
+            },
+            AccessToken = new byte[]
+            {
             }
         };
 
@@ -71,6 +74,9 @@ public class ConnectorEventServiceTests
     {
         var @event = new ConnectorDataSyncEvent
         {
+            AccessToken = new byte[]
+            {
+            },
             ConnectorId = 1,
             EventType = EventType.BalanceImport,
             Error = null
@@ -86,6 +92,9 @@ public class ConnectorEventServiceTests
     {
         var @event = new ConnectorDataSyncEvent
         {
+            AccessToken = new byte[]
+            {
+            },
             ConnectorId = 1,
             EventType = EventType.TransactionImport,
             Error = null

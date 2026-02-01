@@ -39,9 +39,9 @@ public static class ApiTestHelpers
 
         var test = responseString;
         
-        BaseHttpResponse<AccessTokenResponse>  rsp = JsonSerializer.Deserialize<BaseHttpResponse<AccessTokenResponse>>(responseString);
+        BaseHttpResponse<AccessTokenResponse>?  rsp = JsonSerializer.Deserialize<BaseHttpResponse<AccessTokenResponse>>(responseString);
         
-        return (rsp.Data.AccessToken, rsp.Data.RefreshToken);
+        return (rsp!.Data!.AccessToken, rsp.Data.RefreshToken);
     }
 
     public static void GenerateClientHeaders(this HttpClient client, string jwt = "")

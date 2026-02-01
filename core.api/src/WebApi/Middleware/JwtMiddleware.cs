@@ -17,7 +17,7 @@ public class JwtMiddleware : JwtBearerHandler
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        string token = null;
+        string? token = "";
 
         if (Request.Headers.TryGetValue("Authorization", out var authHeader))
         {

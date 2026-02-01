@@ -50,7 +50,7 @@ public static class RateLimitingExtensions
         if (string.IsNullOrWhiteSpace(accessToken))
         {
             accessToken = request.Headers["Authorization"]
-                .FirstOrDefault(h => h.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(h => h != null && h.StartsWith("Bearer ", System.StringComparison.OrdinalIgnoreCase))
                 ?.Substring("Bearer ".Length);
 
             if (string.IsNullOrWhiteSpace(accessToken))

@@ -13,44 +13,8 @@ public class PlaidTransactionsSyncResponse
     [JsonPropertyName("next_cursor")] public string? NextCursor { get; set; }
 
     [JsonPropertyName("removed")] public required IReadOnlyCollection<PlaidTransaction> Removed { get; set; }
-
-    [JsonPropertyName("request_id")] public string RequestId { get; set; }
-
-    [JsonPropertyName("transactions_update_status")]
-    public string TransactionsUpdateStatus { get; set; }
 }
 
-public class PlaidTransactionAccount
-{
-    [JsonPropertyName("account_id")] public required string AccountId { get; set; }
-
-    [JsonPropertyName("balances")] public required PlaidTransactionBalances Balances { get; set; }
-
-    [JsonPropertyName("holder_category")] public string? HolderCategory { get; set; }
-
-    [JsonPropertyName("mask")] public string? Mask { get; set; }
-
-    [JsonPropertyName("name")] public string? Name { get; set; }
-
-    [JsonPropertyName("official_name")] public string? OfficialName { get; set; }
-
-    [JsonPropertyName("subtype")] public string? Subtype { get; set; }
-
-    [JsonPropertyName("type")] public string? Type { get; set; }
-}
-
-public class PlaidTransactionBalances
-{
-    [JsonPropertyName("available")] public decimal? Available { get; set; }
-
-    [JsonPropertyName("current")] public decimal? Current { get; set; }
-
-    [JsonPropertyName("iso_currency_code")] public string? IsoCurrencyCode { get; set; }
-
-    [JsonPropertyName("limit")] public decimal? Limit { get; set; }
-
-    [JsonPropertyName("unofficial_currency_code")] public string? UnofficialCurrencyCode { get; set; }
-}
 
 public class PlaidTransaction
 {

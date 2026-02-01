@@ -63,6 +63,7 @@ public class PlaidHttpServiceTests
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Post &&
+                    req.RequestUri != null &&
                     req.RequestUri.ToString().Contains("link/token/create")),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(httpResponse);
@@ -128,7 +129,7 @@ public class PlaidHttpServiceTests
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Post &&
-                    req.RequestUri.ToString().Contains("item/public_token/exchange")),
+                    req.RequestUri!.ToString().Contains("item/public_token/exchange")),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(httpResponse);
 
@@ -187,8 +188,11 @@ public class PlaidHttpServiceTests
                     {
                         Available = 420.69m,
                         Current = 500,
-                        IsoCurrencyCode = "USD"
-                    }
+                    },
+                    Mask = "1234",
+                    OfficialName = "USAA Checking",
+                    Name = "USAA Checking",
+                    Subtype = "Checking"
                 }
             }
         };
@@ -205,7 +209,7 @@ public class PlaidHttpServiceTests
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Post &&
-                    req.RequestUri.ToString().Contains("accounts/balance/get")),
+                    req.RequestUri!.ToString().Contains("accounts/balance/get")),
                 ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(httpResponse);
 
@@ -217,9 +221,8 @@ public class PlaidHttpServiceTests
             result.status); // Note: The service returns Failed even on success - this might be a bug
         Assert.NotNull(result.data);
         Assert.Single(result.data.Accounts);
-        Assert.Equal(expectedResponse.Accounts.FirstOrDefault().AccountId,
-            result.data.Accounts.FirstOrDefault().AccountId);
-        ;
+        Assert.Equal(expectedResponse!.Accounts!.FirstOrDefault()!.AccountId,
+            result!.data!.Accounts!.FirstOrDefault()!.AccountId);
     }
 
     [Fact]
@@ -255,7 +258,7 @@ public class PlaidHttpServiceTests
     {
         // Arrange
         var userId = 123;
-        HttpRequestMessage capturedRequest = null;
+        HttpRequestMessage? capturedRequest = null;
 
         var response = new PlaidLinkToken
         {
@@ -280,12 +283,12 @@ public class PlaidHttpServiceTests
         // Assert
         Assert.NotNull(capturedRequest);
         Assert.Equal(HttpMethod.Post, capturedRequest.Method);
-        Assert.Contains("link/token/create", capturedRequest.RequestUri.ToString());
+        Assert.Contains("link/token/create", capturedRequest!.RequestUri!.ToString());
 
-        var requestContent = await capturedRequest.Content.ReadAsStringAsync();
+        var requestContent = await capturedRequest!.Content!.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<PlainLinkTokenRequest>(requestContent);
 
-        Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
+        Assert.Equal(_plaidConfig.ClientId, requestPayload!.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(userId.ToString(), requestPayload.User.UserId);
     }
@@ -296,7 +299,7 @@ public class PlaidHttpServiceTests
         // Arrange
         var userId = 123;
         var publicToken = "test-public-token";
-        HttpRequestMessage capturedRequest = null;
+        HttpRequestMessage? capturedRequest = null;
 
         PlaidTokenExchangeResponse response = new PlaidTokenExchangeResponse
         {
@@ -320,13 +323,13 @@ public class PlaidHttpServiceTests
 
         // Assert
         Assert.NotNull(capturedRequest);
-        Assert.Equal(HttpMethod.Post, capturedRequest.Method);
-        Assert.Contains("item/public_token/exchange", capturedRequest.RequestUri.ToString());
+        Assert.Equal(HttpMethod.Post, capturedRequest!.Method);
+        Assert.Contains("item/public_token/exchange", capturedRequest!.RequestUri!.ToString());
 
-        var requestContent = await capturedRequest.Content.ReadAsStringAsync();
+        var requestContent = await capturedRequest!.Content!.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<PlaidTokenExchangeRequest>(requestContent);
 
-        Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
+        Assert.Equal(_plaidConfig.ClientId, requestPayload!.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(publicToken, requestPayload.PublicToken);
     }
@@ -336,7 +339,7 @@ public class PlaidHttpServiceTests
     {
         // Arrange
         var accessToken = "test-access-token";
-        HttpRequestMessage capturedRequest = null;
+        HttpRequestMessage? capturedRequest = null;
 
         var response = new PlaidBalanceApiResponse
         {
@@ -345,12 +348,14 @@ public class PlaidHttpServiceTests
                 new PlaidAccountBalance()
                 {
                     AccountId = "123",
-
+                    Mask = "1234",
+                    OfficialName = "USAA Checking",
+                    Name = "USAA Checking",
+                    Subtype = "Checking",
                     Balance = new Balances
                     {
                         Available = 420.69m,
                         Current = 500,
-                        IsoCurrencyCode = "USD"
                     }
                 }
             }
@@ -374,12 +379,12 @@ public class PlaidHttpServiceTests
         // Assert
         Assert.NotNull(capturedRequest);
         Assert.Equal(HttpMethod.Post, capturedRequest.Method);
-        Assert.Contains("accounts/balance/get", capturedRequest.RequestUri.ToString());
+        Assert.Contains("accounts/balance/get", capturedRequest!.RequestUri!.ToString());
 
-        var requestContent = await capturedRequest.Content.ReadAsStringAsync();
+        var requestContent = await capturedRequest!.Content!.ReadAsStringAsync();
         var requestPayload = JsonSerializer.Deserialize<BasePlaidRequest>(requestContent);
 
-        Assert.Equal(_plaidConfig.ClientId, requestPayload.ClientId);
+        Assert.Equal(_plaidConfig.ClientId, requestPayload!.ClientId);
         Assert.Equal(_plaidConfig.ClientSecret, requestPayload.Secret);
         Assert.Equal(accessToken, requestPayload.AccessToken);
     }

@@ -16,10 +16,10 @@ public class TransactionRepositoryTests : IAsyncLifetime
 
     private readonly TransactionRepository _repo;
     private int _userId;
-    private List<TransactionCategoryEntity> _categories;
-    private FinancialAccountEntity _financialAccount;
+    private List<TransactionCategoryEntity> _categories = new List<TransactionCategoryEntity>();
+    private FinancialAccountEntity? _financialAccount;
 
-    private List<TransactionEntity> _testTransactions;
+    private List<TransactionEntity> _testTransactions = new List<TransactionEntity>();
 
     public TransactionRepositoryTests(DatabaseFixture fixture)
     {
@@ -34,7 +34,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
         var transaction = new TransactionEntity()
         {
             AppLastChangedBy = _userId,
-            AccountId = _financialAccount.Id,
+            AccountId = _financialAccount!.Id,
             UserId = _userId,
             Amount = 100.00m,
             TransactionDate = DateTimeOffset.UtcNow,
@@ -63,20 +63,17 @@ public class TransactionRepositoryTests : IAsyncLifetime
             }
         };
 
-        DbOperationResult<TransactionEntity> savedTx =
+        TransactionEntity savedTx =
             await _repo.CreateTransaction(transaction);
-
-        savedTx.Status.Should().Be(ResultStatus.Success);
-        savedTx.ErrorMessage.Should().BeNullOrEmpty();
-        savedTx.Data.Should().NotBeNull();
-        savedTx.Data.Id.Should().Be(transaction.Id);
-        savedTx.Data.UserId.Should().Be(_userId);
-        savedTx.Data.TransactionDate.Should().Be(transaction.TransactionDate);
-        savedTx.Data.ImportedDate.Should().Be(transaction.ImportedDate);
-        savedTx.Data.Pending.Should().Be(transaction.Pending);
-        savedTx.Data.MerchantName.Should().Be(transaction.MerchantName);
-        savedTx.Data.TransactionName.Should().Be(transaction.TransactionName);
-        savedTx.Data.LineItems.Count.Should().Be(transaction.LineItems.Count);
+        savedTx.Should().NotBeNull();
+        savedTx.Id.Should().Be(transaction.Id);
+        savedTx.UserId.Should().Be(_userId);
+        savedTx.TransactionDate.Should().Be(transaction.TransactionDate);
+        savedTx.ImportedDate.Should().Be(transaction.ImportedDate);
+        savedTx.Pending.Should().Be(transaction.Pending);
+        savedTx.MerchantName.Should().Be(transaction.MerchantName);
+        savedTx.TransactionName.Should().Be(transaction.TransactionName);
+        savedTx.LineItems.Count.Should().Be(transaction.LineItems.Count);
     }
 
     [Theory]
@@ -92,11 +89,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
         var sortParams = new SortParameters(sortParameter, sortDirection);
         var transactions = await _repo.GetTransactionsByUser(_userId, sortParameters: sortParams);
         transactions.Should().NotBeNull();
-        transactions.Status.Should().Be(ResultStatus.Success);
-        transactions.Data.Should().NotBeNullOrEmpty();
-        transactions.Data.Count().Should().Be(3);
+        transactions.Count().Should().Be(3);
 
-        transactions.Data.First().MerchantName.Should().Be(merchant);
+        transactions.First().MerchantName.Should().Be(merchant);
     }
 
     [Fact]
@@ -105,11 +100,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
         var transactions = await _repo.GetTransactionsByUser(
             _userId, limit: 1);
         transactions.Should().NotBeNull();
-        transactions.Status.Should().Be(ResultStatus.Success);
-        transactions.Data.Should().NotBeNullOrEmpty();
-        transactions.Data.Count().Should().Be(1);
+        transactions.Count().Should().Be(1);
 
-        var transaction = transactions.Data.First();
+        var transaction = transactions.First();
 
         transaction.MerchantName.Should().Be("Rolex");
         transaction.TransactionName.Should().Be("Annual Watch Haul");
@@ -118,8 +111,8 @@ public class TransactionRepositoryTests : IAsyncLifetime
 
         var lineItems = await _repo.GetTransactionLineItems(transaction.Id);
         lineItems.Should().NotBeNull();
-        lineItems.Data.Count().Should().Be(1);
-        var lineItem = lineItems.Data.First();
+        lineItems.Count().Should().Be(1);
+        var lineItem = lineItems.First();
         lineItem.Description.Should().Be("Watches");
     }
 
@@ -129,34 +122,33 @@ public class TransactionRepositoryTests : IAsyncLifetime
         var transactionToBeDeleted = new TransactionEntity()
         {
             AppLastChangedBy = _userId,
-            AccountId = _financialAccount.Id,
+            AccountId = _financialAccount!.Id,
             UserId = _userId,
-            LineItems =  new List<TransactionLineItemEntity>()
+            LineItems = new List<TransactionLineItemEntity>()
             {
                 new TransactionLineItemEntity()
                 {
                     AppLastChangedBy = _userId,
-                    CategoryId = _categories.First().Id, 
+                    CategoryId = _categories.First().Id,
                 },
                 new TransactionLineItemEntity()
                 {
                     AppLastChangedBy = _userId,
-                    CategoryId = _categories.Last().Id, 
+                    CategoryId = _categories.Last().Id,
                 }
             }
         };
-        
+
         await _repo.CreateTransaction(transactionToBeDeleted);
-        
+
         await _repo.DeleteTransaction(transactionToBeDeleted.Id, _userId);
-        
-       var tx =  await _repo.GetTransaction(_userId, transactionToBeDeleted.Id);
-       var lineItems = await _repo.GetTransactionLineItems(transactionToBeDeleted.Id);
-       tx.Status.Should().Be(ResultStatus.Success);
-       tx.Data.Should().BeNull();
-       
-       lineItems.Should().NotBeNull();
-       lineItems.Data.Count().Should().Be(0);
+
+        var tx = await _repo.GetTransaction(_userId, transactionToBeDeleted.Id);
+        var lineItems = await _repo.GetTransactionLineItems(transactionToBeDeleted.Id);
+        tx.Should().BeNull();
+
+        lineItems.Should().NotBeNull();
+        lineItems.Count().Should().Be(0);
     }
 
     [Fact]
@@ -164,13 +156,13 @@ public class TransactionRepositoryTests : IAsyncLifetime
     {
         var transactionToBeUpdated = _testTransactions[1];
         transactionToBeUpdated.Pending = false;
-        
+
         await _repo.UpdateTransaction(transactionToBeUpdated);
-        
+
         var updated = await _dbContext.Transactions.FindAsync(transactionToBeUpdated.Id);
-        
+
         updated.Should().NotBeNull();
-    
+
         updated.Pending.Should().BeFalse();
     }
 
@@ -182,30 +174,30 @@ public class TransactionRepositoryTests : IAsyncLifetime
             new()
             {
                 AppLastChangedBy = _userId,
-                AccountId = _financialAccount.Id,
+                AccountId = _financialAccount!.Id,
                 UserId = _userId,
-                Amount =  1000,
+                Amount = 1000,
             },
             new()
             {
                 AppLastChangedBy = _userId,
-                AccountId = _financialAccount.Id,
+                AccountId = _financialAccount!.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
             },
-            new (){
+            new()
+            {
                 AppLastChangedBy = _userId,
-                AccountId = _financialAccount.Id,
+                AccountId = _financialAccount!.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
             }
         };
-        
-        var result = await _repo.AddTransactionsInBulk(transactions);
-        result.Status.Should().Be(ResultStatus.Success);
-        result.Data.Should().Be(3);
+        bool success = true;
+        await _repo.AddTransactionsInBulk(transactions);
+        success.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task Transactions_Can_Be_Deleted_In_Bulk()
     {
@@ -214,9 +206,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
             new()
             {
                 AppLastChangedBy = _userId,
-                AccountId = _financialAccount.Id,
+                AccountId = _financialAccount!.Id,
                 UserId = _userId,
-                Amount =  1000,
+                Amount = 1000,
                 ExternalTransactionId = "123",
                 TransactionName = "Import 1"
             },
@@ -225,28 +217,26 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
                 ExternalTransactionId = "321",
                 TransactionName = "Import 2"
             },
-            new (){
+            new()
+            {
                 AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
                 TransactionName = "Import 3"
             }
         };
-        
+
         await _repo.AddTransactionsInBulk(transactions);
-        
-        var result = await _repo.DeleteTransactionsInBulk(transactions
-            .Select(t => t.ExternalTransactionId)
-            .ToList(), _userId);
-        result.Status.Should().Be(ResultStatus.Success);
-        result.Data.Should().Be(2);
+        await _repo.DeleteTransactionsInBulk(transactions!
+            .Select(t => t!.ExternalTransactionId)
+            .ToList()!, _userId);
     }
-    
+
     [Fact]
     public async Task Transactions_Can_Be_Updated_In_Bulk()
     {
@@ -255,12 +245,12 @@ public class TransactionRepositoryTests : IAsyncLifetime
             new()
             {
                 AppLastChangedBy = _userId,
-                AccountId = _financialAccount.Id,
+                AccountId = _financialAccount!.Id,
                 UserId = _userId,
-                Amount =  1000,
+                Amount = 1000,
                 ExternalTransactionId = "123",
                 TransactionName = "Import 1",
-                LineItems =  new List<TransactionLineItemEntity>()
+                LineItems = new List<TransactionLineItemEntity>()
                 {
                     new TransactionLineItemEntity()
                     {
@@ -274,10 +264,10 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
                 ExternalTransactionId = "321",
                 TransactionName = "Import 2",
-                LineItems =  new List<TransactionLineItemEntity>()
+                LineItems = new List<TransactionLineItemEntity>()
                 {
                     new TransactionLineItemEntity()
                     {
@@ -286,13 +276,14 @@ public class TransactionRepositoryTests : IAsyncLifetime
                     }
                 }
             },
-            new (){
+            new()
+            {
                 AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
-                Amount =  300,
+                Amount = 300,
                 TransactionName = "Import 3",
-                LineItems =  new List<TransactionLineItemEntity>()
+                LineItems = new List<TransactionLineItemEntity>()
                 {
                     new TransactionLineItemEntity()
                     {
@@ -302,12 +293,9 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 }
             }
         };
-        
-        await _repo.AddTransactionsInBulk(transactions);
 
-  
-        var result = await _repo.UpdateTransactionsInBulk(transactions, _userId);
-        result.Status.Should().Be(ResultStatus.Success);
+        await _repo.AddTransactionsInBulk(transactions);
+        await _repo.UpdateTransactionsInBulk(transactions, _userId);
     }
 
     public async Task InitializeAsync()
@@ -323,7 +311,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             AppLastChangedBy = _userId,
             ConnectorId = null,
             UserId = _userId,
-            ExternalId = null,
+            ExternalId = "abc123",
             CurrentBalance = 100,
             AccountMask = "1234",
             DisplayName = "Chase Sapphire Credit Card",

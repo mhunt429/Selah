@@ -273,8 +273,6 @@ public class PlaidTransactionImportServiceTests
             },
             HasMore = false,
             NextCursor = null,
-            RequestId = "req-123",
-            TransactionsUpdateStatus = "COMPLETE"
         };
 
         _mockCryptoService
@@ -339,8 +337,6 @@ public class PlaidTransactionImportServiceTests
             Removed = new List<PlaidTransaction>(),
             HasMore = false,
             NextCursor = null,
-            RequestId = "req-123",
-            TransactionsUpdateStatus = "COMPLETE",
         };
 
         _mockPlaidHttpService.Setup(x => x.SyncTransactions(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<int>()))
@@ -384,8 +380,6 @@ public class PlaidTransactionImportServiceTests
             Removed = new List<PlaidTransaction>(),
             HasMore = hasMore,
             NextCursor = nextCursor,
-            RequestId = "req-123",
-            TransactionsUpdateStatus = "COMPLETE"
         };
     }
 

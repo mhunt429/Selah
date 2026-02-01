@@ -4,7 +4,7 @@ namespace Domain.Events;
 
 public class ConnectorDataSyncEvent : IntegrationEvent
 {
-    public byte[] AccessToken { get; set; }
+    public required byte[] AccessToken { get; set; }
     
     public required int ConnectorId { get; set; }
     

@@ -6,7 +6,7 @@ namespace WebApi.Extensions;
 public static class HttpResponseExtensions
 {
     public static BaseHttpResponse<T> ToBaseHttpResponse<T>(this T data, HttpStatusCode httpStatusCode,
-        List<string?> errors = null)
+        List<string>? errors = null)
     {
         return new BaseHttpResponse<T>
         {

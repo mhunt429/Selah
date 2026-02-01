@@ -20,8 +20,8 @@ public class SupportController(SupportService supportService) : ControllerBase
     [HttpGet("decrypted-connector-keys")]
     public async Task<IActionResult> GetDecryptedConnectorKeys()
     {
-        AppRequestContext? requestContext = Request.GetAppRequestContext();
-        var keys = await supportService.GetDecryptedConnectorKeys(requestContext.UserId);
+        AppRequestContext requestContext = Request.GetAppRequestContext();
+        var keys = await supportService.GetDecryptedConnectorKeys(requestContext!.UserId);
         return Ok(keys);
     }
 }

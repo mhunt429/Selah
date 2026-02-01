@@ -25,8 +25,7 @@ public class PlaidTransactionImportService(
         //Go ahead and load existing accounts per connector so we can map a transaction to an account
         IReadOnlyCollection<FinancialAccountEntity?> nullableFinancialAccounts =
             await financialAccountRepository.GetAccountsAsync(syncEvent.UserId, syncEvent.ConnectorId);
-
-        // Filter out null accounts and convert to non-nullable collection
+        
         IReadOnlyCollection<FinancialAccountEntity> financialAccounts = nullableFinancialAccounts
             .Where(acc => acc != null)
             .Cast<FinancialAccountEntity>()
@@ -83,7 +82,7 @@ public class PlaidTransactionImportService(
             {
                 await transactionRepository.DeleteTransactionsInBulk(removedTransactions
                         .Select(t => t.TransactionId)
-                        .ToList(), syncEvent.UserId
+                        .ToList()!, syncEvent.UserId
                 );
             }
 

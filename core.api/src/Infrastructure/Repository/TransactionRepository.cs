@@ -8,43 +8,21 @@ namespace Infrastructure.Repository;
 
 public class TransactionRepository(AppDbContext dbContext) : ITransactionRepository
 {
-    public async Task<DbOperationResult<IEnumerable<TransactionLineItemEntity>>> GetTransactionLineItems(
+    public async Task<IEnumerable<TransactionLineItemEntity>> GetTransactionLineItems(
         int transactionId)
     {
-        List<TransactionLineItemEntity> lineItems = await dbContext.TransactionLineItems
+        return await dbContext.TransactionLineItems
             .AsNoTracking()
             .Where(x => x.TransactionId == transactionId)
             .ToListAsync();
-
-        return new DbOperationResult<IEnumerable<TransactionLineItemEntity>>()
-        {
-            Status = ResultStatus.Success,
-            Data = lineItems
-        };
     }
 
-    public async Task<DbOperationResult<TransactionEntity>> CreateTransaction(
+    public async Task<TransactionEntity> CreateTransaction(
         TransactionEntity transaction)
     {
-        try
-        {
-            dbContext.Transactions.Add(transaction);
-            await dbContext.SaveChangesAsync();
-
-            return new DbOperationResult<TransactionEntity>
-            {
-                Status = ResultStatus.Success,
-                Data = transaction
-            };
-        }
-        catch (Exception ex)
-        {
-            return new DbOperationResult<TransactionEntity>
-            {
-                Status = ResultStatus.Failure,
-                ErrorMessage = ex.Message + ex.StackTrace
-            };
-        }
+        dbContext.Transactions.Add(transaction);
+        await dbContext.SaveChangesAsync();
+        return transaction;
     }
 
     public async Task UpdateTransaction(TransactionEntity transaction)
@@ -59,20 +37,14 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
         }
     }
 
-    public async Task<DbOperationResult<TransactionEntity?>> GetTransaction(int id, int userId)
+    public async Task<TransactionEntity?> GetTransaction(int id, int userId)
     {
-        TransactionEntity? transaction = await dbContext.Transactions
+        return await dbContext.Transactions
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
-
-        return new DbOperationResult<TransactionEntity?>()
-        {
-            Status = ResultStatus.Success,
-            Data = transaction
-        };
     }
 
-    public async Task<DbOperationResult<IEnumerable<TransactionEntity>>> GetTransactionsByUser(
+    public async Task<IEnumerable<TransactionEntity>> GetTransactionsByUser(
         int userId, int limit = 25, int cursor = 0, SortParameters? sortParameters = null)
     {
         IQueryable<TransactionEntity> query = dbContext.Transactions
@@ -96,13 +68,7 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
             _ => query.OrderBy(t => t.Id)
         };
 
-        List<TransactionEntity> data = await query.Take(limit).ToListAsync();
-
-        return new DbOperationResult<IEnumerable<TransactionEntity>>
-        {
-            Status = ResultStatus.Success,
-            Data = data
-        };
+        return await query.Take(limit).ToListAsync();
     }
 
     public async Task DeleteTransaction(int transactionId, int userId)
@@ -114,46 +80,29 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
     }
 
 
-    public async Task<DbOperationResult<int>> AddTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions)
+    public async Task AddTransactionsInBulk(IReadOnlyCollection<TransactionEntity> transactions)
     {
         await dbContext.Transactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
-
-        return new DbOperationResult<int>()
-        {
-            Status = ResultStatus.Success,
-            Data = transactions.Count()
-        };
     }
 
-    public async Task<DbOperationResult<int>> DeleteTransactionsInBulk(IReadOnlyCollection<string>? externalIds,
+    public async Task DeleteTransactionsInBulk(List<string> externalIds,
         int userId)
     {
         if (externalIds == null || externalIds.Count == 0)
         {
-            return new DbOperationResult<int>()
-            {
-                Status = ResultStatus.Success,
-                Data = 0
-            };
+            return;
         }
 
-        var deletedTransactions = await dbContext.Transactions
+        await dbContext.Transactions
             .Where(x =>
                 x.UserId == userId &&
                 !string.IsNullOrEmpty(x.ExternalTransactionId) &&
                 externalIds.Contains(x.ExternalTransactionId))
             .ExecuteDeleteAsync();
-
-        return new DbOperationResult<int>()
-        {
-            Status = ResultStatus.Success,
-            Data = deletedTransactions
-        };
-        ;
     }
 
-    public async Task<DbOperationResult<int>> UpdateTransactionsInBulk(
+    public async Task UpdateTransactionsInBulk(
         IReadOnlyCollection<TransactionEntity> transactions, int userId)
     {
         await dbContext.Transactions.Where(x =>
@@ -165,12 +114,6 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
 
         await dbContext.Transactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
-
-
-        return new DbOperationResult<int>
-        {
-            Status = ResultStatus.Success,
-        };
     }
 
     public async Task<decimal> GetExpenseTransactionTotals(int userId, DateTimeOffset start, DateTimeOffset end)

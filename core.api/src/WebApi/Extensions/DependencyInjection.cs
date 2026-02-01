@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using Quartz;
@@ -27,7 +28,7 @@ public static class DependencyInjection
     {
         if (env.EnvironmentName == "IntegrationTests") return services;
 
-        PlaidConfig plaidConfig = configuration.GetSection("PlaidConfig").Get<PlaidConfig>();
+        PlaidConfig? plaidConfig = configuration.GetSection("PlaidConfig").Get<PlaidConfig>();
 
         if (plaidConfig != null)
         {
@@ -46,7 +47,7 @@ public static class DependencyInjection
     {
         if (env.EnvironmentName == "IntegrationTests") return services;
 
-        QuartzConfig quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
+        QuartzConfig? quartzConfig = configuration.GetSection("QuartzConfig").Get<QuartzConfig>();
         services.AddQuartz(q =>
         {
             var jobKey = new JobKey("RecurringAccountBalanceUpdateJob");
@@ -59,11 +60,17 @@ public static class DependencyInjection
                 .WithSimpleSchedule(x => x.WithRepeatCount(0))
             );
 
-            q.AddTrigger(opts => opts
-                .ForJob(jobKey)
-                .WithIdentity("RecurringAccountBalanceUpdateJob-daily-trigger")
-                .WithCronSchedule(quartzConfig.AccountBalanceRefreshJobCronExpression)
-            );
+            q.AddTrigger(opts =>
+            {
+                if (quartzConfig?.AccountBalanceRefreshJobCronExpression != null)
+                {
+                    Debug.Assert(quartzConfig?.AccountBalanceRefreshJobCronExpression != null, "quartzConfig?.AccountBalanceRefreshJobCronExpression != null");
+                    opts
+                        .ForJob(jobKey)
+                        .WithIdentity("RecurringAccountBalanceUpdateJob-daily-trigger")
+                        .WithCronSchedule(quartzConfig.AccountBalanceRefreshJobCronExpression);
+                }
+            });
         });
 
         services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });

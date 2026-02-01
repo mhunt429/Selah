@@ -118,7 +118,7 @@ public class Program
     {
         if (env.EnvironmentName == "IntegrationTests") return;
 
-        string jwtSecret = configuration["SecurityConfig:JwtSecret"];
+        string? jwtSecret = configuration["SecurityConfig:JwtSecret"];
 
         services.AddAuthentication(options =>
         {
@@ -127,16 +127,17 @@ public class Program
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddScheme<JwtBearerOptions, JwtMiddleware>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidIssuer = "selah-api",
-                ValidAudience = "selah-api",
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-            };
+            if (jwtSecret != null)
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = "selah-api",
+                    ValidAudience = "selah-api",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                };
         });
     }
 

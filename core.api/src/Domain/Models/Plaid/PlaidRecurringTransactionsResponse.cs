@@ -8,8 +8,6 @@ public class PlaidRecurringTransactionsResponse
 
     [JsonPropertyName("outflow_streams")] public required List<PlaidRecurringStream> OutflowStreams { get; set; }
 
-    [JsonPropertyName("request_id")] public string RequestId { get; set; }
-
     [JsonPropertyName("updated_datetime")] public DateTime? UpdatedDatetime { get; set; }
 }
 

@@ -16,7 +16,7 @@ public class PlaidAccountBalanceImportService(
     IPlaidHttpService plaidHttpService,
     ILogger<PlaidAccountBalanceImportService> logger,
     IAccountConnectorRepository accountConnectorRepository,
-    ChannelWriter<ConnectorDataSyncEvent> publisher): IPlaidAccountBalanceImportService
+    ChannelWriter<ConnectorDataSyncEvent> publisher) : IPlaidAccountBalanceImportService
 {
     public async Task ImportAccountBalancesAsync(ConnectorDataSyncEvent syncEvent)
     {
@@ -29,10 +29,11 @@ public class PlaidAccountBalanceImportService(
             logger.LogError("Account Balance Update failed for user {UserId} with error {ErrorMsg}", syncEvent.UserId,
                 balancesResponse.message);
 
-            syncEvent.ParseErrorResponse(balancesResponse.message);
-            
+            if (balancesResponse.message != null) syncEvent.ParseErrorResponse(balancesResponse.message);
+
+
             await publisher.WriteAsync(syncEvent);
-            
+
             return;
         }
 
@@ -41,11 +42,11 @@ public class PlaidAccountBalanceImportService(
         var existingAccounts = (await financialAccountRepository.GetAccountsAsync(syncEvent.UserId))
             .ToDictionary(a => a.ExternalId);
 
-        
 
         if (balanceData != null)
         {
-            logger.LogInformation("Retrieved {AccountCount} accounts for user {UserId}", balanceData.Accounts.Count(), syncEvent.UserId);
+            logger.LogInformation("Retrieved {AccountCount} accounts for user {UserId}", balanceData.Accounts.Count(),
+                syncEvent.UserId);
             if (!existingAccounts.Any())
             {
                 var dbObjectsToSave = balanceData.Accounts.Select(a => new FinancialAccountEntity
@@ -74,9 +75,9 @@ public class PlaidAccountBalanceImportService(
                     {
                         existing.CurrentBalance = account.Balance!.Current;
                         existing.LastApiSyncTime = DateTimeOffset.UtcNow;
-                        
+
                         await financialAccountRepository.UpdateAccount(existing);
-                        
+
                         var balanceHistory = new AccountBalanceHistoryEntity
                         {
                             AppLastChangedBy = -1,
@@ -92,7 +93,8 @@ public class PlaidAccountBalanceImportService(
 
 
             await accountConnectorRepository
-                .UpdateAccountSyncTimes(id: syncEvent.ConnectorId, userId: syncEvent.UserId, nextSyncDate: DateTimeOffset.UtcNow.AddDays(3));
+                .UpdateAccountSyncTimes(id: syncEvent.ConnectorId, userId: syncEvent.UserId,
+                    nextSyncDate: DateTimeOffset.UtcNow.AddDays(3));
         }
     }
 }

@@ -141,7 +141,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
     }
 
     public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(
-        string accessToken)
+        string accessToken, List<string> accountIds)
     {
         Uri recurringTransactionsEndpoint = new Uri($"{httpClient.BaseAddress}transactions/recurring/get");
 
@@ -149,7 +149,8 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         {
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
-            AccessToken = accessToken
+            AccessToken = accessToken,
+            AccountIds = accountIds
         };
 
         HttpResponseMessage response = await httpClient.PostAsync(recurringTransactionsEndpoint, request);

@@ -48,7 +48,7 @@ public class AppUserRepositoryTests : IAsyncLifetime
     {
         var user = await _repository.GetUserByIdAsync(_userId);
 
-        var result = await _repository.GetUserByEmail(user.EmailHash);
+        var result = await _repository.GetUserByEmail(user!.EmailHash);
         result.Should().NotBeNull();
     }
 }
