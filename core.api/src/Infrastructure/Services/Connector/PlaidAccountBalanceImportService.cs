@@ -50,6 +50,7 @@ public class PlaidAccountBalanceImportService(
             {
                 var dbObjectsToSave = balanceData.Accounts.Select(a => new FinancialAccountEntity
                 {
+                    AppLastChangedBy = -1,
                     DisplayName = a.Name,
                     OfficialName = a.OfficialName,
                     Subtype = a.Subtype,
@@ -78,6 +79,7 @@ public class PlaidAccountBalanceImportService(
                         
                         var balanceHistory = new AccountBalanceHistoryEntity
                         {
+                            AppLastChangedBy = -1,
                             UserId = syncEvent.UserId,
                             FinancialAccountId = existing.Id,
                             CurrentBalance = account.Balance!.Current,

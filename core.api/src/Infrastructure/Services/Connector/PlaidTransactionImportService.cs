@@ -157,6 +157,7 @@ public class PlaidTransactionImportService(
     {
         return new TransactionEntity
         {
+            AppLastChangedBy = -1,
             Amount = plaidTransaction.Amount,
             TransactionDate = DateUtilities.ParseStringAsDate(plaidTransaction.Date),
             MerchantName = plaidTransaction.MerchantName,
@@ -170,6 +171,7 @@ public class PlaidTransactionImportService(
             {
                 new()
                 {
+                    AppLastChangedBy = -1,
                     Description = plaidTransaction.PersonalFinanceCategory != null
                         ? plaidTransaction.PersonalFinanceCategory.Primary
                         : "",

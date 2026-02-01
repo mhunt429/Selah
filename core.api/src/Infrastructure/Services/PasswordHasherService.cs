@@ -36,30 +36,22 @@ public class PasswordHasherService : IPasswordHasherService
 
     public bool VerifyPassword(string password, string hashedPassword)
     {
-        try
+        byte[] hashBytes = Convert.FromBase64String(hashedPassword);
+        byte[] salt = new byte[SaltSize];
+        Array.Copy(hashBytes, 0, salt, 0, SaltSize);
+        using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256))
         {
-            byte[] hashBytes = Convert.FromBase64String(hashedPassword);
-            byte[] salt = new byte[SaltSize];
-            Array.Copy(hashBytes, 0, salt, 0, SaltSize);
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations, HashAlgorithmName.SHA256))
-            {
-                byte[] hash = pbkdf2.GetBytes(HashSize);
+            byte[] hash = pbkdf2.GetBytes(HashSize);
 
-                for (int i = 0; i < HashSize; i++)
+            for (int i = 0; i < HashSize; i++)
+            {
+                if (hashBytes[i + SaltSize] != hash[i])
                 {
-                    if (hashBytes[i + SaltSize] != hash[i])
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-
-            return true;
         }
 
-        catch (Exception)
-        {
-            return false;
-        }
+        return true;
     }
 }

@@ -26,6 +26,7 @@ public class TokenRepositoryTests : IAsyncLifetime
     {
         var entityToSave = new TokenEntity
         {
+            AppLastChangedBy = _userId,
             UserId = _userId,
             Token =  Guid.NewGuid().ToString(),
             TokenType = TokenType.AccessToken,
@@ -49,6 +50,7 @@ public class TokenRepositoryTests : IAsyncLifetime
     {
         var entityToSave = new TokenEntity
         {
+            AppLastChangedBy = _userId,
             UserId = _userId,
             Token = Guid.NewGuid().ToString(),
             TokenType = TokenType.RefreshToken,

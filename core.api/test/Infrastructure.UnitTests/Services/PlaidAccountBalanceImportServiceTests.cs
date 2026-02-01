@@ -134,6 +134,7 @@ public class PlaidAccountBalanceImportServiceTests
         var decryptedToken = "decrypted-access-token";
         var existingAccount = new FinancialAccountEntity
         {
+            AppLastChangedBy = 1,
             Id = 1,
             ExternalId = "account-1",
             UserId = syncEvent.UserId,

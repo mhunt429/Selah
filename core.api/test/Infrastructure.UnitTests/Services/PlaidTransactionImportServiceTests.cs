@@ -35,6 +35,7 @@ public class PlaidTransactionImportServiceTests
             {
                 new FinancialAccountEntity
                 {
+                    AppLastChangedBy = 1,
                     UserId = 1,
                     ExternalId = "ABC123",
                     CurrentBalance = 0,
@@ -315,6 +316,7 @@ public class PlaidTransactionImportServiceTests
             {
                 new FinancialAccountEntity
                 {
+                    AppLastChangedBy = 1,
                     UserId = 1,
                     ExternalId = "ABC123",
                     CurrentBalance = 0,

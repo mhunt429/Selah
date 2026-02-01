@@ -28,6 +28,7 @@ public class ConnectorEventServiceTests
         _accountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(new AccountConnectorEntity
             {
+                AppLastChangedBy = 1,
                 InstitutionId = "123",
                 InstitutionName = "Wells Fargo",
                 DateConnected = default,

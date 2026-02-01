@@ -129,14 +129,13 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
     public async Task<DbOperationResult<int>> DeleteTransactionsInBulk(IReadOnlyCollection<string>? externalIds,
         int userId)
     {
-        if (externalIds == null || !externalIds.Any())
+        if (externalIds == null || externalIds.Count == 0)
         {
             return new DbOperationResult<int>()
             {
                 Status = ResultStatus.Success,
                 Data = 0
             };
-            ;
         }
 
         var deletedTransactions = await dbContext.Transactions
@@ -159,7 +158,9 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
     {
         await dbContext.Transactions.Where(x =>
                 x.UserId == userId &&
-                transactions.Select(t => t.ExternalTransactionId).Contains(x.ExternalTransactionId))
+                transactions.Select(t => t.ExternalTransactionId)
+                    .Contains(x.ExternalTransactionId)
+            )
             .ExecuteDeleteAsync();
 
         await dbContext.Transactions.AddRangeAsync(transactions);

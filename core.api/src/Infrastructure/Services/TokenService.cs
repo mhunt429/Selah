@@ -46,6 +46,7 @@ public class TokenService(SecurityConfig securityConfig, TokenRepository tokenRe
 
         await tokenRepository.SaveTokenAsync(new TokenEntity
         {
+            AppLastChangedBy = userId,
             UserId = userId,
             Token = cryptoService.HashValue(refreshToken),
             TokenType = TokenType.RefreshToken,

@@ -36,6 +36,7 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
     {
         AccountConnectorEntity data = new()
         {
+            AppLastChangedBy = _userId,
             UserId = _userId,
             InstitutionId = "123",
             InstitutionName = "Morgan Stanley",

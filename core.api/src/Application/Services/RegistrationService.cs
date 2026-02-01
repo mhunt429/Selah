@@ -58,20 +58,16 @@ public class RegistrationService
             message: default);
     }
 
-
-    private UserAccountEntity MapRequestToUserAccount(AccountRegistrationRequest request)
-    {
-        return new UserAccountEntity
-        {
-            CreatedOn = DateTime.UtcNow,
-            AccountName = request.AccountName
-        };
-    }
+    /*
+     * Since this is on account creation, there obviously isn't a user id set thus breaking
+     * the FK constraint on the app_user table. The ID -1 is a placeholder for the selah-api default user
+     */
 
     private ApplicationUserEntity MapRequestToUser(AccountRegistrationRequest request)
     {
         return new ApplicationUserEntity
         {
+            AppLastChangedBy = -1,
             Password = _passwordHasherService.HashPassword(request.Password),
             EncryptedEmail = _cryptoService.Encrypt(request.Email),
             EncryptedName = _cryptoService.Encrypt($"{request.FirstName}|{request.LastName}"),
@@ -82,6 +78,7 @@ public class RegistrationService
             CreatedDate = DateTimeOffset.UtcNow,
             UserAccount = new UserAccountEntity
             {
+                AppLastChangedBy = -1, 
                 AccountName = request.AccountName,
                 CreatedOn = DateTimeOffset.UtcNow,
             }

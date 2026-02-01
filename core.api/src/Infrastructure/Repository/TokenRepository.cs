@@ -19,6 +19,7 @@ public class TokenRepository(AppDbContext dbContext)
 
         var newToken = new TokenEntity
         {
+            AppLastChangedBy = token.UserId,
             UserId = token.UserId,
             Token = token.Token,
             TokenType = token.TokenType,

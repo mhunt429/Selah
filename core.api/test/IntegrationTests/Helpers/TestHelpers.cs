@@ -32,12 +32,14 @@ public static class TestHelpers
         
         UserAccountEntity account = new UserAccountEntity
         {
+            AppLastChangedBy = -1,
             AccountName = "AccountName",
             CreatedOn = DateTimeOffset.UtcNow
         };
 
         ApplicationUserEntity user = new ApplicationUserEntity
         {
+            AppLastChangedBy = -1,
             EncryptedEmail = "email"u8.ToArray(),
             Password = "password",
             EncryptedName = "FirstName|LastName"u8.ToArray(),

@@ -33,6 +33,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
     {
         var transaction = new TransactionEntity()
         {
+            AppLastChangedBy = _userId,
             AccountId = _financialAccount.Id,
             UserId = _userId,
             Amount = 100.00m,
@@ -45,6 +46,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             {
                 new()
                 {
+                    AppLastChangedBy = _userId,
                     Category = _categories[0],
                     CategoryId = _categories[0].Id,
                     Description = "Groceries",
@@ -52,6 +54,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 },
                 new()
                 {
+                    AppLastChangedBy = _userId,
                     Category = _categories[1],
                     CategoryId = _categories[1].Id,
                     Description = "Dog Food",
@@ -125,16 +128,19 @@ public class TransactionRepositoryTests : IAsyncLifetime
     {
         var transactionToBeDeleted = new TransactionEntity()
         {
+            AppLastChangedBy = _userId,
             AccountId = _financialAccount.Id,
             UserId = _userId,
             LineItems =  new List<TransactionLineItemEntity>()
             {
                 new TransactionLineItemEntity()
                 {
+                    AppLastChangedBy = _userId,
                     CategoryId = _categories.First().Id, 
                 },
                 new TransactionLineItemEntity()
                 {
+                    AppLastChangedBy = _userId,
                     CategoryId = _categories.Last().Id, 
                 }
             }
@@ -175,17 +181,20 @@ public class TransactionRepositoryTests : IAsyncLifetime
         {
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  1000,
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
             },
             new (){
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
@@ -204,6 +213,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
         {
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  1000,
@@ -212,6 +222,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
@@ -219,6 +230,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 TransactionName = "Import 2"
             },
             new (){
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
@@ -242,6 +254,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
         {
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  1000,
@@ -251,12 +264,14 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new TransactionLineItemEntity()
                     {
+                        AppLastChangedBy = _userId,
                         CategoryId = _categories[3].Id,
                     }
                 }
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
@@ -266,11 +281,13 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new TransactionLineItemEntity()
                     {
+                        AppLastChangedBy = _userId,
                         CategoryId = _categories[3].Id,
                     }
                 }
             },
             new (){
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount =  300,
@@ -279,6 +296,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new TransactionLineItemEntity()
                     {
+                        AppLastChangedBy = _userId,
                         CategoryId = _categories[3].Id,
                     }
                 }
@@ -302,6 +320,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
         FinancialAccountRepository financialAccountRepository = new(_dbContext);
         _financialAccount = await financialAccountRepository.AddAccountAsync(new FinancialAccountEntity
         {
+            AppLastChangedBy = _userId,
             ConnectorId = null,
             UserId = _userId,
             ExternalId = null,
@@ -315,26 +334,31 @@ public class TransactionRepositoryTests : IAsyncLifetime
         {
             new()
             {
+                AppLastChangedBy = _userId,
                 UserId = _userId,
                 CategoryName = "Groceries"
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 UserId = _userId,
                 CategoryName = "Pets"
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 UserId = _userId,
                 CategoryName = "Watches"
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 UserId = _userId,
                 CategoryName = "Vehicle"
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 UserId = _userId,
                 CategoryName = "Restaurants"
             }
@@ -346,6 +370,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
         {
             new TransactionEntity()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount = 10000m,
@@ -358,6 +383,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new()
                     {
+                        AppLastChangedBy = _userId,
                         Category = _categories[3],
                         CategoryId = _categories[3].Id,
                         Description = "Watches",
@@ -367,6 +393,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount = 150000,
@@ -379,6 +406,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new()
                     {
+                        AppLastChangedBy = _userId,
                         Category = _categories[4],
                         CategoryId = _categories[4].Id,
                         Description = "Vehicles",
@@ -388,6 +416,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
             },
             new()
             {
+                AppLastChangedBy = _userId,
                 AccountId = _financialAccount.Id,
                 UserId = _userId,
                 Amount = 200,
@@ -400,6 +429,7 @@ public class TransactionRepositoryTests : IAsyncLifetime
                 {
                     new()
                     {
+                        AppLastChangedBy = _userId,
                         Category = _categories[4],
                         CategoryId = _categories[4].Id,
                         Description = "Monthly Date Night",

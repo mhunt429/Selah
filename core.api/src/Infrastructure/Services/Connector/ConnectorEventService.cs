@@ -50,6 +50,7 @@ public class ConnectorEventService(IPlaidAccountBalanceImportService accountBala
         {
             var entityToSave = new UserMailboxEntity
             {
+                AppLastChangedBy = -1,
                 MessageKey = $"InstitutionAuthRequired",
                 MessageBody = @$"Your {connectorRecord.InstitutionName} connection requires you to re-authenticate. 
                     You can reconnect Selah to ${connectorRecord.InstitutionName} 

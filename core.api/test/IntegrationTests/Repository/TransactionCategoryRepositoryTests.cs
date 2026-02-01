@@ -58,6 +58,7 @@ public class TransactionCategoryRepositoryTests(DatabaseFixture fixture) : IAsyn
 
         _categoryId = await _transactionCategoryRepository.AddCategoryAsync(new TransactionCategoryEntity
         {
+            AppLastChangedBy = _userId,
             CategoryName = "Groceries",
             UserId = _userId
         });
