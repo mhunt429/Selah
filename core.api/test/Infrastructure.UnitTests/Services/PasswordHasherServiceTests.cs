@@ -24,7 +24,7 @@ public class PasswordHasherServiceTests
 
     [Theory]
     [InlineData("password", "Z1xee3FXKGzl3Anq9Pd1wvPN44XQPnfkyUB/Q/b3VdhJGse6jlGghXCAgcJQeSfG", true)]
-    [InlineData("password", "password", false)]
+    [InlineData("wrongpassword", "Z1xee3FXKGzl3Anq9Pd1wvPN44XQPnfkyUB/Q/b3VdhJGse6jlGghXCAgcJQeSfG", false)]
     public void VerifyHashedPassword_Validate(string password, string passwordHash, bool expectedResult)
     {
         bool validPassword = _passwordHasherService.VerifyPassword(password, passwordHash);
