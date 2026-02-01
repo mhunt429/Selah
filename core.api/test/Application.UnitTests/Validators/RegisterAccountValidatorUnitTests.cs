@@ -1,9 +1,11 @@
+using System.Text;
 using AwesomeAssertions;
 using FluentValidation.TestHelper;
 using Moq;
 using Application.Validators;
 using Domain.ApiContracts.AccountRegistration;
 using Domain.Models.Entities.ApplicationUser;
+using Domain.Models.Entities.UserAccount;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 
@@ -36,13 +38,16 @@ public class RegisterAccountValidatorUnitTests
 
         _userRepositoryMock.Setup(x => x.GetUserByEmail(It.IsAny<string>())).ReturnsAsync(new ApplicationUserEntity
         {
-            EncryptedEmail = default,
-            Password = default,
-            EncryptedName = default,
-            EncryptedPhone = default,
-            EmailHash = default,
-            AppLastChangedBy = default,
-            UserAccount = null
+            EncryptedEmail = "email"u8.ToArray(),
+            Password = "password",
+            EncryptedName = "name"u8.ToArray(),
+            EncryptedPhone = "phone"u8.ToArray(),
+            EmailHash =  "email_hash",
+            AppLastChangedBy = 1,
+            UserAccount = new UserAccountEntity
+            {
+                AppLastChangedBy = 1
+            }
         });
 
         var result = await _validator.TestValidateAsync(data);
@@ -66,7 +71,8 @@ public class RegisterAccountValidatorUnitTests
             PasswordConfirmation = "AStrongPassword!42",
         };
 
-        _userRepositoryMock.Setup(x => x.GetUserByEmail(It.IsAny<string>())).ReturnsAsync((ApplicationUserEntity)null);
+        _userRepositoryMock.Setup(x => x.GetUserByEmail(It.IsAny<string>()))
+            .ReturnsAsync((ApplicationUserEntity?)null);
 
         var result = await _validator.TestValidateAsync(data);
         result.IsValid.Should().BeTrue();
