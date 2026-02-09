@@ -1,9 +1,9 @@
-# Selah
+# Cortado
 
-Core API Build Status: ![Build Status](https://github.com/mhunt429/Selah/actions/workflows/core-api.yml/badge.svg)
-[![codecov](https://codecov.io/gh/mhunt429/Selah/branch/main/graph/badge.svg)](https://codecov.io/gh/mhunt429/Selah)
+Core API Build Status: ![Build Status](https://github.com/mhunt429/Cortado/actions/workflows/core-api.yml/badge.svg)
+[![codecov](https://codecov.io/gh/mhunt429/Cortado/branch/main/graph/badge.svg)](https://codecov.io/gh/mhunt429/Cortado)
 
-Selah is a financial management application with a .NET Core API backend and Angular frontend.
+Cortado is a financial management application with a .NET Core API backend and Angular frontend.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd Selah
+cd Cortado
 ```
 
 ### 2. Start Infrastructure Services
@@ -96,7 +96,7 @@ Create or update `appsettings.development.json` with the following configuration
     "AuthToken": "your-twilio-auth-token",
     "FromNumber": "+1234567890"
   },
-  "SelahDbConnectionString": "Host=localhost;Port=55432;Database=postgres;User ID=postgres;Password=postgres",
+  "CortadoDbConnectionString": "Host=localhost;Port=55432;Database=postgres;User ID=postgres;Password=postgres",
   "RabbitMQSettings": {
     "Username": "guest",
     "Password": "guest",
@@ -112,7 +112,7 @@ Create or update `appsettings.development.json` with the following configuration
 #### Configuration Details
 
 - **ConnectionStrings.DefaultConnection**: PostgreSQL connection string for Entity Framework (if used)
-- **SelahDbConnectionString**: Primary database connection string used by the application
+- **CortadoDbConnectionString**: Primary database connection string used by the application
 - **AwsConfig**: AWS credentials for AWS services integration
 - **PlaidConfig**: Plaid API credentials for financial account connections
   - Use `https://sandbox.plaid.com` for development/testing
@@ -190,7 +190,7 @@ In development mode, you can access:
 Navigate to the Angular project:
 
 ```bash
-cd selah-angular
+cd cortado-angular
 ```
 
 Install dependencies:
@@ -210,7 +210,7 @@ The Angular application will be available at `http://localhost:4200/`.
 ## Project Structure
 
 ```
-Selah/
+Cortado/
 ├── core.api/              # .NET Core API solution
 │   ├── src/
 │   │   ├── Application/   # Application layer (services, validators)
@@ -220,8 +220,8 @@ Selah/
 │   └── test/              # Unit and integration tests
 ├── database/
 │   └── Migrations/        # Flyway database migrations
-├── selah-angular/         # Angular frontend application
-├── Selah.Aspire/          # .NET Aspire orchestration (if used)
+├── Cortado-angular/         # Angular frontend application
+├── Cortado.Aspire/          # .NET Aspire orchestration (if used)
 ├── scripts/               # Utility scripts
 └── compose.yaml           # Docker Compose configuration
 ```
