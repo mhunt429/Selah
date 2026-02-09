@@ -140,8 +140,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
             JsonSerializer.Deserialize<PlaidTransactionsSyncResponse>(messageBody));
     }
 
-    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(
-        string accessToken, List<string> accountIds)
+    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken)
     {
         Uri recurringTransactionsEndpoint = new Uri($"{httpClient.BaseAddress}transactions/recurring/get");
 
@@ -149,8 +148,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         {
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
-            AccessToken = accessToken,
-            AccountIds = accountIds
+            AccessToken = accessToken
         };
 
         HttpResponseMessage response = await httpClient.PostAsync(recurringTransactionsEndpoint, request);

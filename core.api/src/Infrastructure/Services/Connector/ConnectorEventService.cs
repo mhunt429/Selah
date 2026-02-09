@@ -10,7 +10,7 @@ namespace Infrastructure.Services.Connector;
 public class ConnectorEventService(IPlaidAccountBalanceImportService accountBalanceImportService, IUserMailboxRepository mailboxRepository,
     IAccountConnectorRepository connectorRepository, IPlaidTransactionImportService txImportService ): IConnectorEventService
 {
-    private static readonly ActivitySource ActivitySource = new("selah-webapi");
+    private static readonly ActivitySource ActivitySource = new("cortado-webapi");
     public async Task ProcessEventAsync(ConnectorDataSyncEvent @event)
     {
         using (var _ = ActivitySource.StartActivity(@event.EventType.ToString()))
@@ -33,7 +33,12 @@ public class ConnectorEventService(IPlaidAccountBalanceImportService accountBala
                 {
                     await txImportService.ImportTransactionsAsync(@event);
                     break;
-                } 
+                }
+                case EventType.RecurringTransactionImport:
+                {
+                    await txImportService.ImportRecurringTransactionsAsync(@event);
+                    break;
+                }
             }
         }
     }
@@ -50,11 +55,12 @@ public class ConnectorEventService(IPlaidAccountBalanceImportService accountBala
         {
             var entityToSave = new UserMailboxEntity
             {
+                UserId =  connectorRecord.UserId,   
                 AppLastChangedBy = -1,
                 MessageKey = $"InstitutionAuthRequired",
                 MessageBody = @$"Your {connectorRecord.InstitutionName} connection requires you to re-authenticate. 
-                    You can reconnect Selah to ${connectorRecord.InstitutionName} 
-                    through this link <a>https://localhost:4200/connector/${connectorRecord.Id}/update</a>.",
+                    You can reconnect Cortado to ${connectorRecord.InstitutionName} 
+                    through this link <a>https://localhost:4200/connector/{connectorRecord.Id}/update</a>.",
                 ActionType = "Error"
             };
 

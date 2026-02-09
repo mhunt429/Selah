@@ -26,7 +26,7 @@ public class TestFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("IntegrationTests");
         builder.ConfigureServices(services =>
         {
-            services.AddSingleton<IDbConnectionFactory>(provider => new SelahDbConnectionFactory("User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres"));
+            services.AddSingleton<IDbConnectionFactory>(provider => new CortadoDbConnectionFactory("User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres"));
 
             services.AddSingleton(new AwsConfig
             {
@@ -75,8 +75,8 @@ public class TestFactory : WebApplicationFactory<Program>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = "selah-api",
-                    ValidAudience = "selah-api",
+                    ValidIssuer = "cortado-api",
+                    ValidAudience = "cortado-api",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(testJwtSecret)),
                     ValidateIssuer = true,
                     ValidateAudience = true,

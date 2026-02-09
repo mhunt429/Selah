@@ -4,7 +4,7 @@ public static class Constants
 {
     public const string Localhost = "http://localhost:5173";
 
-    public const string Production = "https://selah.fi";
+    public const string Production = "https://Cortado.fi";
     
     public const string PublicEndpointPolicy = "PublicEndpointPolicy";
 

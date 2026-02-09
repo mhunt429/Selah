@@ -1,5 +1,5 @@
 ﻿services:
-  selah-db:
+  cortado-db:
     image: postgres:14.1-alpine
     restart: always
     environment:
@@ -10,7 +10,7 @@
       - "55432:5432"
     volumes:
       - db:/var/lib/postgresql/data
-  selah-db_test:
+  cortado-db_test:
     image: postgres:14.1-alpine
     restart: always
     environment:

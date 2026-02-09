@@ -35,14 +35,14 @@ public class Program
 
         builder.Services.AddSingleton<IDbConnectionFactory>(provider =>
         {
-            var connectionString = configuration.GetValue<string>("SelahDbConnectionString");
+            var connectionString = configuration.GetValue<string>("CortadoDbConnectionString");
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new ApplicationException("No connection string configured.");
             }
 
-            return new SelahDbConnectionFactory(connectionString);
+            return new CortadoDbConnectionFactory(connectionString);
         });
 
 
@@ -69,7 +69,7 @@ public class Program
             .WithTracing(tracing =>
             {
                 tracing
-                    .AddSource("selah-webapi")
+                    .AddSource("Cortado-webapi")
                     .AddAspNetCoreInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddHttpClientInstrumentation()
@@ -81,7 +81,7 @@ public class Program
                     .AddOtlpExporter()
                     .AddMeter("Microsoft.AspNetCore.Hosting",
                         "Microsoft.AspNetCore.Server.Kestrel",
-                        "selah-webapi")
+                        "Cortado-webapi")
                     .AddView("request-duration",
                         new ExplicitBucketHistogramConfiguration
                         {
@@ -130,8 +130,8 @@ public class Program
             if (jwtSecret != null)
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = "selah-api",
-                    ValidAudience = "selah-api",
+                    ValidIssuer = "cortado-api",
+                    ValidAudience = "cortado-api",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
@@ -149,7 +149,7 @@ public class Program
             app.MapOpenApi();
 
             app.UseSwaggerUI(options =>
-                options.SwaggerEndpoint("/openapi/v1.json", "Selah.AppHost.WebAPI")
+                options.SwaggerEndpoint("/openapi/v1.json", "Cortado.AppHost.WebAPI")
             );
             app.UseReDoc(options => { options.SpecUrl = "/openapi/v1.json"; });
 

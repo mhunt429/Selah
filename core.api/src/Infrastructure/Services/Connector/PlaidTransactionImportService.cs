@@ -106,6 +106,12 @@ public class PlaidTransactionImportService(
         );
     }
 
+    public async Task ImportRecurringTransactionsAsync(ConnectorDataSyncEvent syncEvent)
+    {
+        var accessToken = cryptoService.Decrypt(syncEvent.AccessToken);
+        var recurringTransactionResponse = await plaidHttpService.GetRecurringTransactions(accessToken);
+    }
+
     private async Task AddNewTransactionsAsync(IReadOnlyCollection<PlaidTransaction> transactions, int userId,
         IReadOnlyCollection<FinancialAccountEntity> financialAccounts)
     {

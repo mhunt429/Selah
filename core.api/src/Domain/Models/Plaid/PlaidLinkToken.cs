@@ -25,7 +25,7 @@ public class PlainLinkTokenRequest
     [JsonPropertyName("transactions")]
     public required LinkTokenTransactions Transactions { get; set; }
 
-    [JsonPropertyName("client_name")] public string ClientName { get; set; } = "Selah";
+    [JsonPropertyName("client_name")] public string ClientName { get; set; } = "Cortado";
 
     [JsonPropertyName("user")] public required PlaidUser User { get; set; }
 }

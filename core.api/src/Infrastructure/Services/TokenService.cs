@@ -28,8 +28,8 @@ public class TokenService(SecurityConfig securityConfig, TokenRepository tokenRe
                 new Claim("sub", userId.ToString()),
             }),
             Expires = accessTokenExpiration,
-            Issuer = "selah-api",
-            Audience = "selah-api",
+            Issuer = "cortado-api",
+            Audience = "cortado-api",
             SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
         };

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "selah-angular": {
+    "Cortado-angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -47,7 +47,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "ngsw-config.json"
             },
             "development": {
               "optimization": false,
@@ -61,10 +62,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "selah-angular:build:production"
+              "buildTarget": "Cortado-angular:build:production"
             },
             "development": {
-              "buildTarget": "selah-angular:build:development"
+              "buildTarget": "Cortado-angular:build:development"
             }
           },
           "defaultConfiguration": "development",

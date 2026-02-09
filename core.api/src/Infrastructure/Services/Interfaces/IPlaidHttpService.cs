@@ -11,9 +11,9 @@ public interface IPlaidHttpService
 
     Task<ApiResponseResult<PlaidBalanceApiResponse>> GeAccountBalance(string accessToken);
 
-    Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int count = 50);
+    Task<ApiResponseResult<PlaidTransactionsSyncResponse>> SyncTransactions(string accessToken, string? cursor = null, int count = 250);
 
-    Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken, List<string> accountIds);
+    Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken);
 
     Task<ApiResponseResult<PlaidWebhookVerificationResponse>> ValidateWebhook(string keyId);
 }

@@ -9,11 +9,11 @@ namespace Infrastructure
     }
 
     
-    public class SelahDbConnectionFactory : IDbConnectionFactory
+    public class CortadoDbConnectionFactory : IDbConnectionFactory
     {
         private readonly string _connectionString;
 
-        public SelahDbConnectionFactory(string connectionString)
+        public CortadoDbConnectionFactory(string connectionString)
         {
             _connectionString = connectionString;
         }

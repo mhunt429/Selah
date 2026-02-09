@@ -13,7 +13,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   providers: [HttpClientService, AuthService],
 })
 export class App {
-  protected readonly title = signal('Selah.fi');
+  protected readonly title = signal('Cortado.fi');
 
   // Inject ThemeService to ensure it's initialized early (constructor runs immediately)
   // Since ThemeService is providedIn: 'root', we don't need to add it to providers

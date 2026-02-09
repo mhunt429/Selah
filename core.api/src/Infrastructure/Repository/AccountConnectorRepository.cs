@@ -49,6 +49,7 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
         return await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.RequiresReauthentication, true)
+                .SetProperty(x => x.DisconnectedTs, DateTimeOffset.UtcNow)
             );
     }
 

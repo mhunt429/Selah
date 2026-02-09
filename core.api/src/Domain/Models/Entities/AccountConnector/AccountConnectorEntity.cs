@@ -29,4 +29,6 @@ public class AccountConnectorEntity : BaseAuditFields
     [Column("last_sync_date")] public DateTimeOffset LastSyncDate { get; set; }
 
     [Column("next_sync_date")] public DateTimeOffset NextSyncDate { get; set; }
+    
+    [Column("disconnected_ts")] public DateTimeOffset? DisconnectedTs { get; set; }
 }

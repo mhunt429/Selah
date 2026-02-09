@@ -60,7 +60,7 @@ public class RegistrationService
 
     /*
      * Since this is on account creation, there obviously isn't a user id set thus breaking
-     * the FK constraint on the app_user table. The ID -1 is a placeholder for the selah-api default user
+     * the FK constraint on the app_user table. The ID -1 is a placeholder for the cortado-api default user
      */
 
     private ApplicationUserEntity MapRequestToUser(AccountRegistrationRequest request)

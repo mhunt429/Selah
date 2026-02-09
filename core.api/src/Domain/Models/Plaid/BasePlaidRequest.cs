@@ -9,7 +9,5 @@ public class BasePlaidRequest
     [JsonPropertyName("secret")] public required string Secret { get; set; }
 
     [JsonPropertyName("access_token")] public string? AccessToken { get; set; }
-
-    [JsonPropertyName("account_ids")] public List<string>? AccountIds { get; set; } = null;
 }
 

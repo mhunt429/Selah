@@ -12,11 +12,11 @@ public static class DatabaseExtensions
         IConfiguration configuration, IWebHostEnvironment environment)
     {
         var connectionString = environment.EnvironmentName != "IntegrationTests"
-            ? configuration.GetValue<string>("SelahDbConnectionString")
+            ? configuration.GetValue<string>("CortadoDbConnectionString")
             : "User ID=postgres;Password=postgres;Host=localhost;Port=65432;Database=postgres";
 
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException("SelahDbConnectionString is missing");
+            throw new InvalidOperationException("CortadoDbConnectionString is missing");
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));

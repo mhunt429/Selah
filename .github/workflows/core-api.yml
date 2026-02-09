@@ -140,8 +140,8 @@ jobs:
       # - name: "Build, tag, and push image to Amazon ECR"
       #   env:
       #    ECR_REGISTRY: "${{ steps.login-ecr.outputs.registry }}"
-      #    ECR_REPOSITORY: selah-api-production
-      #    IMAGE_TAG: selah_api_latest
+      #    ECR_REPOSITORY: cortado-api-production
+      #    IMAGE_TAG: Cortado_api_latest
       #  run: |
       #    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
       #    docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Selah.Aspire", "Selah.Aspire.csproj", "{D483465A-E0EA-4638-B078-743C9DCC55C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortado.Aspire", "Cortado.Aspire.csproj", "{D483465A-E0EA-4638-B078-743C9DCC55C0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "..\core.api\src\Application\Application.csproj", "{4B6FE360-76E4-469D-9385-E022BD7D6D39}"
 EndProject
