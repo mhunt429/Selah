@@ -19,23 +19,24 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase // optional, Plaid API expects camelCase
     };
+    
+    //TODO add a new link for investment accounts
 
-    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, bool updateMode = false,
-        bool initialLink = true)
+    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, string? accessToken = null)
     {
         var linkTokenRequest = new PlainLinkTokenRequest
         {
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
             User = new PlaidUser { UserId = userId.ToString() },
-            Products = initialLink
-                ? new List<string>() { "auth", "transactions" }
-                : new List<string>() { "investments" },
+            Products =      new List<string>() { "auth", "transactions" },
             Transactions = new LinkTokenTransactions
             {
                 DaysRequested = plaidConfig.MaxDaysRequested
             },
             Webhook = !string.IsNullOrEmpty(plaidConfig.WebhookUrl) ? plaidConfig.WebhookUrl : null,
+            
+            AccessToken = accessToken
         };
 
         Uri linkTokenEndpoint = new Uri($"{httpClient.BaseAddress}link/token/create");

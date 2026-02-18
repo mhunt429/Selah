@@ -28,6 +28,8 @@ public class PlainLinkTokenRequest
     [JsonPropertyName("client_name")] public string ClientName { get; set; } = "Cortado";
 
     [JsonPropertyName("user")] public required PlaidUser User { get; set; }
+    
+    [JsonPropertyName("access_token")] public string? AccessToken { get; set; }
 }
 
 public class PlaidUser

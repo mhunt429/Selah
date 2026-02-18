@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Cortado-angular": {
+    "cortado-angular": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -62,10 +62,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Cortado-angular:build:production"
+              "buildTarget": "cortado-angular:build:production"
             },
             "development": {
-              "buildTarget": "Cortado-angular:build:development"
+              "buildTarget": "cortado-angular:build:development"
             }
           },
           "defaultConfiguration": "development",

@@ -53,4 +53,16 @@ public class ConnectorController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("update/{id}")]
+    public async Task<IActionResult> UpdateConnection(int id)
+    {
+        var requestContext = Request.GetAppRequestContext();
+        var userId = requestContext.UserId;
+        var result = await _connectorService.GetLinkToken(userId, connectorId: id, forUpdate: true);
+
+        if (result.status != ResultStatus.Success) return BadRequest();
+
+        return Ok(result.data.ToBaseHttpResponse(HttpStatusCode.OK));
+    }
 }

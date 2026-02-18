@@ -44,7 +44,7 @@ public class ConnectorServiceTests
             new PlaidLinkToken { LinkToken = "test-link-token" });
 
         _mockPlaidHttpService
-            .Setup(x => x.GetLinkToken(It.IsAny<int>(), It.IsAny<bool>()))
+            .Setup(x => x.GetLinkToken(It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(expectedResponse);
 
         // Act
@@ -52,7 +52,45 @@ public class ConnectorServiceTests
 
         // Assert
         Assert.Equal(expectedResponse, result);
-        _mockPlaidHttpService.Verify(x => x.GetLinkToken(It.IsAny<int>(), It.IsAny<bool>()), Times.Once);
+        _mockPlaidHttpService.Verify(x => x.GetLinkToken(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetLinkToken_ShouldRequestAccessTokenForUpdateMode()
+    {
+        var userId = 123;
+        _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new AccountConnectorEntity
+            {
+                InstitutionId = "123",
+                InstitutionName = "Jane Street",
+                DateConnected = DateTimeOffset.Now,
+                EncryptedAccessToken = new byte[]
+                {
+                },
+                TransactionSyncCursor = "abc123",
+                AppLastChangedBy = 1,
+                Id = 1
+            });
+
+        _mockCryptoService.Setup(x => x.Decrypt(It.IsAny<byte[]>())).Returns("my token");
+
+        await _service.GetLinkToken(userId, connectorId: 1, forUpdate: true);
+
+        _mockPlaidHttpService.Verify(x => x.GetLinkToken(123, "my token"), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetLinkToken_DoesNotSendAccessTokenWithNullConnector()
+    {     var userId = 123;
+        _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync((AccountConnectorEntity?) null);
+        
+        
+        await _service.GetLinkToken(userId, connectorId: 1, forUpdate: true);
+        
+        _mockCryptoService.Verify(x => x.Decrypt(It.IsAny<byte[]>()), Times.Never);
+        _mockPlaidHttpService.Verify(x => x.GetLinkToken(123, null), Times.Once);
     }
 
     [Fact]
@@ -170,4 +208,3 @@ public class ConnectorServiceTests
             Times.Never);
     }
 }
-

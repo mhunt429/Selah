@@ -14,10 +14,22 @@ public class ConnectorService(
     ICryptoService cryptoService,
     ChannelWriter<ConnectorDataSyncEvent> publisher)
 {
-
-    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId)
+    public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, int? connectorId = null,
+        bool forUpdate = false)
     {
-        return await plaidHttpService.GetLinkToken(userId);
+        string? accessToken = null;
+
+        if (forUpdate && connectorId != null)
+        {
+            var connectorRecord =
+                await accountConnectorRepository.GetConnectorRecordByIdAndUser(userId, connectorId.Value);
+            if (connectorRecord != null)
+            {
+                accessToken = cryptoService.Decrypt(connectorRecord.EncryptedAccessToken);
+            }
+        }
+
+        return await plaidHttpService.GetLinkToken(userId, accessToken);
     }
 
     public async Task ExchangeToken(TokenExchangeHttpRequest request)
@@ -28,7 +40,7 @@ public class ConnectorService(
 
         if (plaidTokenExchangeResponse.status == ResultStatus.Failed || plaidTokenExchangeResponse.data == null)
             return;
-        
+
         var dataToSave = new AccountConnectorEntity
         {
             AppLastChangedBy = request.UserId,
