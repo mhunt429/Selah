@@ -147,12 +147,6 @@ public class Program
         {
             IdentityModelEventSource.ShowPII = true;
             app.MapOpenApi();
-
-            app.UseSwaggerUI(options =>
-                options.SwaggerEndpoint("/openapi/v1.json", "Cortado.AppHost.WebAPI")
-            );
-            app.UseReDoc(options => { options.SpecUrl = "/openapi/v1.json"; });
-
             app.MapScalarApiReference();
         }
 
