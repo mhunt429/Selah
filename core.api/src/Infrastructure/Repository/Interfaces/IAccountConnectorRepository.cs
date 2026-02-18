@@ -29,13 +29,22 @@ public interface IAccountConnectorRepository
 
     Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 
-    
+
     Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id);
 
-   
+
     Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId);
-    
+
     Task<AccountConnectorEntity?> GetConnectorRecordByExternalId(string externalId);
 
     Task UpdateAccountSyncTimes(int id, int userId, DateTimeOffset nextSyncDate);
+
+    /// <summary>
+    /// When a user re-authenticates, we want to remove the lock on the connector record
+    /// so that we can begin importing data again
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<bool> RemoveConnectionSyncLock(int id, int userId);
 }

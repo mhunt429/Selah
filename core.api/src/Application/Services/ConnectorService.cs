@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using Domain.ApiContracts.Connector;
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
@@ -66,5 +67,15 @@ public class ConnectorService(
         };
 
         await publisher.WriteAsync(syncEvent);
+    }
+
+    public async Task<bool> UpdateConnection(ConnectionRefreshResult result, int userId)
+    {
+        if (result.Success)
+        {
+            return await accountConnectorRepository.RemoveConnectionSyncLock(result.Id, userId);
+        }
+
+        return false;
     }
 }

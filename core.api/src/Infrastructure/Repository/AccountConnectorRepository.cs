@@ -62,10 +62,22 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
 
     public async Task UpdateAccountSyncTimes(int id, int userId, DateTimeOffset nextSyncDate)
     {
-      await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
+        await dbContext.AccountConnectors.Where(x => x.Id == id && x.UserId == userId)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(x => x.LastSyncDate, DateTimeOffset.UtcNow)
                 .SetProperty(x => x.NextSyncDate, nextSyncDate)
             );
+    }
+
+    public async Task<bool> RemoveConnectionSyncLock(int id, int userId)
+    {
+        int rows = await dbContext.AccountConnectors
+            .Where(x => x.Id == id && x.UserId == userId && x.DisconnectedTs != null)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.DisconnectedTs, (DateTimeOffset?) null)
+                .SetProperty(x => x.RequiresReauthentication, false)
+            );
+        
+        return rows > 0;
     }
 }

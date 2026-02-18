@@ -1,5 +1,6 @@
 using System.Net;
 using Application.Services;
+using Domain.ApiContracts.Connector;
 using Domain.Constants;
 using Domain.Models;
 using Domain.Models.Plaid;
@@ -64,5 +65,21 @@ public class ConnectorController : ControllerBase
         if (result.status != ResultStatus.Success) return BadRequest();
 
         return Ok(result.data.ToBaseHttpResponse(HttpStatusCode.OK));
+    }
+
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateConnection([FromBody] ConnectionRefreshResult result)
+    {
+        var requestContext = Request.GetAppRequestContext();
+        var userId = requestContext.UserId;
+
+        bool success = await _connectorService.UpdateConnection(result, userId);
+
+        if (success)
+        {
+            return NoContent();
+        }
+
+        return BadRequest($"Unable to update connection for connectorId {result.Id}");
     }
 }
