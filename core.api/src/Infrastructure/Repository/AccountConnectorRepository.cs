@@ -18,7 +18,8 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
 
     public async Task<IEnumerable<AccountConnectorEntity>> GetAccountConnectorRecordsByUserId(int userId)
     {
-        return await dbContext.AccountConnectors.Where(x => x.UserId == userId).ToListAsync();
+        return await dbContext.AccountConnectors.AsNoTracking().Where(x => x.UserId == userId)
+            .ToListAsync();
     }
 
 
@@ -32,14 +33,15 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
 
     public async Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport()
     {
-        return await dbContext.AccountConnectors.Where(x =>
+        return await dbContext.AccountConnectors.AsNoTracking()
+            .Where(x =>
             DateTimeOffset.UtcNow > x.NextSyncDate && !x.RequiresReauthentication
         ).ToListAsync();
     }
 
     public async Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id)
     {
-        return await dbContext.AccountConnectors
+        return await dbContext.AccountConnectors.AsNoTracking()
             .Where(x => x.Id == id && x.UserId == userId)
             .FirstOrDefaultAsync();
     }

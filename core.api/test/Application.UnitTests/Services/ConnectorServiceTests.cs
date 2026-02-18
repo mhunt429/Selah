@@ -3,6 +3,8 @@ using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
 using Domain.Models.Plaid;
 using Application.Services;
+using AwesomeAssertions;
+using Domain.ApiContracts.Connector;
 using Domain.Events;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
@@ -82,13 +84,14 @@ public class ConnectorServiceTests
 
     [Fact]
     public async Task GetLinkToken_DoesNotSendAccessTokenWithNullConnector()
-    {     var userId = 123;
+    {
+        var userId = 123;
         _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync((AccountConnectorEntity?) null);
-        
-        
+            .ReturnsAsync((AccountConnectorEntity?)null);
+
+
         await _service.GetLinkToken(userId, connectorId: 1, forUpdate: true);
-        
+
         _mockCryptoService.Verify(x => x.Decrypt(It.IsAny<byte[]>()), Times.Never);
         _mockPlaidHttpService.Verify(x => x.GetLinkToken(123, null), Times.Once);
     }
@@ -206,5 +209,36 @@ public class ConnectorServiceTests
         _mockAccountConnectorRepository.Verify(
             x => x.InsertAccountConnectorRecord(It.IsAny<AccountConnectorEntity>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task Service_UpdateConnection_ShouldClearWhenSuccessful()
+    {
+        var result = new ConnectionRefreshResult
+        {
+            Id = 1, Success = true
+        };
+
+        _mockAccountConnectorRepository.Setup(x => x.RemoveConnectionSyncLock(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(true);
+
+        var response = await _service.UpdateConnection(result, 1);
+        response.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task Service_UpdateConnection_ReturnsFalseWhenFailed(bool success, bool dbResult)
+    {
+        var result = new ConnectionRefreshResult
+        {
+            Id = 1, Success = success
+        };
+
+        _mockAccountConnectorRepository.Setup(x => x.RemoveConnectionSyncLock(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(dbResult);
+        var response = await _service.UpdateConnection(result, 1);
+        response.Should().BeFalse();
     }
 }
