@@ -7,6 +7,8 @@ import { RegisterComponent } from './features/identity/register/register.compone
 import { ConnectorComponent } from './features/connector/connector.component';
 import { MainLayoutComponent } from './shared/components/main-layout/main-layout.component';
 import { authGuard } from './shared/guards/auth-guard';
+import { MessagesListComponent } from './features/messages/messages-list/messages-list.component';
+import { MessageDetailComponent } from './features/messages/message-detail/message-detail.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +31,8 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
       },
+      { path: 'messages', component: MessagesListComponent },
+      { path: 'messages/:id', component: MessageDetailComponent },
       { path: 'connector', component: ConnectorComponent },
     ],
   },

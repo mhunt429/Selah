@@ -16,6 +16,7 @@ import {
   Bell,
   ChevronDown,
   Repeat,
+  Mail,
   LUCIDE_ICONS,
   LucideIconProvider,
   LucideAngularModule,
@@ -63,6 +64,7 @@ interface DropdownItem {
         Bell,
         ChevronDown,
         Repeat,
+        Mail,
       }),
     },
   ],
@@ -144,7 +146,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private updateCurrentPageFromRoute() {
     const currentRoute = this.router.url.split('?')[0];
     const routeParts = currentRoute.split('/').filter((part) => part);
-    const page = routeParts[routeParts.length - 1] || 'dashboard';
+    // Keep 'messages' active when viewing message list or message detail
+    const page =
+      routeParts[0] === 'messages' ? 'messages' : routeParts[routeParts.length - 1] || 'dashboard';
     this.currentPage.set(page);
 
     // Close dropdowns when route changes
@@ -177,8 +181,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   handleNotificationsClick() {
-    // Mock: clear notifications
-    this.unreadNotifications.set(0);
+    this.router.navigate(['/messages']);
   }
 
   handleLogout() {
