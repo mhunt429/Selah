@@ -19,7 +19,7 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase // optional, Plaid API expects camelCase
     };
-    
+
     //TODO add a new link for investment accounts
 
     public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, string? accessToken = null)
@@ -29,13 +29,13 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
             ClientId = plaidConfig.ClientId,
             Secret = plaidConfig.ClientSecret,
             User = new PlaidUser { UserId = userId.ToString() },
-            Products =      new List<string>() { "auth", "transactions" },
+            Products = new List<string>() { "auth", "transactions" },
             Transactions = new LinkTokenTransactions
             {
                 DaysRequested = plaidConfig.MaxDaysRequested
             },
             Webhook = !string.IsNullOrEmpty(plaidConfig.WebhookUrl) ? plaidConfig.WebhookUrl : null,
-            
+
             AccessToken = accessToken
         };
 
@@ -141,7 +141,8 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
             JsonSerializer.Deserialize<PlaidTransactionsSyncResponse>(messageBody));
     }
 
-    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken)
+    public async Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(
+        string accessToken)
     {
         Uri recurringTransactionsEndpoint = new Uri($"{httpClient.BaseAddress}transactions/recurring/get");
 
@@ -193,5 +194,22 @@ public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, IL
 
         return new ApiResponseResult<PlaidWebhookVerificationResponse>(ResultStatus.Success, messageBody,
             JsonSerializer.Deserialize<PlaidWebhookVerificationResponse>(messageBody));
+    }
+
+    public async Task<ApiResponseResult<GetItemResponse>> GetItem(BasePlaidRequest request)
+    {
+        Uri endpoint = new Uri($"{httpClient.BaseAddress}item/get");
+        HttpResponseMessage response = await httpClient.PostAsync(endpoint, request);
+        var messageBody = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogError(
+                "Get Item Request failed with status {statusCode} and error {error}",
+                response.StatusCode, messageBody);
+            return new ApiResponseResult<GetItemResponse>(ResultStatus.Failed, messageBody, null);
+        }
+
+        return new ApiResponseResult<GetItemResponse>(ResultStatus.Success, messageBody,
+            JsonSerializer.Deserialize<GetItemResponse>(messageBody));
     }
 }

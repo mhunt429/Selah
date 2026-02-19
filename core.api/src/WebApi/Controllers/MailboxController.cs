@@ -19,7 +19,7 @@ namespace WebApi.Controllers;
 public class MailboxController(UserMailboxService mailboxService) : ControllerBase
 {
     [HttpGet("messages")]
-    public async Task<IActionResult> GetMessages()
+    public async Task<IActionResult> GetMessagesQuery()
     {
         var appRequestContext = Request.GetAppRequestContext();
         IEnumerable<MailboxResponse> result = await mailboxService.GetMessagesByUserId(appRequestContext.UserId);
@@ -28,17 +28,17 @@ public class MailboxController(UserMailboxService mailboxService) : ControllerBa
 
 
     [HttpGet("messages/{id}")]
-    public async Task<IActionResult> GetMessageById(int id)
+    public async Task<IActionResult> GetMessageByIdQuery(int id)
     {
         var appRequestContext = Request.GetAppRequestContext();
 
-        MailboxResponse? result = await mailboxService.GetMessagesByIdAndUserId(id, appRequestContext.UserId);
+        MailboxResponse? result = await mailboxService.GetMessagesByIdAndUser(id, appRequestContext.UserId);
 
         return Ok(result.ToBaseHttpResponse(HttpStatusCode.OK));
     }
 
     [HttpDelete("messages/{id}")]
-    public async Task<IActionResult> DeleteMessage(int id)
+    public async Task<IActionResult> DeleteMessageCommand(int id)
     {
         var appRequestContext = Request.GetAppRequestContext();
 
@@ -48,7 +48,7 @@ public class MailboxController(UserMailboxService mailboxService) : ControllerBa
     }
 
     [HttpDelete("messages")]
-    public async Task<IActionResult> DeleteMessages()
+    public async Task<IActionResult> DeleteMessagesCommand()
     {
         var appRequestContext = Request.GetAppRequestContext();
 
@@ -57,7 +57,7 @@ public class MailboxController(UserMailboxService mailboxService) : ControllerBa
     }
 
     [HttpPut("messages/{id}")]
-    public async Task<IActionResult> MarkAsRead([FromBody] MailboxUpdateRequest request, int id)
+    public async Task<IActionResult> MarkAsReadCommand([FromBody] MailboxUpdateRequest request, int id)
     {
         var appRequestContext = Request.GetAppRequestContext();
 

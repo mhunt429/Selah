@@ -39,7 +39,7 @@ public class AccountConnectorRepository(AppDbContext dbContext) : IAccountConnec
         ).ToListAsync();
     }
 
-    public async Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id)
+    public async Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int id, int userId)
     {
         return await dbContext.AccountConnectors.AsNoTracking()
             .Where(x => x.Id == id && x.UserId == userId)

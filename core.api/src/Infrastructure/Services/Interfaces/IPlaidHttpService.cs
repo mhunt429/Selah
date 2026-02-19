@@ -5,6 +5,7 @@ namespace Infrastructure.Services.Interfaces;
 
 public interface IPlaidHttpService
 {
+    
     Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, string? accessToken = null);
 
     Task<ApiResponseResult<PlaidTokenExchangeResponse>> ExchangePublicToken(int userId, string publicToken);
@@ -16,4 +17,6 @@ public interface IPlaidHttpService
     Task<ApiResponseResult<PlaidRecurringTransactionsResponse>> GetRecurringTransactions(string accessToken);
 
     Task<ApiResponseResult<PlaidWebhookVerificationResponse>> ValidateWebhook(string keyId);
+
+    Task<ApiResponseResult<GetItemResponse>> GetItem(BasePlaidRequest request);
 }

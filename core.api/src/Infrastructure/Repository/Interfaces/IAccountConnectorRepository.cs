@@ -30,7 +30,7 @@ public interface IAccountConnectorRepository
     Task<IEnumerable<AccountConnectorEntity>> GetConnectorRecordsToImport();
 
 
-    Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int userId, int id);
+    Task<AccountConnectorEntity?> GetConnectorRecordByIdAndUser(int id, int userId);
 
 
     Task<int> LockRecordWhenAuthenticationIsRequired(int id, int userId);

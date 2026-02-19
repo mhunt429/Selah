@@ -6,7 +6,7 @@ public interface IUserMailboxRepository
 {
     Task<IEnumerable<UserMailboxEntity>> GetMessagesByUserId(int userId);
 
-    Task<UserMailboxEntity?> GetMessagesByIdAndUserId(int id, int userId);
+    Task<UserMailboxEntity?> GetMessagesByIdAndUser(int id, int userId);
 
     Task InsertMessage(UserMailboxEntity mailbox);
 

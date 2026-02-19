@@ -17,7 +17,7 @@ namespace WebApi.Controllers;
 public class BankingController(BankingService bankingService) : ControllerBase
 {
     [HttpGet("accounts")]
-    public async Task<IActionResult> GetAccounts()
+    public async Task<IActionResult> GetAccountsQuery()
     {
         var appRequestContext = Request.GetAppRequestContext();
 

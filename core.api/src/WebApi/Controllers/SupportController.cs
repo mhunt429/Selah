@@ -18,7 +18,7 @@ namespace WebApi.Controllers;
 public class SupportController(SupportService supportService) : ControllerBase
 {
     [HttpGet("decrypted-connector-keys")]
-    public async Task<IActionResult> GetDecryptedConnectorKeys()
+    public async Task<IActionResult> GetDecryptedConnectorKeysQuery()
     {
         AppRequestContext requestContext = Request.GetAppRequestContext();
         var keys = await supportService.GetDecryptedConnectorKeys(requestContext!.UserId);

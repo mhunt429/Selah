@@ -17,7 +17,7 @@ namespace WebApi.Controllers
     public class AccountController(RegistrationService registrationService) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] AccountRegistrationRequest request)
+        public async Task<IActionResult> RegisterCommand([FromBody] AccountRegistrationRequest request)
         {
             ApiResponseResult<AccessTokenResponse> result = await registrationService.RegisterAccount(request);
 

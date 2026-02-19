@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Domain.ApiContracts.Connector;
+using Domain.Configuration;
 using Domain.Events;
 using Domain.Models;
 using Domain.Models.Entities.AccountConnector;
@@ -13,7 +14,8 @@ public class ConnectorService(
     IPlaidHttpService plaidHttpService,
     IAccountConnectorRepository accountConnectorRepository,
     ICryptoService cryptoService,
-    ChannelWriter<ConnectorDataSyncEvent> publisher)
+    ChannelWriter<ConnectorDataSyncEvent> publisher,
+    PlaidConfig plaidConfig)
 {
     public async Task<ApiResponseResult<PlaidLinkToken>> GetLinkToken(int userId, int? connectorId = null,
         bool forUpdate = false)
@@ -23,7 +25,7 @@ public class ConnectorService(
         if (forUpdate && connectorId != null)
         {
             var connectorRecord =
-                await accountConnectorRepository.GetConnectorRecordByIdAndUser(userId, connectorId.Value);
+                await accountConnectorRepository.GetConnectorRecordByIdAndUser(connectorId.Value, userId);
             if (connectorRecord != null)
             {
                 accessToken = cryptoService.Decrypt(connectorRecord.EncryptedAccessToken);
@@ -69,13 +71,29 @@ public class ConnectorService(
         await publisher.WriteAsync(syncEvent);
     }
 
-    public async Task<bool> UpdateConnection(ConnectionRefreshResult result, int userId)
+    public async Task<bool> UpdateConnection(int id, int userId)
     {
-        if (result.Success)
+        AccountConnectorEntity? connectorRecord = await accountConnectorRepository.GetConnectorRecordByIdAndUser(id, userId);
+        if (connectorRecord == null)
         {
-            return await accountConnectorRepository.RemoveConnectionSyncLock(result.Id, userId);
+            return false;
         }
 
-        return false;
+        string accessToken = cryptoService.Decrypt(connectorRecord.EncryptedAccessToken);
+
+        var request = new BasePlaidRequest
+        {
+            ClientId = plaidConfig.ClientId,
+            Secret = plaidConfig.ClientSecret,
+            AccessToken = accessToken,
+        };
+
+        var itemResult = await plaidHttpService.GetItem(request);
+
+        if (itemResult.status == ResultStatus.Failed || itemResult.data == null) return false;
+
+        if (itemResult.data.Item.Error != null) return false;
+
+        return await accountConnectorRepository.RemoveConnectionSyncLock(id, userId);
     }
 }

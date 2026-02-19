@@ -5,10 +5,12 @@ using Domain.Models.Plaid;
 using Application.Services;
 using AwesomeAssertions;
 using Domain.ApiContracts.Connector;
+using Domain.Configuration;
 using Domain.Events;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.Services.Interfaces;
 using Moq;
+using NetTopologySuite.Mathematics;
 using Xunit;
 
 namespace Application.UnitTests.Services;
@@ -28,11 +30,21 @@ public class ConnectorServiceTests
         _mockCryptoService = new Mock<ICryptoService>();
         _publisher = new Mock<ChannelWriter<ConnectorDataSyncEvent>>();
 
+        var plaidConfig = new PlaidConfig
+        {
+            ClientId = "ABC123",
+            ClientSecret = "ABC123",
+            BaseUrl = "https://localhost:5001",
+            MaxDaysRequested = 0
+        };
+
+
         _service = new ConnectorService(
             _mockPlaidHttpService.Object,
             _mockAccountConnectorRepository.Object,
             _mockCryptoService.Object,
-            _publisher.Object);
+            _publisher.Object,
+            plaidConfig);
     }
 
     [Fact]
@@ -212,33 +224,99 @@ public class ConnectorServiceTests
     }
 
     [Fact]
-    public async Task Service_UpdateConnection_ShouldClearWhenSuccessful()
+    public async Task UpdateConnection_ShouldReturnFalseWhenConnectorRecordDoesNotExist()
     {
-        var result = new ConnectionRefreshResult
-        {
-            Id = 1, Success = true
-        };
-
-        _mockAccountConnectorRepository.Setup(x => x.RemoveConnectionSyncLock(It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(true);
-
-        var response = await _service.UpdateConnection(result, 1);
-        response.Should().BeTrue();
+        _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync((AccountConnectorEntity?)null);
+        var result = await _service.UpdateConnection(1, 1);
+        result.Should().BeFalse();
     }
 
     [Theory]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    public async Task Service_UpdateConnection_ReturnsFalseWhenFailed(bool success, bool dbResult)
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, true)]
+    public async Task UpdateConnection_ShouldReturnFalseWhenPlaidReturnsFailureOrSuccessWithErrorMessage(
+        bool returnsFailure, bool returnsError, bool returnsNoData)
     {
-        var result = new ConnectionRefreshResult
+        _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new AccountConnectorEntity
+            {
+                InstitutionId = "123",
+                InstitutionName = "Test Bank",
+                DateConnected = default,
+                EncryptedAccessToken = new byte[]
+                {
+                },
+                TransactionSyncCursor = null,
+                AppLastChangedBy = 0
+            });
+        _mockCryptoService.Setup(x => x.Decrypt(It.IsAny<byte[]>()))
+            .Returns("secret");
+
+        if (returnsFailure)
         {
-            Id = 1, Success = success
-        };
+            _mockPlaidHttpService.Setup(x => x.GetItem(It.IsAny<BasePlaidRequest>()))
+                .ReturnsAsync(new ApiResponseResult<GetItemResponse>(ResultStatus.Failed, null, null));
+        }
+
+        if (returnsNoData)
+        {
+            _mockPlaidHttpService.Setup(x => x.GetItem(It.IsAny<BasePlaidRequest>()))
+                .ReturnsAsync(new ApiResponseResult<GetItemResponse>(ResultStatus.Success, null, null));
+        }
+
+        if (returnsError)
+        {
+            _mockPlaidHttpService.Setup(x => x.GetItem(It.IsAny<BasePlaidRequest>()))
+                .ReturnsAsync(new ApiResponseResult<GetItemResponse>(ResultStatus.Success, null, new GetItemResponse
+                {
+                    Item = new Item
+                    {
+                        Error = new PlaidApiErrorResponse
+                        {
+                            ErrorMessage = "Bad Things Happened"
+                        }
+                    }
+                }));
+        }
+
+        var result = await _service.UpdateConnection(1, 1);
+        result.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task UpdateConnection_ShouldReturnDatabaseReturnValue(bool retVal)
+    {
+        _mockAccountConnectorRepository.Setup(x => x.GetConnectorRecordByIdAndUser(It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new AccountConnectorEntity
+            {
+                InstitutionId = "123",
+                InstitutionName = "Test Bank",
+                DateConnected = default,
+                EncryptedAccessToken = new byte[]
+                {
+                },
+                TransactionSyncCursor = null,
+                AppLastChangedBy = 0
+            });
+        _mockCryptoService.Setup(x => x.Decrypt(It.IsAny<byte[]>()))
+            .Returns("secret");
+
+        _mockPlaidHttpService.Setup(x => x.GetItem(It.IsAny<BasePlaidRequest>()))
+            .ReturnsAsync(new ApiResponseResult<GetItemResponse>(ResultStatus.Success, null, new GetItemResponse
+            {
+                Item = new Item
+                {
+                    Error = null
+                }
+            }));
 
         _mockAccountConnectorRepository.Setup(x => x.RemoveConnectionSyncLock(It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(dbResult);
-        var response = await _service.UpdateConnection(result, 1);
-        response.Should().BeFalse();
+            .ReturnsAsync(retVal);
+        var result = await _service.UpdateConnection(1, 1);
+        result.Should().Be(retVal);
     }
 }

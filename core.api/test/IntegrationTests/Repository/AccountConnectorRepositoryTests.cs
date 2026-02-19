@@ -63,7 +63,7 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
     public async Task GetConnectorRecordByIdAndUser_ShouldReturnRecord()
     {
         var connectionSync =
-            await _accountConnectorRepository.GetConnectorRecordByIdAndUser(_userId, _connectorId);
+            await _accountConnectorRepository.GetConnectorRecordByIdAndUser(_connectorId, _userId);
         connectionSync.Should().NotBeNull();
         connectionSync.UserId.Should().Be(_userId);
         connectionSync.Id.Should().BeGreaterThan(0);
@@ -84,8 +84,8 @@ public class AccountConnectorRepositoryTests(DatabaseFixture fixture) : IAsyncLi
         cleared.Should().BeTrue();
 
         var queryResult =
-            await _accountConnectorRepository.GetConnectorRecordByIdAndUser(_disconnectedRecord.UserId,
-                _disconnectedRecord!.Id);
+            await _accountConnectorRepository.GetConnectorRecordByIdAndUser(_disconnectedRecord!.Id,
+                _disconnectedRecord.UserId);
         queryResult.Should().NotBeNull();
         queryResult.DisconnectedTs.Should().BeNull();
         queryResult.RequiresReauthentication.Should().BeFalse();

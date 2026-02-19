@@ -42,7 +42,7 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
             .ToListAsync();
     }
 
-    public async Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id)
+    public async Task<FinancialAccountEntity?> GetAccountByIdAndUser(int id, int userId)
     {
         return await dbContext.FinancialAccounts
             .AsNoTracking()

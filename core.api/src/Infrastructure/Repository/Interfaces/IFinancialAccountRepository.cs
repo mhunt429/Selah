@@ -10,7 +10,7 @@ public interface IFinancialAccountRepository
 
     Task<IReadOnlyCollection<FinancialAccountEntity>> GetAccountsAsync(int userId);
 
-    Task<FinancialAccountEntity?> GetAccountByIdAsync(int userId, int id);
+    Task<FinancialAccountEntity?> GetAccountByIdAndUser(int id, int userId);
 
     Task<bool> UpdateAccount(FinancialAccountEntity account);
 

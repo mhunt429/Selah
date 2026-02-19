@@ -13,7 +13,7 @@ public class UserMailboxRepository(AppDbContext dbContext) : IUserMailboxReposit
             .ToListAsync();
     }
 
-    public async Task<UserMailboxEntity?> GetMessagesByIdAndUserId(int id, int userId)
+    public async Task<UserMailboxEntity?> GetMessagesByIdAndUser(int id, int userId)
     {
         return await dbContext.UserMailboxes
             .Where(x => x.Id == id && x.UserId == userId)

@@ -161,7 +161,7 @@ public class FinancialAccountRepositoryTests : IAsyncLifetime
 
 
         await _financialAccountRepository.UpdateAccount(account);
-        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAsync(_userId, newAccount.Id);
+        FinancialAccountEntity? result = await _financialAccountRepository.GetAccountByIdAndUser(newAccount.Id, _userId);
         result.Should().NotBeNull();
         result.CurrentBalance.Should().Be(1000);
     }

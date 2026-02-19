@@ -24,7 +24,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
     [Authorize]
     [EnableRateLimiting(Constants.UserTokenPolicy)]
     [HttpGet("current-user")]
-    public async Task<IActionResult> GetCurrentUser()
+    public async Task<IActionResult> GetCurrentUserQuery()
     {
         AppRequestContext? requestContext = Request.GetAppRequestContext();
 
@@ -42,7 +42,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
     [AllowAnonymous]
     [HttpPost("login")]
     [EnableRateLimiting(Constants.PublicEndpointPolicy)]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> LoginCommand([FromBody] LoginRequest request)
     {
         LoginResult result = await identityService.Login(request);
 
@@ -74,7 +74,7 @@ public class IdentityController(IdentityService identityService, AppUserService 
     [AllowAnonymous]
     [HttpPost("refresh-token")]
     [EnableRateLimiting(Constants.PublicEndpointPolicy)]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> RefreshTokenCommand([FromBody] RefreshTokenRequest request)
     {
         LoginResult result = await identityService.RefreshAccessToken(request);
         if (result is {Status: LoginStatus.Failed}) return Unauthorized();

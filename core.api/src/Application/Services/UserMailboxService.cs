@@ -20,9 +20,9 @@ public class UserMailboxService(IUserMailboxRepository userMailboxRepository)
         });
     }
 
-    public async Task<MailboxResponse?> GetMessagesByIdAndUserId(int id, int userId)
+    public async Task<MailboxResponse?> GetMessagesByIdAndUser(int id, int userId)
     {
-        var dbMessage = await userMailboxRepository.GetMessagesByIdAndUserId(id, userId);
+        var dbMessage = await userMailboxRepository.GetMessagesByIdAndUser(id, userId);
 
         if (dbMessage == null) return null;
 

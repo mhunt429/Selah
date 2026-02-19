@@ -16,7 +16,7 @@ public class WebhooksController(ChannelWriter<PlaidWebhookEvent> publisher) : Co
 {
     [HttpPost("plaid")]
    // [TypeFilter(typeof(PlaidWebhookVerificationActionFilter))]
-    public async Task<IActionResult> ProcessPlaidWebhook([FromBody] PlaidWebhookRequest request)
+    public async Task<IActionResult> ProcessPlaidWebhookCommand([FromBody] PlaidWebhookRequest request)
     {
         PlaidWebhookType webhookType;
         if (Enum.TryParse(request.WebhookCode, true, out webhookType))

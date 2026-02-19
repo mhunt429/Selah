@@ -27,7 +27,7 @@ public class ConnectorController : ControllerBase
     }
 
     [HttpGet("link")]
-    public async Task<IActionResult> GetLinkToken()
+    public async Task<IActionResult> GetLinkTokenQuery()
     {
         // The ValidAppRequestContextFilter handles the case where request context is null
         var requestContext = Request.GetAppRequestContext();
@@ -42,7 +42,7 @@ public class ConnectorController : ControllerBase
 
 
     [HttpPost("exchange")]
-    public async Task<IActionResult> ExchangeToken([FromBody] TokenExchangeHttpRequest request)
+    public async Task<IActionResult> ExchangeTokenCommand([FromBody] TokenExchangeHttpRequest request)
     {
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
@@ -56,7 +56,7 @@ public class ConnectorController : ControllerBase
     }
 
     [HttpGet("update/{id}")]
-    public async Task<IActionResult> UpdateConnection(int id)
+    public async Task<IActionResult> UpdateConnectionQuery(int id)
     {
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
@@ -68,18 +68,18 @@ public class ConnectorController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
-    public async Task<IActionResult> UpdateConnection([FromBody] ConnectionRefreshResult result)
+    public async Task<IActionResult> UpdateConnectionCommand(int id)
     {
         var requestContext = Request.GetAppRequestContext();
         var userId = requestContext.UserId;
 
-        bool success = await _connectorService.UpdateConnection(result, userId);
+        bool success = await _connectorService.UpdateConnection(id, userId);
 
         if (success)
         {
             return NoContent();
         }
 
-        return BadRequest($"Unable to update connection for connectorId {result.Id}");
+        return BadRequest($"Unable to update connection for connectorId {id}");
     }
 }

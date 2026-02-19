@@ -50,7 +50,7 @@ public class ConnectorEventService(IPlaidAccountBalanceImportService accountBala
     /// <param name="event"></param>
     private async Task HandleReauthNotification(ConnectorDataSyncEvent @event)
     {
-        var connectorRecord = await connectorRepository.GetConnectorRecordByIdAndUser(@event.UserId, @event.ConnectorId);
+        var connectorRecord = await connectorRepository.GetConnectorRecordByIdAndUser(@event.ConnectorId, @event.UserId);
         if (connectorRecord != null)
         {
             var entityToSave = new UserMailboxEntity
