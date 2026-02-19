@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Infrastructure.Services.Interfaces;
 
 public interface ICryptoService
@@ -12,4 +14,5 @@ public interface ICryptoService
 
     string HashValue(string plainText);
 
+    string GenerateJwt(IEnumerable<Claim> claims, DateTime? expires = null);
 }

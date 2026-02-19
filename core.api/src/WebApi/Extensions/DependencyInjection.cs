@@ -9,6 +9,7 @@ using Infrastructure.Services.Interfaces;
 
 namespace WebApi.Extensions;
 
+[ExcludeFromCodeCoverage(Justification = "Not really necessary since this just handles the startup DI")]
 public static class DependencyInjection
 {
     public static void AddDependencies(this IServiceCollection services, IConfiguration configuration,

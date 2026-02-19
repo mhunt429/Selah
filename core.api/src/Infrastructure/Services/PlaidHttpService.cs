@@ -10,7 +10,9 @@ using Infrastructure.Extensions;
 using Infrastructure.Services.Interfaces;
 
 namespace Infrastructure.Services;
-
+[ExcludeFromCodeCoverage(Justification = @"This class really just takes a response from Plaid and returns a ApiResponseResult<T>
+based on the status of the response. Kind of trivial to test and also a pain to mock all the http message handler for 
+EACH endpoint. Service that depend on this class have the right mocks setup to actually test the business logic")]
 public class PlaidHttpService(HttpClient httpClient, PlaidConfig plaidConfig, ILogger<PlaidHttpService> logger)
     : IPlaidHttpService
 {

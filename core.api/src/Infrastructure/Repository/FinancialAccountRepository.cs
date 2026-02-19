@@ -49,18 +49,6 @@ public class FinancialAccountRepository(AppDbContext dbContext) : IFinancialAcco
             .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
     }
 
-    public async Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(
-        int userId,
-        int accountId)
-    {
-        return await dbContext.AccountBalanceHistory
-            .AsNoTracking()
-            .Where(h => h.UserId == userId && h.FinancialAccountId == accountId)
-            .OrderByDescending(h => h.CreatedAt)
-            .ToListAsync();
-    }
-
-
     public async Task<bool> UpdateAccount(FinancialAccountEntity account)
     {
         var rows = await dbContext.FinancialAccounts

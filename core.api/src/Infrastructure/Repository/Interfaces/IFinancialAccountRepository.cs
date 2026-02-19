@@ -19,8 +19,6 @@ public interface IFinancialAccountRepository
 
     Task InsertBalanceHistory(AccountBalanceHistoryEntity history);
 
-    Task<IEnumerable<AccountBalanceHistoryEntity>> GetBalanceHistory(int userId, int accountId);
-
     Task<IReadOnlyCollection<FinancialAccountEntity?>> GetAccountsAsync(int userId, int connectorId);
     
 }

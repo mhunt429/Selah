@@ -36,7 +36,7 @@ public static class HttpRequestExtensions
 
     private static int GetUserIdFromToken(string token)
     {
-        int userId = -1;
+        int userId;
         try
         {
             var handler = new JwtSecurityTokenHandler();

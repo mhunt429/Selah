@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Domain.ApiContracts.Banking;
 
 namespace Domain.Models.Entities.FinancialAccount;
 
@@ -28,4 +29,19 @@ public class FinancialAccountEntity : BaseAuditFields
 
 
     [Column("last_api_sync_time")] public DateTimeOffset LastApiSyncTime { get; set; }
+    
+    public FinancialAccountDto ToDto()
+    {
+        return new FinancialAccountDto
+        {
+            Id = Id,
+            CurrentBalance = CurrentBalance,
+            AccountMask =AccountMask,
+            DisplayName = DisplayName,
+            OfficialName = OfficialName,
+            Subtype = Subtype,
+            LastApiSyncTime = LastApiSyncTime
+        };
+    }
+    
 }

@@ -1,7 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Domain.Configuration;
 using Infrastructure.Services.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Services;
 
@@ -86,5 +89,27 @@ public class CryptoService(
 
             return hashString.ToString();
         }
+    }
+
+    public string GenerateJwt(IEnumerable<Claim> claims, DateTime? expires = null)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        byte[] key = Encoding.UTF8.GetBytes(securityConfig.JwtSecret);
+
+        DateTime accessTokenExpiration = DateTime.UtcNow.AddMinutes(securityConfig.AccessTokenExpiryMinutes);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = accessTokenExpiration,
+            Issuer = "cortado-api",
+            Audience = "cortado-api",
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
+        };
+
+        SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
     }
 }

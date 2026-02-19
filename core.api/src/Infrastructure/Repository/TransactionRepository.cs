@@ -115,12 +115,4 @@ public class TransactionRepository(AppDbContext dbContext) : ITransactionReposit
         await dbContext.Transactions.AddRangeAsync(transactions);
         await dbContext.SaveChangesAsync();
     }
-
-    public async Task<decimal> GetExpenseTransactionTotals(int userId, DateTimeOffset start, DateTimeOffset end)
-    {
-        return await dbContext.Transactions
-            .AsNoTracking()
-            .Where(x => x.UserId == userId && x.TransactionDate >= start && x.TransactionDate <= end)
-            .SumAsync(x => x.Amount);
-    }
 }

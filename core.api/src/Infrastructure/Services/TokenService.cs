@@ -16,27 +16,13 @@ public class TokenService(SecurityConfig securityConfig, TokenRepository tokenRe
 {
     public async Task<AccessTokenResponse> GenerateAccessToken(int userId, bool rememberMe = false)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        byte[] key = Encoding.UTF8.GetBytes(securityConfig.JwtSecret);
 
         DateTime accessTokenExpiration = DateTime.UtcNow.AddMinutes(securityConfig.AccessTokenExpiryMinutes);
+        
+        var claims = new List<Claim>(){new(JwtRegisteredClaimNames.Sub, userId.ToString())};
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim("sub", userId.ToString()),
-            }),
-            Expires = accessTokenExpiration,
-            Issuer = "cortado-api",
-            Audience = "cortado-api",
-            SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-        };
+        string accessToken = cryptoService.GenerateJwt(claims, accessTokenExpiration);
 
-        SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
-
-        string accessToken = tokenHandler.WriteToken(token);
         string refreshToken = Guid.NewGuid().ToString();
 
         var sessionId = Guid.NewGuid();

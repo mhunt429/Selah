@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Domain.Configuration;
 
 namespace WebApi.Extensions;
 
 
+[ExcludeFromCodeCoverage(Justification = "Not really necessary since this just handles the startup DI")]
 public static class ConfigurationExtensions
 {
     public static void AddConfiguration(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
